@@ -38,19 +38,25 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
+
+		// Create all sensors
 		heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
 		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
-	}
 
-	@Override
-	public void onCreate() { // TODO create these in the activate method??
+		// Subscribe to all sensors
 		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, accelerometerSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, temperatureSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
+
+	}
+
+	@Override
+	public void onCreate() {
+		// TODO create these in the activate method??
 
 	}
 
@@ -176,6 +182,11 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		}
 	}
 
+	/**
+	 * 
+	 * @param sensorEvent
+	 * @return true if predictions exist for the given event
+	 */
 	private boolean eventHasPredictions(SensorEvent sensorEvent) {
 
 		// Retrieve the count of predictions for this sensor event
@@ -185,6 +196,11 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		return predictionCount > 0;
 	}
 
+	/**
+	 * 
+	 * @param sensorEvent
+	 * @return true if the sensorEvent is not in the repository
+	 */
 	private boolean isNewEvent(SensorEvent sensorEvent) {
 
 		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());

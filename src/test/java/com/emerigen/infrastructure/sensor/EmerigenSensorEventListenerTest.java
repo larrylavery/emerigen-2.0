@@ -34,35 +34,13 @@ public class EmerigenSensorEventListenerTest {
 	public void gvenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		Sensor hrSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-		Sensor tempSensor = sensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
-
 		SensorEventListener listener = new EmerigenSensorEventListener();
 
-		sensorManager.registerListenerForSensorWithFrequency(listener, accSensor,
-				Sensor.DELAY_NORMAL);
-
-		sensorManager.registerListenerForSensorWithFrequency(listener, hrSensor,
-				Sensor.DELAY_NORMAL);
-
-		sensorManager.registerListenerForSensorWithFrequency(listener, tempSensor,
-				Sensor.DELAY_NORMAL);
-
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, accSensor)).isTrue();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, hrSensor)).isTrue();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, tempSensor)).isTrue();
-
 		listener.onPause();
-
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, accSensor)).isFalse();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, hrSensor)).isFalse();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, tempSensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensors(listener)).isFalse();
 
 		listener.onResume();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, accSensor)).isTrue();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, hrSensor)).isTrue();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, tempSensor)).isTrue();
+		assertThat(sensorManager.listenerIsRegisteredToSensors(listener)).isTrue();
 
 	}
 

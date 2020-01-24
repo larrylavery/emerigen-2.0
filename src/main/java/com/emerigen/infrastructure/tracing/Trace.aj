@@ -8,6 +8,7 @@ package com.emerigen.infrastructure.tracing;
 
 
 
+
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
@@ -30,8 +31,6 @@ import com.emerigen.infrastructure.utils.ScheduledMethodAspect;
 import com.emerigen.infrastructure.utils.LeakyBucket;
 import com.emerigen.infrastructure.sensor.AccelerometerSensor;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
-import com.emerigen.infrastructure.sensor.HeartRateSensorEventListener;
-import com.emerigen.infrastructure.sensor.AccelerometerSenorEventListener;
 import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
@@ -47,6 +46,7 @@ aspect Trace extends AbstractTrace {
 	pointcut ignoredClassesAndMethods():
 		within(Trace) 
 		|| execution(* Object.*(..)) 
+		|| execution(* *Test.*(..))
 		|| within(AbstractTrace); 
 		
 	pointcut environmentClasses(): 

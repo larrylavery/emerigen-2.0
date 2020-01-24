@@ -9,7 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class SensorEventListenerTest {
@@ -58,7 +57,7 @@ public class SensorEventListenerTest {
 		 */
 		// Given
 		// Remove all sensor related records prior to test or get false results
-		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
+//		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
 //		CouchbaseRepository.getInstance().removeAllDocuments("transition");
 
 		SensorManager sensorManager = SensorManager.getInstance();
@@ -91,7 +90,7 @@ public class SensorEventListenerTest {
 		SensorManager sensorManager = SensorManager.getInstance();
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-		SensorEventListener listener = new AccelerometerSenorEventListener();
+		SensorEventListener listener = new EmerigenSensorEventListener();
 
 		// Create a 2nd event that surpasses the shake threshold
 		float[] values = { 10.1f, 20.2f, 30.3f };
@@ -122,12 +121,11 @@ public class SensorEventListenerTest {
 		SensorManager sensorManager = SensorManager.getInstance();
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-		SensorEventListener listener = new AccelerometerSenorEventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		SensorEventListener listener = new EmerigenSensorEventListener();
 
 		listener.onPause();
 
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensors(listener)).isFalse();
 	}
 
 	@Test
@@ -136,7 +134,7 @@ public class SensorEventListenerTest {
 		SensorManager sensorManager = SensorManager.getInstance();
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-		SensorEventListener listener = new AccelerometerSenorEventListener();
+		SensorEventListener listener = new EmerigenSensorEventListener();
 		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
 
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
