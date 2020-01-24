@@ -71,8 +71,7 @@ public class SensorEvent {
 	}
 
 	public String getKey() {
-		return "" + sensor.getType() + sensor.getLocation() + getValuesHashCode()
-				+ values.toString();
+		return "" + sensor.getType() + sensor.getLocation() + getTimestamp();
 	}
 
 	public float[] getValues() {

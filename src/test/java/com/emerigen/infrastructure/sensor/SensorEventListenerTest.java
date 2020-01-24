@@ -52,12 +52,14 @@ public class SensorEventListenerTest {
 	}
 
 	@Test
-	public void givenTenHeartRateSensorReadings_whenFedIntoOnSensorChanged_thenTenPatternsLogged()
+	public void givenTenHeartRateSensorReadings_whenFedIntoOnSensorChanged_thenTenSensorEventsLogged()
 			throws Exception {
+		/**
+		 * ensure
+		 */
 		// Given
 		// Remove all sensor related records prior to test or get false results
 		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
-//		CouchbaseRepository.getInstance().removeAllDocuments("prediction");
 //		CouchbaseRepository.getInstance().removeAllDocuments("transition");
 
 		SensorManager sensorManager = SensorManager.getInstance();
