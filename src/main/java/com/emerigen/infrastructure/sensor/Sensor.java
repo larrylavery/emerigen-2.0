@@ -47,38 +47,51 @@ public class Sensor {
 
 	public static final int DELAY_NORMAL = 1;
 
-	private static int minimumDelayBetweenReadings = Integer.parseInt(
-			EmerigenProperties.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private int minimumDelayBetweenReadings = Integer.parseInt(EmerigenProperties.getInstance()
+			.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	private int reportingMode;
-	private boolean isWakUpSensor;
+	private boolean wakeUpSensor;
 	private boolean activated = false;
-	private int sensorType;
-	private int sensorLocation;
+	private int type;
+	private int location;
+	private String locationName;
+	private String typeName;
 
-	public Sensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelayBetweenReadings,
-			boolean isWakeUpSensor) {
+	public Sensor() {
+
+	}
+
+	public Sensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelayBetweenReadings, boolean isWakeUpSensor) {
 		if (sensorType <= 0)
-			throw new IllegalArgumentException("sensorType must be positive");
+			throw new IllegalArgumentException("type must be positive");
 		if (sensorLocation <= 0)
-			throw new IllegalArgumentException("sensorLocation must be positive");
-		if ((reportingMode != REPORTING_MODE_CONTINUOUS) && (reportingMode != REPORTING_MODE_ON_CHANGE))
-			throw new IllegalArgumentException("Reporting mode (" + reportingMode + ") is not valid");
+			throw new IllegalArgumentException("location must be positive");
+		if ((reportingMode != REPORTING_MODE_CONTINUOUS)
+				&& (reportingMode != REPORTING_MODE_ON_CHANGE))
+			throw new IllegalArgumentException(
+					"Reporting mode (" + reportingMode + ") is not valid");
 		if (minimumDelayBetweenReadings < 0)
 			throw new IllegalArgumentException("MinimumDelayBetweenReadings must not be negative");
 
-		this.sensorType = sensorType;
-		this.sensorLocation = sensorLocation;
+		this.type = sensorType;
+		this.locationName = this.getLocationName();
+		this.typeName = this.getTypeName();
+		this.location = sensorLocation;
 		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
 		this.reportingMode = reportingMode;
-		this.isWakUpSensor = isWakeUpSensor;
+		this.wakeUpSensor = isWakeUpSensor;
 
 		// Enable this sensor to start producing events
 		activate();
 	}
 
 	public Sensor(int sensorType, int sensorLocation, int reportingMode, boolean isWakeUpSensor) {
-		this(sensorType, sensorLocation, reportingMode, minimumDelayBetweenReadings, isWakeUpSensor);
+		this(sensorType, sensorLocation, reportingMode,
+				Integer.parseInt(EmerigenProperties.getInstance()
+						.getValue("sensor.default.minimum.delay.between.readings.millis")),
+				isWakeUpSensor);
 	}
 
 	public int getReportingMode() {
@@ -113,8 +126,8 @@ public class Sensor {
 	/**
 	 * @return the isWakUpSensor
 	 */
-	public boolean isWakUpSensor() {
-		return isWakUpSensor;
+	public boolean isWakeUpSensor() {
+		return wakeUpSensor;
 	}
 
 	@Override
@@ -122,10 +135,10 @@ public class Sensor {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (activated ? 1231 : 1237);
-		result = prime * result + (isWakUpSensor ? 1231 : 1237);
+		result = prime * result + (wakeUpSensor ? 1231 : 1237);
 		result = prime * result + reportingMode;
-		result = prime * result + sensorLocation;
-		result = prime * result + sensorType;
+		result = prime * result + location;
+		result = prime * result + type;
 		return result;
 	}
 
@@ -140,23 +153,23 @@ public class Sensor {
 		Sensor other = (Sensor) obj;
 		if (activated != other.activated)
 			return false;
-		if (isWakUpSensor != other.isWakUpSensor)
+		if (wakeUpSensor != other.wakeUpSensor)
 			return false;
 		if (reportingMode != other.reportingMode)
 			return false;
-		if (sensorLocation != other.sensorLocation)
+		if (location != other.location)
 			return false;
-		if (sensorType != other.sensorType)
+		if (type != other.type)
 			return false;
 		return true;
 	}
 
 	public int getType() {
-		return sensorType;
+		return type;
 	}
 
 	public int getLocation() {
-		return sensorLocation;
+		return location;
 	}
 
 	/**
@@ -166,16 +179,9 @@ public class Sensor {
 		return minimumDelayBetweenReadings;
 	}
 
-	/**
-	 * @return the sensorType
-	 */
-	public int getSensorType() {
-		return sensorType;
-	}
-
 	public String getTypeName() {
 
-		switch (sensorType) {
+		switch (type) {
 		case TYPE_ACCELEROMETER:
 			return "Accelerometer";
 
@@ -193,7 +199,7 @@ public class Sensor {
 
 	public String getLocationName() {
 
-		switch (sensorLocation) {
+		switch (location) {
 		case LOCATION_BODY:
 			return "Body";
 
@@ -213,7 +219,7 @@ public class Sensor {
 
 	@Override
 	public String toString() {
-		return "Sensor [reportingMode=" + reportingMode + ", isWakUpSensor=" + isWakUpSensor + ", activated="
-				+ activated + ", sensorType=" + sensorType + ", sensorLocation=" + sensorLocation + "]";
+		return "Sensor [reportingMode=" + reportingMode + ", isWakUpSensor=" + wakeUpSensor
+				+ ", activated=" + activated + ", type=" + type + ", location=" + location + "]";
 	}
 }

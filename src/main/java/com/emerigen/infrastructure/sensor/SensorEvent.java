@@ -41,6 +41,7 @@ public class SensorEvent {
 
 	private int sensorType = 0;
 	private int sensorLocation = 0;
+	private String key = null;
 
 	/**
 	 * In nanoseconds
@@ -84,9 +85,9 @@ public class SensorEvent {
 
 	@Override
 	public String toString() {
-		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType
-				+ ", sensorLocation=" + sensorLocation + ", timestamp=" + timestamp
-				+ ", values=" + Arrays.toString(values) + "]";
+		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType + ", sensorLocation="
+				+ sensorLocation + ", timestamp=" + timestamp + ", values="
+				+ Arrays.toString(values) + "]";
 	}
 
 	/**

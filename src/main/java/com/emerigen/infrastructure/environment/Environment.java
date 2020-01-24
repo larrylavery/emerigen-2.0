@@ -3,7 +3,9 @@ package com.emerigen.infrastructure.environment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+
 import org.apache.log4j.Logger;
+
 import com.emerigen.infrastructure.evaporation.InformationWithRelevanceHolder;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -12,18 +14,19 @@ public class Environment implements InformationWithRelevanceHolder {
 	EmerigenProperties props = EmerigenProperties.getInstance();
 	private static Environment instance;
 	private Neighborhood neighborhood;
-	static Logger logger = Logger.getLogger(Environment.class);
-	private final int SIZE = Integer.parseInt(EmerigenProperties.getInstance().getValue("environment.gridspace.size"));
+	private static Logger logger = Logger.getLogger(Environment.class);
+	private final int SIZE = Integer.parseInt(
+			EmerigenProperties.getInstance().getValue("environment.gridspace.size"));
 
 	public static Environment getInstance() {
 
-			if (instance == null) {
-				synchronized (Environment.class) {
-					if (instance == null) {
-						instance = new Environment();
-					}
+		if (instance == null) {
+			synchronized (Environment.class) {
+				if (instance == null) {
+					instance = new Environment();
 				}
 			}
+		}
 
 		// Return singleton
 		return instance;
@@ -31,7 +34,7 @@ public class Environment implements InformationWithRelevanceHolder {
 
 	public Environment() {
 
-			initializeData();
+		initializeData();
 	}
 
 	public void initializeData() {
@@ -39,7 +42,6 @@ public class Environment implements InformationWithRelevanceHolder {
 		// Initialize AgentSpace
 		this.neighborhood = new NeighborhoodImpl(SIZE);
 	}
-
 
 	/**
 	 * Creates the specified number of Objects and places them at random positions
@@ -71,7 +73,7 @@ public class Environment implements InformationWithRelevanceHolder {
 		neighborhood.moveAgentToLocation(agent, location);
 		return agent;
 	}
-	
+
 	public List<Agent> createAgentsOnRandomLocations(int numberToCreate) {
 		if (numberToCreate < 1)
 			throw new IllegalArgumentException("numberToCreate must be positive.");
@@ -87,8 +89,8 @@ public class Environment implements InformationWithRelevanceHolder {
 		return newAgents;
 	}
 
-
-	public List<Agent> getNeighbors(Agent agent, Function<Object, Object> sequencingFunction) {
+	public List<Agent> getNeighbors(Agent agent,
+			Function<Object, Object> sequencingFunction) {
 
 		if (agent == null)
 			throw new IllegalArgumentException("Agent must not be null.");
@@ -98,7 +100,6 @@ public class Environment implements InformationWithRelevanceHolder {
 		// TODO implement sequencing function when required
 		return neighborhood.getNeighborsOfAgent(agent);
 	}
-
 
 	public List<Agent> getNeighbors(Agent agent, int neighborCount) {
 

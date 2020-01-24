@@ -20,9 +20,8 @@ public class SensorEventListenerTest {
 	public static int eventListenerOnResume = 0;
 	public static int eventListenerOnAccuracyChanged = 0;
 
-	private final int minDelayBetweenReadingsMillis = Integer
-			.parseInt(EmerigenProperties.getInstance()
-					.getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
+			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	public class EventListener implements SensorEventListener {
 		@Override
@@ -66,16 +65,15 @@ public class SensorEventListenerTest {
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
 
 		// Create sensor mock with the sensor and listener that will receive events
-		SensorEventListener listener = new HeartRateSensorEventListener();
-		SensorMock sensorMock = new SensorMock(sensor, listener,
-				minDelayBetweenReadingsMillis, 0);
+		SensorEventListener listener = new HeartRateSensorEventListener(sensor.getLocation());
+		SensorMock sensorMock = new SensorMock(sensor, listener, minDelayBetweenReadingsMillis, 0);
 
 		// Read from previously built file and feed events to the listener
 		sensorMock.startGeneratingSensorEvents();
 
 		// Verify that 10 HeartRate patterns were logged for those sensor events
 		int patternCount = KnowledgeRepository.getInstance()
-				.getSensorEventCountForSensorTypeAndLocation(sensor.getSensorType(),
+				.getSensorEventCountForSensorTypeAndLocation(sensor.getType(),
 						sensor.getLocation());
 		assertThat(patternCount).isGreaterThan(9);
 	}
@@ -130,8 +128,7 @@ public class SensorEventListenerTest {
 		float[] valuesPastShakeThreshold = { 2000000.0f, 3000000.1f, 4000000.1F };
 		SensorEvent event2 = new SensorEvent(sensor, valuesPastShakeThreshold);
 
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
 
 		// assertThat(listener.onSensorChanged(event)).isEqualTo(true);
 		assertThat(listener.onSensorChanged(event)).isEqualTo(false);
@@ -155,13 +152,11 @@ public class SensorEventListenerTest {
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 		SensorEventListener listener = new AccelerometerSenorEventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
 
 		listener.onPause();
 
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
-				.isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
 	}
 
 	@Test
@@ -171,15 +166,13 @@ public class SensorEventListenerTest {
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 		SensorEventListener listener = new AccelerometerSenorEventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
 
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
 		listener.onPause();
 
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
-				.isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
 
 		listener.onResume();
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();

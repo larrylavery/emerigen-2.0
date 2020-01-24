@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,8 +22,10 @@ public class SensorMock {
 	private CSVReader reader;
 	private String[] line;
 
-	public SensorMock(Sensor sensor, SensorEventListener listener, int minimumDelayBetweenReadings,
-			int pauseResumeInterval) {
+	private static Logger logger = Logger.getLogger(SensorMock.class);
+
+	public SensorMock(Sensor sensor, SensorEventListener listener,
+			int minimumDelayBetweenReadings, int pauseResumeInterval) {
 		this.sensor = sensor;
 		this.listener = listener;
 		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
@@ -36,14 +39,16 @@ public class SensorMock {
 	public void prepareSensorEventStream(Sensor sensor) {
 
 		// filename pattern: "/Phone-HeartRate-sensor-events.csv"
-		String sensorEventFile = sensor.getLocationName() + "-" + sensor.getTypeName() + "-" + "sensor-events.csv";
+		String sensorEventFile = sensor.getLocationName() + "-" + sensor.getTypeName()
+				+ "-" + "sensor-events.csv";
 		try {
 			reader = new CSVReader(new FileReader(sensorEventFile));
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Unable to initialize sensor event stream with filename (" + sensorEventFile
-					+ "), ex: " + e + ". exiting.");
+			throw new RuntimeException(
+					"Unable to initialize sensor event stream with filename ("
+							+ sensorEventFile + "), ex: " + e + ". exiting.");
 		}
 	}
 
@@ -51,7 +56,7 @@ public class SensorMock {
 
 		SensorEvent newSensorEvent = getNextSensorEvent();
 		while (newSensorEvent != null) {
-			System.out.println("newSensorEvent: " + newSensorEvent);
+			logger.info("newSensorEvent: " + newSensorEvent);
 
 			// Push event to my sensor
 			listener.onSensorChanged(newSensorEvent);
@@ -68,7 +73,7 @@ public class SensorMock {
 			newSensorEvent = getNextSensorEvent();
 		}
 		// End of sensor events
-		System.out.println("End of sensor events");
+		logger.info("End of sensor events");
 
 	}
 
@@ -93,10 +98,11 @@ public class SensorMock {
 
 				// Create the SensorEvent
 				sensorEvent = new SensorEvent(sensor, values);
-				System.out.println("getNextSensorEvent() - Next sensor event: " + sensorEvent);
+				logger.info("getNextSensorEvent() - Next sensor event: " + sensorEvent);
 				return sensorEvent;
 			}
-			System.out.println("getNextSensorEvent() - End of sensor events for Sensor : " + sensor);
+			logger.info(
+					"getNextSensorEvent() - End of sensor events for Sensor : " + sensor);
 			return sensorEvent;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -108,9 +114,8 @@ public class SensorMock {
 	public static void setUpBeforeClass() throws Exception {
 
 		// Remove all sensor related records prior to test or expect false results
-		CouchbaseRepository.getInstance().removeAllDocuments("pattern");
-		CouchbaseRepository.getInstance().removeAllDocuments("prediction");
-		CouchbaseRepository.getInstance().removeAllDocuments("transition");
+		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
+//		CouchbaseRepository.getInstance().removeAllDocuments("transition");
 	}
 
 	@AfterClass
