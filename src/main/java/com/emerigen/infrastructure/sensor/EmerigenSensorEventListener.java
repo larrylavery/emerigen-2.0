@@ -3,8 +3,12 @@
  */
 package com.emerigen.infrastructure.sensor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
@@ -21,24 +25,26 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 	private long currentTime;
 	private long lastUpdateTime;
+	private SensorEvent lastSensorEvent;
+	private List<SensorEvent> predictions = new ArrayList<SensorEvent>();
 	private float last_x, last_y, last_z;
-	private static final float SHAKE_THRESHOLD = Float
-			.parseFloat(EmerigenProperties.getInstance().getValue("sensor.accelerometer.shake.threshold.millis"));
+	private static final float SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties.getInstance()
+			.getValue("sensor.accelerometer.shake.threshold.millis"));
 
 	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListener.class);
 
-	private final int minDelayBetweenReadingsMillis = Integer.parseInt(
-			EmerigenProperties.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
+			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
-		heartRateSensor = (HeartRateSensor) sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-		accelerometerSensor = (AccelerometerSensor) sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		temperatureSensor = (TemperatureSensor) sensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
+		heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
 	}
 
 	@Override
-	public void onCreate() { //TODO create these in the activate method??
+	public void onCreate() { // TODO create these in the activate method??
 		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, accelerometerSensor,
@@ -61,8 +67,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		if (sensor.getClass().isInstance(accelerometerSensor)) {
 			return processAccelerometerChange(sensorEvent);
 		}
-		
-		//Not a sensor we are interested in
+
+		// Not a sensor we are interested in
 		return false;
 
 	}
@@ -74,7 +80,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		long elapseTime = currentTime - lastUpdateTime;
 		if (elapseTime > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapseTime
-					+ ") since the last sensor change has occurred. Processing event: " + sensorEvent);
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
 
 			// minimum delay elapse time has occurred, extract coordinates
 			float x = sensorEvent.getValues()[0];
@@ -100,23 +107,26 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				return false;
 			}
 		} else {
-			
-			//Minimum delay has not occurred
+
+			// Minimum delay has not occurred
 			return false;
 		}
 	}
 
 	private boolean processHeartRateChanged(SensorEvent sensorEvent) {
 
+		// Allways log the sensor event
+		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
+
 		// determine the elapse time since the last onChanged processed
 		currentTime = System.currentTimeMillis();
 		long elapseTime = currentTime - lastUpdateTime;
-
 		if (elapseTime > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapseTime
-					+ ") since the last sensor change has occurred. Processing event: " + sensorEvent);
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
 
-			// Capture the current heart rate
+			// Retrieve the current heart rate
 			int currentHeartRate = (int) sensorEvent.getValues()[0];
 
 			/**
@@ -129,13 +139,56 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			 * happen for most other sensors exception these may be more important for
 			 * certain types of individuals with heart disease or potential heart disease.
 			 */
-
+			processHeartRateEvent(sensorEvent);
 			lastUpdateTime = currentTime;
+			lastSensorEvent = sensorEvent;
 			return true;
 		} else {
-			// Minimum time lapse has not occurred, do nothing
+			// Minimum time lapse has not occurred, don't process event
 			return false;
 		}
+	}
+
+	private void processHeartRateEvent(SensorEvent sensorEvent) {
+
+		if (isNewEvent(sensorEvent)) {
+			logger.info("sensorEvent IS new");
+
+			// Create new Transition from previous event, unless no previous event
+			if (null != lastSensorEvent) {
+				logger.info("Creating new transition from sensorEvent: " + lastSensorEvent
+						+ ", to sensorEvent: " + sensorEvent);
+				KnowledgeRepository.getInstance().newTransition(lastSensorEvent, sensorEvent);
+			}
+
+			// Not predicting now
+			predictions = new ArrayList<SensorEvent>();
+
+		} else if (eventHasPredictions(sensorEvent) || predictions.contains(sensorEvent)) {
+			logger.info("sensorEvent has predictions");
+
+			// Save the current predictions
+			predictions = KnowledgeRepository.getInstance()
+					.getPredictionsForSensorEvent(sensorEvent);
+			logger.info("Predictions from current sensorEvent: " + predictions);
+
+			// TODO make predictions to whom??
+		}
+	}
+
+	private boolean eventHasPredictions(SensorEvent sensorEvent) {
+
+		// Retrieve the count of predictions for this sensor event
+		int predictionCount = KnowledgeRepository.getInstance()
+				.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
+						sensorEvent.getSensorLocation());
+		return predictionCount > 0;
+	}
+
+	private boolean isNewEvent(SensorEvent sensorEvent) {
+
+		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());
+		return null == event;
 	}
 
 	@Override
@@ -156,7 +209,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	public void onResume() {
 
 		// Restore registrations on resumption
-		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor,
+				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, accelerometerSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, temperatureSensor,

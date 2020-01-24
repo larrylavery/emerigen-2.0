@@ -65,7 +65,7 @@ public class SensorEventListenerTest {
 		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
 
 		// Create sensor mock with the sensor and listener that will receive events
-		SensorEventListener listener = new HeartRateSensorEventListener(sensor.getLocation());
+		SensorEventListener listener = new EmerigenSensorEventListener();
 		SensorMock sensorMock = new SensorMock(sensor, listener, minDelayBetweenReadingsMillis, 0);
 
 		// Read from previously built file and feed events to the listener
@@ -83,35 +83,6 @@ public class SensorEventListenerTest {
 			throws Exception {
 
 		// TODO test minimumDelayBewteenReadings during sensorMock testing
-//		SensorManager sensorManager = SensorManager.getInstance();
-//		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-//
-//		SensorEventListener listener = new HeartRateSensorEventListener();
-//		float[] values = { 10.1f, 20.2f, 30.3f };
-//		SensorEvent event1 = new SensorEvent(sensor, values);
-//		SensorEvent event2 = new SensorEvent(sensor, values);
-//		SensorEvent event3 = new SensorEvent(sensor, values);
-//		SensorEvent event4 = new SensorEvent(sensor, values);
-//		SensorEvent event5 = new SensorEvent(sensor, values);
-//		SensorEvent event6 = new SensorEvent(sensor, values);
-//		SensorEvent event7 = new SensorEvent(sensor, values);
-//		SensorEvent event8 = new SensorEvent(sensor, values);
-//		SensorEvent event9 = new SensorEvent(sensor, values);
-//		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-//				Sensor.DELAY_NORMAL);
-//
-//		assertThat(listener.onSensorChanged(event1)).isEqualTo(true);
-//		assertThat(listener.onSensorChanged(event2)).isEqualTo(false);
-//		assertThat(listener.onSensorChanged(event3)).isEqualTo(false);
-//		assertThat(listener.onSensorChanged(event4)).isEqualTo(false);
-//		assertThat(listener.onSensorChanged(event5)).isEqualTo(false);
-//
-//		Thread.sleep(2 * minDelayBetweenReadingsMillis);
-//		assertThat(listener.onSensorChanged(event6)).isEqualTo(true);
-//		assertThat(listener.onSensorChanged(event7)).isEqualTo(false);
-//		assertThat(listener.onSensorChanged(event8)).isEqualTo(false);
-//		assertThat(listener.onSensorChanged(event9)).isEqualTo(false);
-
 	}
 
 	@Test
