@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<aspectj>
+    <aspects>
+        <aspect name="com.emerigen.infrastructure.tracing.AccountAspect"/>
+        <weaver options="-verbose -showWeaveInfo">
+            <include within="com.emerigen.infrastructure.logger.*"/>
+        </weaver>
+    </aspects>
+</aspectj>

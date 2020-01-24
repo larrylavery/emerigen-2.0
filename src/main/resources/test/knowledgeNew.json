@@ -1,0 +1,121 @@
+{
+	"definitions": {
+		"pattern": {
+			"type" : "object",
+			"required": [
+				"sensory-pattern",
+				"pattern-id",
+				"entity-id",
+				"channel-id",
+				"timestamp"
+			],
+			"properties": {
+				"pattern-id": {
+					"description": "The unique identifier for the input pattern that was classified",
+					"type": "string"
+				},
+				"entity-id": {
+					"description": "The unique identifier for the Entity that produced this Pattern",
+					"type": "string"
+				},
+				"channel-id": {
+					"description": "The unique identifier for the channel, or sense, that the input pattern is associated with",
+					"type": "string"
+				},
+				"timestamp": {
+					"description": "The time this pattern was logged",
+					"type": "string"
+				},
+				"sensory-pattern": {
+					"description": "The input sensor attributes from an entity on a specific channel",
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		"prediction": {
+			"type" : "string",
+			"required": [
+				"transition-id",
+				"entity-id",
+				"timestamp",
+				"channel-id"
+			],
+			"properties": {
+				"transition-id": {
+					"description": "The unique identifier for this transition",
+					"type": "string"
+				},
+				"entity-id": {
+					"description": "The unique identifier for the Entity that this transition was learned on",
+					"type": "string"
+				},
+				"channel-id": {
+					"description": "The unique identifier for the channel, or sense, that the transition is associated with",
+					"type": "string"
+				},
+				"timestamp": {
+					"description": "The time this transition was logged",
+					"type": "string"
+				}
+			}
+		},
+		"transition": {
+			"type": "string",
+			"required": [
+				"transition-id",
+				"entity-id",
+				"channel-id",
+				"timestamp",
+				"transition"
+			],
+			"properties": {
+				"transition-id": {
+					"description": "The unique identifier for this transition",
+					"type": "string"
+				},
+				"entity-id": {
+					"description": "The unique identifier for the Entity that this transition was learned on",
+					"type": "string"
+				},
+				"channel-id": {
+					"description": "The unique identifier for the channel, or sense, that the transition is associated with",
+					"type": "string"
+				},
+				"timestamp": {
+					"description": "The time this transition was logged",
+					"type": "string"
+				},
+				"transition": {
+					"description": "The 1st and 2nd sensory patterns of this transition",
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": {
+						"firstPattern": {
+							"description": "The first pattern of the transition",
+							"pattern-id": {
+								"type": "string"
+							}
+						},
+						"predicted-pattern": {
+							"description": "The predicted pattern in this transition",
+							"predicted-pattern-id": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"oneof": [
+			{"$ref": "#/definitions/pattern"},
+			{"$ref": "#/definitions/prediction"},
+			{"$ref": "#/definitions/transition"}
+		]
+	}
+}
+

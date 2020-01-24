@@ -1,0 +1,25 @@
+{
+	"$schema" : "http://json-schema.org/draft-04/schema#",
+	"title" : "Prediction",
+	"description" : "A schema representing that a prediction was made by a pattern recognizer, on an entity",
+	"type" : "object",
+    "required": ["sensorType","timestamp", "values"],
+    "properties": {         
+		 "sensorType" : {
+		 	"description" : "The unique identifier for the channel type, or sense, that the input pattern is associated with",
+		 	"type": "number"
+		 },
+		 "timestamp" : {
+		 	"description" : "The time this pattern was logged",
+		 	"type" : "string"
+		 },
+		 "values" : {
+		 	"description" : "The sensor-specific measurements",
+		 	"type" : "array",
+		 	"minItems" : 1,
+		 	"items" : {
+		 		"type" : "number"
+	 		}
+		}
+	}
+}

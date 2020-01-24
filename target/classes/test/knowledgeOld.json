@@ -1,0 +1,68 @@
+{
+
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Pattern Recognizer Knowledge",
+	"description": "A schema representing all aspects of knowledge for a PatternRecognizer",
+	"type": "object",
+  
+    "definitions": {
+    
+    	"num-pattern-elements" : "10",
+    	
+    	"pattern": {
+            "type": "object",
+            "required": ["pattern-elements", "pattern-id", "entity-id", "timestamp"],
+            "properties": {         
+				 "type": "array",
+				 	"maxItems": {"$ref": "#/definitions/num-pattern-elements"},
+				 	"pattern-elements": {
+				           "type": "fraction"
+				    },
+				 "pattern-id" : {"type": "string"},
+				 "entity-id" : {"type": "string"},
+				 "channel-id" : {"type": "string"},
+				 "timestamp" : {"type" : "string"}
+			}
+		},
+    	
+    	"prediction": {
+            "type": "object",
+            "required": ["transition-id", "entity-id", "timestamp"],
+            "properties": {         
+				 "transition-id" : {"type": "string"},
+				 "entity-id" : {"type": "string"},
+				 "channel-id" : {"type": "string"},
+				 "timestamp" : {"type" : "string"}
+			}
+		},
+			
+		"transition" : {
+			"type" : "object",
+			"required" : ["entity-id", "first-pattern", "second-pattern", "timestamp"],
+			"properties" : {
+				"entity-id" : {"type": "string"},
+				"timestamp" : {"type" : "string"},				
+				"channel-id" : {"type": "string"},
+				"first-pattern" : {"$ref": "#/definitions/pattern"}, 
+				"second-pattern" : {"$ref": "#/definitions/pattern"} 
+			}
+		},
+		
+		"knowledge" : {
+			"type" : "object",
+			"required" : ["transitions"],
+           	"properties": {         
+				 "type": "array",
+				 "transitions": {
+				           "type": {"$ref": "#/definitions/transition"},
+						   "transition-id" : {"type": "string"}
+				 }
+			}
+		},
+        
+     "oneof" : [     
+     	{"$ref": "#/definitions/transition"},
+     	{"$ref": "#/definitions/pattern"},
+     	{"$ref": "#/definitions/prediction"}
+     ]  	
+}} 

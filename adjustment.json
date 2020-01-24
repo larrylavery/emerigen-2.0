@@ -1,0 +1,36 @@
+{
+  
+    "definitions": {
+    	
+    	"adjustable": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+                "id": {"type": "string"},
+                "type-name" : {"type" : "string"}
+            }
+        },
+        
+    	"adjustment": {
+            "type": "object",
+            "required": ["original-value", "adjustment-percentage", "timestamp"],
+            "properties": {
+                "adjustment-detector" : {
+	                "id": {"type": "string"},
+	                "type-name" : {"type" : "string"}
+             },
+            "original-value" : {"type" : "fraction"},
+            "adjustment-percentage": {"type": "fraction"},
+            "timestamp" : {"type" : "string"},
+             
+			 "type": "array",
+				 "adjustables": {
+                	"adjustable" : {"$ref": "#/definitions/adjustable"}
+		          }
+		     }
+        }
+        
+     },
+          
+     "$ref": "#/definitions/adjustment"
+   }  

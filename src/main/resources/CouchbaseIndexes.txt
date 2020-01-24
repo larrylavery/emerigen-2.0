@@ -1,0 +1,15 @@
+Pattern
+CREATE PRIMARY INDEX `#primary` ON `pattern`
+CREATE INDEX `ix_pattern_id` ON `pattern`(`patternID`)
+CREATE INDEX `ix_pattern_primary` ON `pattern`(`entityID`,`channelType`,`sensorAttributesHash`)
+
+Entity
+CREATE INDEX `ix_entity` ON `entity`((self - `id`),(`channel` - `type`))
+
+Prediction
+CREATE INDEX `ix_prediction_three_unique` ON `prediction`(`entityID`,`channelType`,`timestamp`)
+
+Transition
+CREATE INDEX `ix_transition` ON `transition`(`firstPatternKey`,`predictedPatternKey`)
+
+

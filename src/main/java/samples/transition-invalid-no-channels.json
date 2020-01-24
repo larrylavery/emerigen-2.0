@@ -1,0 +1,8 @@
+{
+	"transitionID" : "t1",
+	"entityID" : "entity1",
+	"channelType" : "channel1",
+	"timestamp" : "1",
+	"transition" : ["p1", "p2"
+	]		
+}

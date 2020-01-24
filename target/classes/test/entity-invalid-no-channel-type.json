@@ -1,0 +1,13 @@
+{
+
+	"entityID" : "entity1",
+	"timestamp" : "1",
+	"channels" : [
+		{
+			"sensoryEventsUri" : "/Information/dev/logger/src/main/resources/channel-type-1.csv",
+			"learningComplete" : false
+	    }
+	 ]		
+}
+
+

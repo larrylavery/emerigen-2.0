@@ -1,0 +1,31 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Transition",
+	"description": "A schema representing a sensory pattern transition from the 1st to the 2nd sensory pattern",
+	"type": "object",
+	"required": [
+		"sensorType",
+		"timestamp",
+		"firstPatternKey",
+		"predictedPatternKey"
+	],
+	"properties": {
+		"sensorType": {
+			"description": "The sensor that that this transition belongs to",
+			"type": "number"
+		},
+		"timestamp": {
+			"description": "The time this transition was logged",
+			"type": "string"
+		},
+		"firstPatternKey": {
+			"description": "The first pattern of the transition",
+			"type": "string"
+		},
+		"predictedPatternKey": {
+			"description": "The predicted pattern in this transition",
+			"type": "string"
+		}
+	}
+
+}

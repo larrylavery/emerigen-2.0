@@ -1,0 +1,27 @@
+{	
+	"$schema" : "http://json-schema.org/draft-04/schema#",
+	"title" : "Channel",
+	"description" : "A schema representing a channel of an entity",
+	"type" : "object",
+	"properties" : {
+		 "channelID" : {
+		 	"description" : "The identifier for the channel (or sense). Unique per entity",
+		 	"type": "string"
+		 },
+		 "channelype" : {
+		 	"description" : "The channel type (ie visual, touch, smell, eetc",
+		 	"type": "string"
+		 },
+		 "entityID" : {
+		 	"description" : "The unique identifier for the Entity that owns this channel",
+		 	"type": "string"
+		 },
+		 "timestamp" : {
+		 	"description" : "The time this pattern was logged",
+		 	"type" : "string"
+		 }	
+	},
+    "required": [ "entityID", "channelType", "timestamp"]
+}
+
+

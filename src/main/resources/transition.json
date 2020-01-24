@@ -1,0 +1,36 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Transition",
+	"description": "A schema representing a sensory event transition from the 1st to the 2nd sensory event",
+	"type": "object",
+	"required": [
+		"sensorType",
+		"sensorLocation",
+		"timestamp",
+		"firstSensorEventKey",
+		"predictedSensorEventKey"
+	],
+	"properties": {
+		"sensorType": {
+			"description": "The sensor that that this transition belongs to",
+			"type": "number"
+		},
+		"sensorLocation": {
+			"description": "The location this sensor resides on",
+			"type": "number"
+		},
+		"timestamp": {
+			"description": "The time this transition was logged",
+			"type": "string"
+		},
+		"firstSensorEventKey": {
+			"description": "The first sensor event of the transition",
+			"type": "string"
+		},
+		"predictedSensorEventKey": {
+			"description": "The predicted sensor event in this transition",
+			"type": "string"
+		}
+	}
+
+}

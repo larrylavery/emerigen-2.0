@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<aspectj>
+    <aspects>
+        <aspect name="com.emerigen.infrastructure.tracing.AbstractTrace"/>
+        <aspect name="com.emerigen.infrastructure.tracing.Trace"/>
+        <aspect name="com.emerigen.infrastructure.evaporation.EvaporationAspect"/>
+        <aspect name="com.emerigen.infrastructure.tracing.AbstractPerformanceMonitoring"/>
+        <aspect name="com.emerigen.infrastructure.tracing.PerformanceMonitoring"/>
+        <aspect name="com.emerigen.infrastructure.utils.ScheduledMethodAspect"/>
+        <aspect name="com.emerigen.infrastructure.tracing.DynamicLoggingAspect"/>
+        <weaver options="-verbose -showWeaveInfo">
+            <include within="com.emerigen.knowledge.*"/>
+            <include within="com.emerigen.infrastructure.environment.*"/>
+            <include within="com.emerigen.infrastructure.utils.*"/>
+            <include within="com.emerigen.infrastructure.*"/>
+            <include within="com.emerigen.infrastructure.evaporation.*"/>
+            <include within="com.emerigen.knowledge.*"/>
+            <include within="com.emerigen.infrastructure.repository.*"/>
+            <include within="com.emerigen.infrastructure.repository.couchbase.*"/>
+        </weaver>
+    </aspects>
+</aspectj>
+

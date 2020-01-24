@@ -1,0 +1,47 @@
+{
+	"definitions": {
+		"$schema" : "http://json-schema.org/draft-04/schema#",
+		"title" : "Sensory Pattern",
+		"description" : "A schema representing the sensory pattern component of knowledge",
+		"type" : "object",
+		"pattern": {
+			"required": [
+				"sensory-pattern",
+				"pattern-id",
+				"entity-id",
+				"channel-id",
+				"timestamp"
+			],
+			"properties": {
+				"pattern-id": {
+					"description": "The unique identifier for the input pattern that was classified",
+					"type": "string"
+				},
+				"entity-id": {
+					"description": "The unique identifier for the Entity that produced this Pattern",
+					"type": "string"
+				},
+				"channel-id": {
+					"description": "The unique identifier for the channel, or sense, that the input pattern is associated with",
+					"type": "string"
+				},
+				"timestamp": {
+					"description": "The time this pattern was logged",
+					"type": "string"
+				},
+				"sensory-pattern": {
+					"description": "The input sensor attributes from an entity on a specific channel",
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		"oneof": [
+			{"$ref": "#/definitions/pattern"}
+		]
+	}
+}
+

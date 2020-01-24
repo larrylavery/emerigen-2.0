@@ -1,0 +1,58 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Entity",
+	"description": "A schema representing the entity that is learned by a pattern recognizer",
+	"type": "object",
+	
+	"definitions": {
+		"channel": {
+			"type": "object",
+			"required": [
+				"channelType",
+				"learningComplete",
+				"sensoryEventsUri"
+			],
+			"properties": {
+				"channelType": {
+					"description": "Identifies the type of channel (eg visual, touch, xyz, etc). Unique per entity",
+					"type": "string"
+				},
+				"learningComplete": {
+					"description": "An indication of whether learning for this channel has completed (ie all sensory events have been processed",
+					"type": "boolean"
+				},
+				"sensoryEventsUri": {
+					"description": "The uri of the file containing the sensory events for this channel type",
+					"type": "string"
+				}
+			}
+		}
+	},
+	"properties": {
+		"entityID": {
+			"description": "The unique identifier for this Entity",
+			"type": "string"
+		},
+		"channels": {
+			"description": "The schema for a list of channels (or senses). Unique per entity",
+			"type": "array",
+			"minItems": 1,
+			"uniqueItems": true,
+			"items": {
+				"$ref": "#/definitions/channel"
+			}
+		},
+		"timestamp": {
+			"description": "The time this entity was created",
+			"type": "string"
+		}
+	},
+	"required": [
+		"entityID",
+		"channels",
+		"timestamp"
+	]
+}
+
+
+

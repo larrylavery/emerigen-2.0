@@ -1,0 +1,13 @@
+{
+
+	"timestamp" : "1",
+	"channels" : [
+		{
+			"channelType" : "ch-type-1",
+			"sensoryEventsUri" : "/Information/dev/logger/src/main/resources/channel-type-1.csv",
+			"learningComplete" : false
+	    }
+	 ]		
+}
+
+
