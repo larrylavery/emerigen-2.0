@@ -234,24 +234,20 @@ public class SensorManager {
 		}
 	}
 
-	public boolean listenerIsRegisteredToSensors(SensorEventListener emerigenListener) {
-		if (emerigenListener == null)
+	public boolean listenerIsRegisteredToAnySensor(SensorEventListener listener) {
+		if (listener == null)
 			throw new IllegalArgumentException("Listener must not be null");
 
 		// Return false if the listener is not registered to any sensor.
-		List<Sensor> sensors = registeredSensorsPerListener.get(emerigenListener);
-		if (sensors == null) {
+		List<Sensor> sensors = registeredSensorsPerListener.get(listener);
+		if (sensors == null || sensors.isEmpty()) {
 
 			// Listener is not registered for any sensor
 			return false;
-		} else if (!sensors.isEmpty()) {
+		} else {
 
 			// listener is registered to at least one sensor
 			return true;
-		} else {
-
-			// Not registered to any sensors
-			return false;
 		}
 	}
 }

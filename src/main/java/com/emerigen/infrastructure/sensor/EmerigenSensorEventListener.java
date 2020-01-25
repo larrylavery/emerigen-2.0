@@ -133,7 +133,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 					+ sensorEvent);
 
 			// Retrieve the current heart rate
-			int currentHeartRate = (int) sensorEvent.getValues()[0];
+			// int currentHeartRate = (int) sensorEvent.getValues()[0];
 
 			/**
 			 * TODO Add heart rate learning/prediction code here.

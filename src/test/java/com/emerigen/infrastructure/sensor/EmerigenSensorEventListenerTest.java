@@ -37,10 +37,10 @@ public class EmerigenSensorEventListenerTest {
 		SensorEventListener listener = new EmerigenSensorEventListener();
 
 		listener.onPause();
-		assertThat(sensorManager.listenerIsRegisteredToSensors(listener)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isFalse();
 
 		listener.onResume();
-		assertThat(sensorManager.listenerIsRegisteredToSensors(listener)).isTrue();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isTrue();
 
 	}
 

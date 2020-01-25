@@ -125,7 +125,7 @@ public class SensorEventListenerTest {
 
 		listener.onPause();
 
-		assertThat(sensorManager.listenerIsRegisteredToSensors(listener)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isFalse();
 	}
 
 	@Test
