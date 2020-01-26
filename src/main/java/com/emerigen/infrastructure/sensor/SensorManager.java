@@ -3,6 +3,7 @@ package com.emerigen.infrastructure.sensor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -167,38 +168,59 @@ public class SensorManager {
 	 * @return the default sensor of the requested type
 	 */
 	public Sensor getDefaultSensor(int sensorType) {
+		return getDefaultSensorForLocation(sensorType, Sensor.LOCATION_PHONE);
+	}
+
+	/**
+	 * This is a "factory method" design pattern based on the given sensor type.
+	 * TODO We may want to return one selected from a list of the same type.
+	 * 
+	 * @param sensorType     is the type of sensor to create
+	 * @param sensorLocation TODO
+	 * @return the default sensor of the requested type
+	 */
+	public Sensor getDefaultSensorForLocation(int sensorType, int sensorLocation) {
 
 		Sensor sensor;
-
 		if (sensorType <= 0)
 			throw new IllegalArgumentException("sensorType must be positive");
 
+		// Retrieve existing sensors matching type and location
+		List<Sensor> sensors = allSensors.stream()
+				.filter((s) -> (s.getType() == sensorType) && (s.getLocation() == sensorLocation))
+				.collect(Collectors.toList());
+
+		// Return the first located sensor
+		if (!sensors.isEmpty()) {
+			logger.info("Returning existing sensor: " + sensors.get(0));
+			return sensors.get(0);
+		}
+
 		switch (sensorType) {
 
-		// TODO retrieve existing sensors if any
 		case Sensor.TYPE_HEART_RATE:
-			sensor = new HeartRateSensor(Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL,
-					false);
+			sensor = new HeartRateSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			logger.info("Creating Heart Rate sensor");
+			logger.info("Created new Heart Rate sensor");
 			return sensor;
 
 		case Sensor.TYPE_ACCELEROMETER:
-			sensor = new AccelerometerSensor(Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL,
-					false);
+			sensor = new AccelerometerSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			logger.info("Creating Accelerometer sensor");
 			return sensor;
 
 		case Sensor.TYPE_TEMPERATURE:
-			sensor = new TemperatureSensor(sensorType, Sensor.REPORTING_MODE_CONTINUOUS,
+			sensor = new TemperatureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			logger.info("Creating Temperature sensor");
 			return sensor;
 
 		case Sensor.TYPE_GPS:
-			sensor = new GpsSensor(sensorType, Sensor.REPORTING_MODE_CONTINUOUS,
+			sensor = new GpsSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			logger.info("Creating GPS sensor");

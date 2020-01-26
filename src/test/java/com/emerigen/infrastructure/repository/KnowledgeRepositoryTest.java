@@ -29,9 +29,9 @@ public class KnowledgeRepositoryTest {
 		// Given 5 valid SensorEvents logged, three by the same entity/channelType
 		Random rd = new Random(); // creating Random object
 		Sensor hrSensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		Sensor accSensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		float[] values2 = new float[] { rd.nextFloat(), 1.2f };
@@ -58,9 +58,8 @@ public class KnowledgeRepositoryTest {
 			e.printStackTrace();
 		}
 
-		int count = KnowledgeRepository.getInstance()
-				.getSensorEventCountForSensorTypeAndLocation(Sensor.TYPE_HEART_RATE,
-						Sensor.LOCATION_PHONE);
+		int count = KnowledgeRepository.getInstance().getSensorEventCountForSensorTypeAndLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		assertThat(count >= 2).isTrue();
 	}
 

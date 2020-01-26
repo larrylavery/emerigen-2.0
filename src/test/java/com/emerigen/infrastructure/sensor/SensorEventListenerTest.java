@@ -23,9 +23,6 @@ public class SensorEventListenerTest {
 			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	public class EventListener implements SensorEventListener {
-		@Override
-		public void onCreate() {
-		}
 
 		@Override
 		public boolean onSensorChanged(SensorEvent sensorEvent) {
@@ -61,10 +58,11 @@ public class SensorEventListenerTest {
 //		CouchbaseRepository.getInstance().removeAllDocuments("transition");
 
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
 
 		// Create sensor mock with the sensor and listener that will receive events
-		SensorEventListener listener = new EmerigenSensorEventListener();
 		SensorMock sensorMock = new SensorMock(sensor, listener, minDelayBetweenReadingsMillis, 0);
 
 		// Read from previously built file and feed events to the listener
@@ -85,33 +83,23 @@ public class SensorEventListenerTest {
 	}
 
 	@Test
-	public void gvenValidAccelerometerSensorListenerRegistered_whenExecutedMultipleTimes_thenOnSensorChangedThrottled()
+	public void gvenValidHeartRateSensorListenerRegistered_whenExecutedTwiceWithoutSufficientDifference_thenOnSensorChangedReturnsFalse()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
 		SensorEventListener listener = new EmerigenSensorEventListener();
 
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
+
 		// Create a 2nd event that surpasses the shake threshold
-		float[] values = { 10.1f, 20.2f, 30.3f };
+		float[] values = { 94.0f };
+		float[] valuesPastThreshold = { 99.0f };
 		SensorEvent event = new SensorEvent(sensor, values);
-		float[] valuesPastShakeThreshold = { 2000000.0f, 3000000.1f, 4000000.1F };
-		SensorEvent event2 = new SensorEvent(sensor, valuesPastShakeThreshold);
 
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
-
-		// assertThat(listener.onSensorChanged(event)).isEqualTo(true);
-		assertThat(listener.onSensorChanged(event)).isEqualTo(false);
-		assertThat(listener.onSensorChanged(event)).isEqualTo(false);
-		assertThat(listener.onSensorChanged(event)).isEqualTo(false);
-		assertThat(listener.onSensorChanged(event)).isEqualTo(false);
-
+		assertThat(listener.onSensorChanged(event)).isTrue();
 		Thread.sleep(minDelayBetweenReadingsMillis);
-
-		assertThat(listener.onSensorChanged(event2)).isEqualTo(true);
-		assertThat(listener.onSensorChanged(event2)).isEqualTo(false);
-		assertThat(listener.onSensorChanged(event2)).isEqualTo(false);
-		assertThat(listener.onSensorChanged(event2)).isEqualTo(false);
+		SensorEvent event2 = new SensorEvent(sensor, valuesPastThreshold);
+		assertThat(listener.onSensorChanged(event2)).isTrue();
 
 	}
 
@@ -119,7 +107,8 @@ public class SensorEventListenerTest {
 	public void gvenValidSensorListenerRegistered_whenOnPauseInvoked_thenSensorIsNotRegistered()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 
@@ -132,7 +121,8 @@ public class SensorEventListenerTest {
 	public void gvenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);

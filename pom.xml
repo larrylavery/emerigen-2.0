@@ -146,7 +146,15 @@
 	<dependencies><!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
 		<!-- https://mvnrepository.com/artifact/org.jumpmind.symmetric/symmetric-csv -->
 
-<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher -->
+		<!-- https://mvnrepository.com/artifact/org.junit.vintage/junit-vintage-engine -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>5.6.0</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.jumpmind.symmetric</groupId>

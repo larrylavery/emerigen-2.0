@@ -77,9 +77,8 @@ public class Sensor {
 			throw new IllegalArgumentException("MinimumDelayBetweenReadings must not be negative");
 
 		this.type = sensorType;
-		this.locationName = this.getLocationName();
-		this.typeName = this.getTypeName();
 		this.location = sensorLocation;
+
 		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
 		this.reportingMode = reportingMode;
 		this.wakeUpSensor = isWakeUpSensor;
@@ -193,7 +192,7 @@ public class Sensor {
 			return "Temperature";
 
 		case TYPE_GPS:
-			return "Temperature";
+			return "GPS";
 
 		default:
 			return "No_SENSOR_TYPE";

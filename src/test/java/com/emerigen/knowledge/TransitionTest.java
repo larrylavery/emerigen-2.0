@@ -37,10 +37,8 @@ public class TransitionTest {
 		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/transition-valid.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(transitionSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidTransitionJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidTransitionJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -63,10 +61,8 @@ public class TransitionTest {
 		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/transition-invalid-no-timestamp.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(transitionSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidTransitionJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidTransitionJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -88,10 +84,8 @@ public class TransitionTest {
 		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/transition-invalid-no-sensor-type.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(transitionSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidTransitionJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidTransitionJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -111,13 +105,10 @@ public class TransitionTest {
 		InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("transition.json");
 		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
-				.getResourceAsStream(
-						"test/transition-invalid-only-one-sensor-event.json");
+				.getResourceAsStream("test/transition-invalid-only-one-sensor-event.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(transitionSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidTransitionJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidTransitionJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -139,7 +130,7 @@ public class TransitionTest {
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
@@ -179,7 +170,7 @@ public class TransitionTest {
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		// Given three valid SensorEvents logged
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
@@ -195,10 +186,8 @@ public class TransitionTest {
 		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
 		SensorEvent predictedSensorEvent2 = new SensorEvent(sensor, values3);
 
-		KnowledgeRepository.getInstance().newTransition(firstSensorEvent,
-				predictedSensorEvent);
-		KnowledgeRepository.getInstance().newTransition(firstSensorEvent,
-				predictedSensorEvent2);
+		KnowledgeRepository.getInstance().newTransition(firstSensorEvent, predictedSensorEvent);
+		KnowledgeRepository.getInstance().newTransition(firstSensorEvent, predictedSensorEvent2);
 
 		// Give the bucket a chance to catch up after the log
 		try {
@@ -228,9 +217,9 @@ public class TransitionTest {
 		float[] values = new float[] { 1.1f, 1.2f };
 		float[] values2 = new float[] { 2.1f, 2.2f };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		Sensor sensor2 = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor2, values2);
@@ -259,9 +248,9 @@ public class TransitionTest {
 		float[] values = new float[] { 1.1f, 1.2f };
 		float[] values2 = new float[] { 2.1f, 2.2f };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		Sensor sensor2 = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_BODY);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_BODY);
 
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor2, values2);
@@ -291,7 +280,7 @@ public class TransitionTest {
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
@@ -303,8 +292,7 @@ public class TransitionTest {
 		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
 		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
 
-		KnowledgeRepository.getInstance().newTransition(firstSensorEvent,
-				predictedSensorEvent);
+		KnowledgeRepository.getInstance().newTransition(firstSensorEvent, predictedSensorEvent);
 
 		// Give the bucket a chance to catch up after the log
 		try {
@@ -340,7 +328,7 @@ public class TransitionTest {
 		float[] values = new float[] { 1.1f, 1.2f };
 		float[] values2 = new float[] { 2.1f, 2.2f };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 
@@ -354,8 +342,8 @@ public class TransitionTest {
 				() -> knowledgeRepository.newTransition(null, predictedSensorEvent));
 
 		// Then ValidationException should occur
-		then(throwable).as(
-				"A IllegalArgumentException should be thrown for an invalid schema validation")
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for an invalid schema validation")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -368,7 +356,7 @@ public class TransitionTest {
 		float[] values = new float[] { 1.1f, 1.2f };
 		float[] values2 = new float[] { 2.1f, 2.2f };
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 
@@ -382,8 +370,8 @@ public class TransitionTest {
 				() -> knowledgeRepository.newTransition(firstSensorEvent, null));
 
 		// Then ValidationException should occur
-		then(throwable).as(
-				"A IllegalArgumentException should be thrown for an invalid schema validation")
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for an invalid schema validation")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}

@@ -29,7 +29,8 @@ public class SensorEventTest {
 	public final void givenValidSensorEvent_whenLogged_thenItshouldBeTheSameWhenRetrieved() {
 
 		// Given
-		Sensor sensor = SensorManager.getInstance().getDefaultSensor(Sensor.TYPE_HEART_RATE);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		String timestamp = String.valueOf(System.nanoTime());
 
 		Random rd = new Random(); // creating Random object
@@ -37,15 +38,18 @@ public class SensorEventTest {
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event = new SensorEvent(sensor, values);
 
-		JsonObject sensorEventJsonDoc = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
+		JsonObject sensorEventJsonDoc = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
 				.put("sensorLocation", Sensor.LOCATION_PHONE).put("timestamp", "" + timestamp)
-				.put("values", JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(), "" + rd.nextFloat()));
+				.put("values", JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
+						"" + rd.nextFloat()));
 
 		// when
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().log("sensor-event", event.getKey(), sensorEventJsonDoc);
 
-		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance().getSensorEvent(event.getKey());
+		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance()
+				.getSensorEvent(event.getKey());
 		assertThat(retrievedSensorEvent).isNotNull();
 		assertThat(retrievedSensorEvent.getTimestamp()).isEqualTo(timestamp);
 	}
@@ -67,7 +71,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A invalidly structured Json sensor event document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensor event document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 
 	}
@@ -90,7 +95,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A validly structured Json sensorEvent document should not throw a ValidationException")
+		then(throwable).as(
+				"A validly structured Json sensorEvent document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -113,7 +119,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A invalidly structured Json sensorEvent document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensorEvent document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 	}
 
@@ -135,7 +142,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A invalidly structured Json sensorEvent document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensorEvent document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 	}
 
@@ -157,13 +165,15 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A invalidly structured Json sensorEvent document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensorEvent document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 	}
 
 	@Test
 	public final void givenJsonSensorEventWithEmptyValues_whenCreated_thenIllegalArgumentException() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		float[] values = {};
 		final Throwable throwable = catchThrowable(() -> new SensorEvent(sensor, values));
@@ -174,7 +184,8 @@ public class SensorEventTest {
 
 	@Test
 	public final void givenNullValues_whenCreated_thenIllegalArgumentException() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		float[] values = { 10.1f, 20.2f, 30.3f };
 		final Throwable throwable = catchThrowable(() -> new SensorEvent(sensor, null));

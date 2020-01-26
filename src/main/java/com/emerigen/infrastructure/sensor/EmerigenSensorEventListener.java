@@ -34,19 +34,32 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListener.class);
 	private static final double GPS_DISTANCE_THRESHOLD = Double.parseDouble(
 			EmerigenProperties.getInstance().getValue("sensor.gps.distance.threshold.meters"));
+	private static final float TEMPERATURE_DIFFERENCE_THRESHOLD = Float
+			.parseFloat(EmerigenProperties.getInstance()
+					.getValue("sensor.temperature.difference.threshold.degrees"));
 
 	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
 			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
 	private float[] lastGpsCoordinates;
+	private float lastUpdateTemperature;
+	private float currentHr;
+	private float lastUpdateHr;
+	private float HEARTRATE_DIFFERENCE_THRESHOLD = Float.parseFloat(
+			EmerigenProperties.getInstance().getValue("sensor.heartrate.difference.threshold"));
 
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
 
+		// TODO Should I create default sensors for all locations?
 		// Create all sensors
-		heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
-		gpsSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GPS);
+		heartRateSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
+		accelerometerSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
+		temperatureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_TEMPERATURE,
+				Sensor.LOCATION_PHONE);
+		gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// Subscribe to all sensors
 		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor,
@@ -66,21 +79,60 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		// If the minimum delay has occurred then process the event
 		Sensor sensor = sensorEvent.getSensor();
 
-		if (sensor.getClass().isInstance(heartRateSensor)) {
+		if (sensor.TYPE_HEART_RATE == heartRateSensor.getType()) {
 			return processHeartRateChanged(sensorEvent);
 		}
 
-		if (sensor.getClass().isInstance(accelerometerSensor)) {
+		if (sensor.TYPE_ACCELEROMETER == accelerometerSensor.getType()) {
 			return processAccelerometerChange(sensorEvent);
 		}
 
-		if (sensor.getClass().isInstance(gpsSensor)) {
+		if (sensor.TYPE_GPS == gpsSensor.getType()) {
 			return processGpsChange(sensorEvent);
+		}
+
+		if (sensor.TYPE_TEMPERATURE == temperatureSensor.getType()) {
+			return processTemperatureChange(sensorEvent);
 		}
 
 		// Not a sensor we are interested in
 		return false;
 
+	}
+
+	private boolean processTemperatureChange(SensorEvent sensorEvent) {
+
+		if (elapsedTime() > minDelayBetweenReadingsMillis) {
+			logger.info("The minimum elapse time millis (" + elapsedTime()
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
+
+			// minimum delay elapse time has occurred, extract temperature
+			float currentTemparature = sensorEvent.getValues()[0];
+
+			// Calculate the temperature change
+			float temperatureDifference = currentTemparature - lastUpdateTemperature;
+			logger.info("The temperature difference is (" + temperatureDifference + ")");
+			if (temperatureDifference > TEMPERATURE_DIFFERENCE_THRESHOLD) {
+				logger.info("The temperature difference exceeds the 'difference threshold' of "
+						+ TEMPERATURE_DIFFERENCE_THRESHOLD);
+
+				// TODO sample code for processing a significant temperature change
+
+				// Update for next change event
+				lastUpdateTemperature = currentTemparature;
+				return true;
+			} else {
+				logger.info(
+						"The temperature difference did not exceed the 'temperature difference threshold' of "
+								+ TEMPERATURE_DIFFERENCE_THRESHOLD);
+				return false;
+			}
+		} else {
+
+			// Minimum delay has not occurred
+			return false;
+		}
 	}
 
 	private boolean processAccelerometerChange(SensorEvent sensorEvent) {
@@ -145,7 +197,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			} else {
 				logger.info(
 						"The distance traveled since the last position did not exceed the 'distance threshold' of "
-								+ GPS_DISTANC_THRESHOLD);
+								+ GPS_DISTANCE_THRESHOLD);
 				return false;
 			}
 		} else {
@@ -212,20 +264,29 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 					+ ") since the last sensor change has occurred. Processing event: "
 					+ sensorEvent);
 
-			// Retrieve the current heart rate
-			// int currentHeartRate = (int) sensorEvent.getValues()[0];
+			// Check for significant heart rate change
+			// Calculate the temperature change
+			float hrDifference = currentHr - lastUpdateHr;
+			logger.info("The heart rate difference is (" + hrDifference + ")");
+			if (hrDifference > HEARTRATE_DIFFERENCE_THRESHOLD) {
+				logger.info("The temperature difference exceeds the 'difference threshold' of "
+						+ HEARTRATE_DIFFERENCE_THRESHOLD);
 
-			/**
-			 * TODO Add heart rate learning/prediction code here.
-			 * 
-			 * Possibilities: checking for patterns on prior days near the same time
-			 * periord; locate existing Transitions and make predictions about potential
-			 * next heart rate range; make important predictions about heart rate moving to
-			 * danger zone (tachycardia, SVT, etc). The same learning/prediction that would
-			 * happen for most other sensors exception these may be more important for
-			 * certain types of individuals with heart disease or potential heart disease.
-			 */
-			processHeartRateEvent(sensorEvent);
+				// Retrieve the current heart rate
+				// int currentHeartRate = (int) sensorEvent.getValues()[0];
+
+				/**
+				 * TODO Add heart rate learning/prediction code here.
+				 * 
+				 * Possibilities: checking for patterns on prior days near the same time
+				 * periord; locate existing Transitions and make predictions about potential
+				 * next heart rate range; make important predictions about heart rate moving to
+				 * danger zone (tachycardia, SVT, etc). The same learning/prediction that would
+				 * happen for most other sensors exception these may be more important for
+				 * certain types of individuals with heart disease or potential heart disease.
+				 */
+				processHeartRateEvent(sensorEvent);
+			}
 			lastUpdateTime = currentTime;
 			lastSensorEvent = sensorEvent;
 			return true;
