@@ -52,6 +52,8 @@ public aspect DynamicLoggingAspect {
 			.getValue("frequency.logging.level.when.below.threshold");
 
 	private static Logger logger = Logger.getLogger(DynamicLoggingAspect.class);
+	private static Level previousLoggingLevel;
+
 
 	/**
 	 * Define the interesting pointcuts and exception advice below
@@ -93,6 +95,7 @@ public aspect DynamicLoggingAspect {
 
 		@Override
 		public void run() {
+			previousLoggingLevel = logger.getLevel();			
 			logger.info("Frequency of exceptions exceeded. Increasing log verbosity to DEBUG");
 			DynamicLoggingAspect.setLoggingLevel(loggingLevel);
 		}
@@ -104,12 +107,11 @@ public aspect DynamicLoggingAspect {
 	 * the log verbosity when the exception frequency has returned to normal.
 	 */
 	private Runnable normalFrequencyDetectedRunnable = new Runnable() {
-		String loggingLevel = loggingLevelWhenFrequencyNormal;
 
 		@Override
 		public void run() {
-			logger.info("Frequency of exceptions returned to normal. Lowering log verbosity to WARN");
-			DynamicLoggingAspect.setLoggingLevel(loggingLevel);
+			logger.info("Frequency of exceptions returned to normal. Lowering log verbosity to previous level(" + previousLoggingLevel + ")");
+			DynamicLoggingAspect.setLoggingLevel(previousLoggingLevel.toString());
 		}
 	};
 
