@@ -10,7 +10,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.opencsv.CSVReader;
 
 public class SensorMock {
@@ -24,8 +23,8 @@ public class SensorMock {
 
 	private static Logger logger = Logger.getLogger(SensorMock.class);
 
-	public SensorMock(Sensor sensor, SensorEventListener listener,
-			int minimumDelayBetweenReadings, int pauseResumeInterval) {
+	public SensorMock(Sensor sensor, SensorEventListener listener, int minimumDelayBetweenReadings,
+			int pauseResumeInterval) {
 		this.sensor = sensor;
 		this.listener = listener;
 		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
@@ -38,17 +37,16 @@ public class SensorMock {
 
 	public void prepareSensorEventStream(Sensor sensor) {
 
-		// filename pattern: "/Phone-HeartRate-sensor-events.csv"
-		String sensorEventFile = sensor.getLocationName() + "-" + sensor.getTypeName()
-				+ "-" + "sensor-events.csv";
+		// filename pattern example: "/Phone-HeartRate-sensor-events.csv"
+		String sensorEventFile = sensor.getLocationName() + "-" + sensor.getTypeName() + "-"
+				+ "sensor-events.csv";
 		try {
 			reader = new CSVReader(new FileReader(sensorEventFile));
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException(
-					"Unable to initialize sensor event stream with filename ("
-							+ sensorEventFile + "), ex: " + e + ". exiting.");
+			throw new RuntimeException("Unable to initialize sensor event stream with filename ("
+					+ sensorEventFile + "), ex: " + e + ". exiting.");
 		}
 	}
 
@@ -98,23 +96,23 @@ public class SensorMock {
 
 				// Create the SensorEvent
 				sensorEvent = new SensorEvent(sensor, values);
-				logger.info("getNextSensorEvent() - Next sensor event: " + sensorEvent);
+				logger.info("Next sensor event: " + sensorEvent);
 				return sensorEvent;
 			}
-			logger.info(
-					"getNextSensorEvent() - End of sensor events for Sensor : " + sensor);
+			logger.info("End of sensor events for Sensor : " + sensor);
 			return sensorEvent;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Unexpected error reading sensor event file ");
+			throw new RuntimeException(
+					"Unexpected error reading sensor event file. ex: " + e.getMessage());
 		}
 	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		// Remove all sensor related records prior to test or expect false results
-		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
+		// Would remove all sensor related records, but indexer rollback occurs
+//		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
 //		CouchbaseRepository.getInstance().removeAllDocuments("transition");
 	}
 

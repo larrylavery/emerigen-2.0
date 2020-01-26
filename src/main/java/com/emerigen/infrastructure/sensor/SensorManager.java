@@ -174,6 +174,8 @@ public class SensorManager {
 			throw new IllegalArgumentException("sensorType must be positive");
 
 		switch (sensorType) {
+
+		// TODO retrieve existing sensors if any
 		case Sensor.TYPE_HEART_RATE:
 			sensor = new HeartRateSensor(Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL,
 					false);
@@ -194,6 +196,13 @@ public class SensorManager {
 			allSensors.add(sensor);
 			logger.info("Creating Temperature sensor");
 			return sensor;
+
+		case Sensor.TYPE_GPS:
+			sensor = new GpsSensor(sensorType, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
+			allSensors.add(sensor);
+			logger.info("Creating GPS sensor");
+			return sensor;
 		default:
 			throw new IllegalArgumentException(
 					"Sensor type must be equal to one of the defined constants");
@@ -203,31 +212,60 @@ public class SensorManager {
 	public Sensor getDefaultSensor(int sensorType, int sensorLocation) {
 
 		Sensor sensor;
+		int sensorIndex;
 
 		if (sensorType <= 0)
 			throw new IllegalArgumentException("sensorType must be positive");
 
 		switch (sensorType) {
 		case Sensor.TYPE_HEART_RATE:
+
 			sensor = new HeartRateSensor(sensorType, sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
-			allSensors.add(sensor);
-			logger.info("Creating Heart Rate sensor");
-			return sensor;
+			sensorIndex = allSensors.indexOf(sensor);
+			if (sensorIndex == -1) {
+				logger.info("No matching existing Heart Rate Sensors. Creating new one");
+				allSensors.add(sensor);
+				return sensor;
+			}
+			logger.info("Sensor exists, returning it");
+			return allSensors.get(sensorIndex);
 
 		case Sensor.TYPE_ACCELEROMETER:
 			sensor = new AccelerometerSensor(sensorType, sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
-			allSensors.add(sensor);
-			logger.info("Creating Accelerometer sensor");
-			return sensor;
+			sensorIndex = allSensors.indexOf(sensor);
+			if (sensorIndex == -1) {
+				logger.info("No matching existing Heart Rate Sensors. Creating new one");
+				allSensors.add(sensor);
+				return sensor;
+			}
+			logger.info("Sensor exists, returning it");
+			return allSensors.get(sensorIndex);
 
 		case Sensor.TYPE_TEMPERATURE:
 			sensor = new TemperatureSensor(sensorType, sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
-			allSensors.add(sensor);
-			logger.info("Creating Temperature sensor");
-			return sensor;
+			sensorIndex = allSensors.indexOf(sensor);
+			if (sensorIndex == -1) {
+				logger.info("No matching existing Heart Rate Sensors. Creating new one");
+				allSensors.add(sensor);
+				return sensor;
+			}
+			logger.info("Sensor exists, returning it");
+			return allSensors.get(sensorIndex);
+
+		case Sensor.TYPE_GPS:
+			sensor = new GpsSensor(sensorType, sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
+			sensorIndex = allSensors.indexOf(sensor);
+			if (sensorIndex == -1) {
+				logger.info("No matching existing GPS Sensors. Creating new one");
+				allSensors.add(sensor);
+				return sensor;
+			}
+			logger.info("Sensor exists, returning it");
+			return allSensors.get(sensorIndex);
 		default:
 			throw new IllegalArgumentException(
 					"Sensor type must be equal to one of the defined constants");

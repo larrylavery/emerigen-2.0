@@ -38,6 +38,7 @@ public class Sensor {
 	public static final int TYPE_ACCELEROMETER = 1;
 	public static final int TYPE_HEART_RATE = 2;
 	public static final int TYPE_TEMPERATURE = 4;
+	public static final int TYPE_GPS = 8;
 
 	// Sensor locations
 	public final static int LOCATION_PHONE = 1;
@@ -191,6 +192,9 @@ public class Sensor {
 		case TYPE_TEMPERATURE:
 			return "Temperature";
 
+		case TYPE_GPS:
+			return "Temperature";
+
 		default:
 			return "No_SENSOR_TYPE";
 		}
@@ -219,7 +223,9 @@ public class Sensor {
 
 	@Override
 	public String toString() {
-		return "Sensor [reportingMode=" + reportingMode + ", isWakUpSensor=" + wakeUpSensor
-				+ ", activated=" + activated + ", type=" + type + ", location=" + location + "]";
+		return "Sensor [minimumDelayBetweenReadings=" + minimumDelayBetweenReadings
+				+ ", reportingMode=" + reportingMode + ", wakeUpSensor=" + wakeUpSensor
+				+ ", activated=" + activated + ", type=" + type + ", location=" + location
+				+ ", locationName=" + locationName + ", typeName=" + typeName + "]";
 	}
 }

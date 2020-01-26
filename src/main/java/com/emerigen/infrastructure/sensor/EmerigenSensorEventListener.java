@@ -21,6 +21,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	private Sensor accelerometerSensor;
 	private Sensor heartRateSensor;
 	private Sensor temperatureSensor;
+	private Sensor gpsSensor;
 	private final SensorManager sensorManager;
 
 	private long currentTime;
@@ -32,9 +33,11 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			.getValue("sensor.accelerometer.shake.threshold.millis"));
 
 	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListener.class);
+	private static final int GPS_DISTANC_THRESHOLD = 0;
 
 	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
 			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private float[] lastGpsCoordinates;
 
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
@@ -43,6 +46,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
 		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
+		gpsSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GPS);
 
 		// Subscribe to all sensors
 		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor,
@@ -51,12 +55,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, temperatureSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
-
-	}
-
-	@Override
-	public void onCreate() {
-		// TODO create these in the activate method??
+		sensorManager.registerListenerForSensorWithFrequency(this, gpsSensor,
+				SensorManager.SENSOR_DELAY_NORMAL);
 
 	}
 
@@ -74,6 +74,10 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			return processAccelerometerChange(sensorEvent);
 		}
 
+		if (sensor.getClass().isInstance(gpsSensor)) {
+			return processGpsChange(sensorEvent);
+		}
+
 		// Not a sensor we are interested in
 		return false;
 
@@ -81,11 +85,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 	private boolean processAccelerometerChange(SensorEvent sensorEvent) {
 
-		// determine the elapse time since the last onChanged processed
-		currentTime = System.currentTimeMillis();
-		long elapseTime = currentTime - lastUpdateTime;
-		if (elapseTime > minDelayBetweenReadingsMillis) {
-			logger.info("The minimum elapse time millis (" + elapseTime
+		if (elapsedTime() > minDelayBetweenReadingsMillis) {
+			logger.info("The minimum elapse time millis (" + elapsedTime()
 					+ ") since the last sensor change has occurred. Processing event: "
 					+ sensorEvent);
 
@@ -95,7 +96,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			float z = sensorEvent.getValues()[2];
 
 			// Calculate the device's speed
-			float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapseTime * 1000000;
+			float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapsedTime() * 1000000;
 //				float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapseTime * 1000;
 			logger.info("The device speed is (" + speed + ")");
 			if (speed > SHAKE_THRESHOLD) {
@@ -119,6 +120,53 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		}
 	}
 
+	private boolean processGpsChange(SensorEvent sensorEvent) {
+
+		// determine the elapse time since the last onChanged processed
+		if (elapsedTime() > minDelayBetweenReadingsMillis) {
+			logger.info("The minimum elapse time millis (" + elapsedTime()
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
+
+			// Calculate the distance from the last reading
+			int distance = getDistanceBetweenGpsCoordinates(lastGpsCoordinates,
+					sensorEvent.getValues());
+			logger.info("The distance since last GPS reading is (" + distance + ")");
+			if (distance > GPS_DISTANC_THRESHOLD) {
+				logger.info("The distance from last GPS reading exceeds the threshold of ("
+						+ GPS_DISTANC_THRESHOLD + ")");
+
+				// TODO sample code for processing a significant accelerometer move/shake
+
+				// Update for next change event
+				lastGpsCoordinates = sensorEvent.getValues();
+				return true;
+			} else {
+				logger.info(
+						"The distance traveled since the last position did not exceed the 'distance threshold' of "
+								+ GPS_DISTANC_THRESHOLD);
+				return false;
+			}
+		} else {
+
+			// Minimum delay has not occurred
+			return false;
+		}
+	}
+
+	private int getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates,
+			float[] currentGpsCoordinates) {
+		// TODO calculate the distance between gps coordinates
+		return 0;
+
+	}
+
+	private long elapsedTime() {
+		currentTime = System.currentTimeMillis();
+		long elapseTime = currentTime - lastUpdateTime;
+		return elapseTime;
+	}
+
 	private boolean processHeartRateChanged(SensorEvent sensorEvent) {
 
 		// Allways log the sensor event
@@ -126,9 +174,9 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 		// determine the elapse time since the last onChanged processed
 		currentTime = System.currentTimeMillis();
-		long elapseTime = currentTime - lastUpdateTime;
-		if (elapseTime > minDelayBetweenReadingsMillis) {
-			logger.info("The minimum elapse time millis (" + elapseTime
+		long elapsedTime = currentTime - lastUpdateTime;
+		if (elapsedTime > minDelayBetweenReadingsMillis) {
+			logger.info("The minimum elapse time millis (" + elapsedTime
 					+ ") since the last sensor change has occurred. Processing event: "
 					+ sensorEvent);
 
@@ -230,6 +278,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		sensorManager.registerListenerForSensorWithFrequency(this, accelerometerSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, temperatureSensor,
+				SensorManager.SENSOR_DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(this, gpsSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 

@@ -2,8 +2,6 @@ package com.emerigen.infrastructure.sensor;
 
 public interface SensorEventListener {
 
-	public void onCreate();
-
 	public boolean onSensorChanged(SensorEvent sensorEvent);
 
 	public void onAccuracyChanged();
