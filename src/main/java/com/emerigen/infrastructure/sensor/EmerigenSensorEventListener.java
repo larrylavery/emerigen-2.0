@@ -23,17 +23,17 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	private Sensor temperatureSensor;
 	private Sensor gpsSensor;
 	private final SensorManager sensorManager;
-
 	private long currentTime;
 	private long lastUpdateTime;
 	private SensorEvent lastSensorEvent;
 	private List<SensorEvent> predictions = new ArrayList<SensorEvent>();
 	private float last_x, last_y, last_z;
-	private static final float SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties.getInstance()
-			.getValue("sensor.accelerometer.shake.threshold.millis"));
+	private static final float ACCEL_SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties
+			.getInstance().getValue("sensor.accelerometer.shake.threshold.millis"));
 
 	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListener.class);
-	private static final int GPS_DISTANC_THRESHOLD = 0;
+	private static final double GPS_DISTANCE_THRESHOLD = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("sensor.gps.distance.threshold.meters"));
 
 	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
 			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
@@ -99,8 +99,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapsedTime() * 1000000;
 //				float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapseTime * 1000;
 			logger.info("The device speed is (" + speed + ")");
-			if (speed > SHAKE_THRESHOLD) {
-				logger.info("The speed exceeds the 'shake threshold' of " + SHAKE_THRESHOLD);
+			if (speed > ACCEL_SHAKE_THRESHOLD) {
+				logger.info("The speed exceeds the 'shake threshold' of " + ACCEL_SHAKE_THRESHOLD);
 
 				// TODO sample code for processing a significant accelerometer move/shake
 
@@ -110,7 +110,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				last_z = z;
 				return true;
 			} else {
-				logger.info("The speed did not exceed the 'shake threshold' of " + SHAKE_THRESHOLD);
+				logger.info("The speed did not exceed the 'shake threshold' of "
+						+ ACCEL_SHAKE_THRESHOLD);
 				return false;
 			}
 		} else {
@@ -120,7 +121,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		}
 	}
 
-	private boolean processGpsChange(SensorEvent sensorEvent) {
+	protected boolean processGpsChange(SensorEvent sensorEvent) {
 
 		// determine the elapse time since the last onChanged processed
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
@@ -129,12 +130,12 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 					+ sensorEvent);
 
 			// Calculate the distance from the last reading
-			int distance = getDistanceBetweenGpsCoordinates(lastGpsCoordinates,
+			double distance = getDistanceBetweenGpsCoordinates(lastGpsCoordinates,
 					sensorEvent.getValues());
 			logger.info("The distance since last GPS reading is (" + distance + ")");
-			if (distance > GPS_DISTANC_THRESHOLD) {
+			if (distance > GPS_DISTANCE_THRESHOLD) {
 				logger.info("The distance from last GPS reading exceeds the threshold of ("
-						+ GPS_DISTANC_THRESHOLD + ")");
+						+ GPS_DISTANCE_THRESHOLD + ")");
 
 				// TODO sample code for processing a significant accelerometer move/shake
 
@@ -154,11 +155,42 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		}
 	}
 
-	private int getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates,
+	/**
+	 * Calculate the distance between GPS coordinates using the Haversine algorithm
+	 * 
+	 * @param previousGpsCoordinates
+	 * @param currentGpsCoordinates
+	 * @return
+	 */
+	private double getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates,
 			float[] currentGpsCoordinates) {
-		// TODO calculate the distance between gps coordinates
-		return 0;
+		if (currentGpsCoordinates == null)
+			throw new IllegalArgumentException("Current gps coordinates must not be null.");
 
+		// No previous GPS coordinates, return distance 0.0
+		if (currentGpsCoordinates == null)
+			return 0.0;
+
+		double initialLat = previousGpsCoordinates[0], initialLong = previousGpsCoordinates[1],
+				finalLat = currentGpsCoordinates[0], finalLong = currentGpsCoordinates[1];
+		int earthRadiusInKilometers = 6371; // Kilometers (Earth radius)
+		double distanceBetweenLat = toRadians(finalLat - initialLat);
+		double distanceBetweenLong = toRadians(finalLong - initialLong);
+
+		finalLat = toRadians(finalLat);
+		initialLat = toRadians(initialLat);
+
+		double a = Math.sin(distanceBetweenLat / 2) * Math.sin(distanceBetweenLat / 2)
+				+ Math.sin(distanceBetweenLong / 2) * Math.sin(distanceBetweenLong / 2)
+						* Math.cos(initialLat) * Math.cos(finalLat);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		logger.info("returning GPS distance of (" + earthRadiusInKilometers * c + ")");
+		return earthRadiusInKilometers * c;
+
+	}
+
+	private double toRadians(double deg) {
+		return deg * (Math.PI / 180);
 	}
 
 	private long elapsedTime() {
