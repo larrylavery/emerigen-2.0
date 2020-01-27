@@ -181,7 +181,6 @@ public class SensorManagerTest {
 	@Test
 	public final void givenInvalidNumberForDefaultSensorParm_whenRequested_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		// Sensor sensor = sensorManager.getDefaultSensor(null);
 
 		final Throwable throwable = catchThrowable(
 				() -> sensorManager.getDefaultSensorForLocation(100, Sensor.LOCATION_PHONE));
@@ -194,7 +193,6 @@ public class SensorManagerTest {
 	@Test
 	public final void givenInvalidNegativeDefaultSensorParm_whenRequested_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		// Sensor sensor = sensorManager.getDefaultSensor(null);
 
 		final Throwable throwable = catchThrowable(
 				() -> sensorManager.getDefaultSensorForLocation(-1, Sensor.LOCATION_PHONE));
@@ -207,7 +205,6 @@ public class SensorManagerTest {
 	@Test
 	public final void givenNullDefaultSensorParm_whenRequested_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		// Sensor sensor = sensorManager.getDefaultSensor(null);
 
 		final Throwable throwable = catchThrowable(
 				() -> sensorManager.getDefaultSensorForLocation(0, Sensor.LOCATION_PHONE));

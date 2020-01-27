@@ -9,6 +9,7 @@ package com.emerigen.infrastructure.tracing;
 
 
 
+
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
@@ -20,7 +21,6 @@ import com.emerigen.infrastructure.environment.NeighborhoodImpl;
 import com.emerigen.infrastructure.environment.MessageToSpread;
 import com.emerigen.infrastructure.environment.Location;
 import com.emerigen.knowledge.Entity;
-import com.emerigen.knowledge.ChannelType;
 import com.emerigen.knowledge.Transition;
 import com.emerigen.infrastructure.evaporation.EvaporationAspect;
 import com.emerigen.infrastructure.evaporation.InformationWithRelevanceHolder;
@@ -31,10 +31,13 @@ import com.emerigen.infrastructure.utils.ScheduledMethodAspect;
 import com.emerigen.infrastructure.utils.LeakyBucket;
 import com.emerigen.infrastructure.sensor.AccelerometerSensor;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
+import com.emerigen.infrastructure.sensor.GpsSensor;
+import com.emerigen.infrastructure.sensor.TemperatureSensor;
 import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.sensor.Sensor;
+import com.emerigen.infrastructure.sensor.SensorEvent;
 //import com.emerigen.infrastructure.sensor.SensorEvent;
 
 aspect Trace extends AbstractTrace {
@@ -54,13 +57,14 @@ aspect Trace extends AbstractTrace {
 		|| within(Environment)
 		|| within(Location) 
 		|| within(RelevantInformation) 
+		|| within(MessageToSpread) 
 		|| within(InformationWithRelevanceHolder) 
 		|| within(EvaporationAspect) 
 		|| within(AccelerometerSensor) 
 		|| within(HeartRateSensor) 
-		|| within(HeartRateSensorEventListener) 
+		|| within(TemperatureSensor) 
+		|| within(GpsSensor) 
 		|| within(EmerigenSensorEventListener) 
-		|| within(AccelerometerSensorEventListener) 
 		|| within(SensorEventListener) 
 		|| within(SensorManager) 
 		|| within(SensorEvent) 

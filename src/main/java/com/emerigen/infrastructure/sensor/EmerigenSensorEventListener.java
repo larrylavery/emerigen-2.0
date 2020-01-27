@@ -261,7 +261,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		currentTime = System.currentTimeMillis();
 		long elapsedTime = currentTime - lastUpdateTime;
 		if (elapsedTime > minDelayBetweenReadingsMillis) {
-			logger.info("The minimum elapse time millis (" + elapsedTime
+			logger.info("The mini mum elapse time millis (" + elapsedTime
 					+ ") since the last sensor change has occurred. Processing event: "
 					+ sensorEvent);
 

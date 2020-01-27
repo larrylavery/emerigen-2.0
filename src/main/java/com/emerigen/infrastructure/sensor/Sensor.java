@@ -39,12 +39,16 @@ public class Sensor {
 	public static final int TYPE_HEART_RATE = 2;
 	public static final int TYPE_TEMPERATURE = 4;
 	public static final int TYPE_GPS = 8;
+	public static final int TYPE_SLEEP = 16;
+	public static final int TYPE_BLOOD_PRESSURE = 32;
+	public static final int TYPE_GLUCOSE = 64;
 
 	// Sensor locations
 	public final static int LOCATION_PHONE = 1;
 	public final static int LOCATION_WATCH = 2;
 	public final static int LOCATION_BODY = 4;
 	public static final int LOCATION_CAR = 8;
+	public static final int LOCATION_MACHINE = 16;
 
 	public static final int DELAY_NORMAL = 1;
 
@@ -78,7 +82,8 @@ public class Sensor {
 
 		this.type = sensorType;
 		this.location = sensorLocation;
-
+		this.typeName = getTypeName(sensorType);
+		this.locationName = getLocationName(location);
 		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
 		this.reportingMode = reportingMode;
 		this.wakeUpSensor = isWakeUpSensor;
@@ -180,10 +185,20 @@ public class Sensor {
 	}
 
 	public String getTypeName() {
+		return typeName;
+	}
+
+	public String getTypeName(int type) {
 
 		switch (type) {
-		case TYPE_ACCELEROMETER:
-			return "Accelerometer";
+		case TYPE_SLEEP:
+			return "Sleep";
+
+		case TYPE_BLOOD_PRESSURE:
+			return "BloodPressure";
+
+		case TYPE_GLUCOSE:
+			return "Glucose";
 
 		case TYPE_HEART_RATE:
 			return "HeartRate";
@@ -201,6 +216,10 @@ public class Sensor {
 	}
 
 	public String getLocationName() {
+		return locationName;
+	}
+
+	public String getLocationName(int location) {
 
 		switch (location) {
 		case LOCATION_BODY:
@@ -214,6 +233,9 @@ public class Sensor {
 
 		case LOCATION_CAR:
 			return "Car";
+
+		case LOCATION_MACHINE: // CPAP, Glucose monitor, Blood pressure monitor
+			return "Machine";
 
 		default:
 			return "No_SENSOR_LOCATION";
