@@ -214,7 +214,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 * @param currentGpsCoordinates
 	 * @return
 	 */
-	private double getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates,
+	double getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates,
 			float[] currentGpsCoordinates) {
 		if (currentGpsCoordinates == null)
 			throw new IllegalArgumentException("Current gps coordinates must not be null.");
@@ -225,7 +225,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 		double initialLat = previousGpsCoordinates[0], initialLong = previousGpsCoordinates[1],
 				finalLat = currentGpsCoordinates[0], finalLong = currentGpsCoordinates[1];
-		int earthRadiusInKilometers = 6371; // Kilometers (Earth radius)
+		float earthRadiusInMiles = 3958.8f; // Miles (Earth radius)
+//		int earthRadiusInKilometers = 6371; // Kilometers (Earth radius)
 		double distanceBetweenLat = toRadians(finalLat - initialLat);
 		double distanceBetweenLong = toRadians(finalLong - initialLong);
 
@@ -236,8 +237,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				+ Math.sin(distanceBetweenLong / 2) * Math.sin(distanceBetweenLong / 2)
 						* Math.cos(initialLat) * Math.cos(finalLat);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		logger.info("returning GPS distance of (" + earthRadiusInKilometers * c + ")");
-		return earthRadiusInKilometers * c;
+		logger.info("returning GPS distance of (" + earthRadiusInMiles * c + ")");
+		return earthRadiusInMiles * c;
 
 	}
 
