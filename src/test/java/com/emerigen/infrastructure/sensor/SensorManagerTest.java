@@ -25,10 +25,6 @@ public class SensorManagerTest {
 		}
 
 		@Override
-		public void onAccuracyChanged() {
-		}
-
-		@Override
 		public void onPause() {
 		}
 
