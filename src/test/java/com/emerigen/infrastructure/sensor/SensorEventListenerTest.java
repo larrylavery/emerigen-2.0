@@ -15,7 +15,6 @@ public class SensorEventListenerTest {
 	public static int eventListenerOnSensorChanged = 0;
 
 	public static int eventListenerOnPause = 0;
-
 	public static int eventListenerOnResume = 0;
 	public static int eventListenerOnAccuracyChanged = 0;
 
@@ -28,11 +27,6 @@ public class SensorEventListenerTest {
 		public boolean onSensorChanged(SensorEvent sensorEvent) {
 			eventListenerOnSensorChanged++;
 			return true;
-		}
-
-		@Override
-		public void onAccuracyChanged() {
-			eventListenerOnAccuracyChanged++;
 		}
 
 		@Override
@@ -78,8 +72,19 @@ public class SensorEventListenerTest {
 	@Test
 	public void gvenValidHeartRateSensorListenerRegistered_whenExecutedMultipleTimes_thenOnSensorChangedThrottled()
 			throws Exception {
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
-		// TODO test minimumDelayBewteenReadings during sensorMock testing
+		SensorEventListener myListener = new EventListener();
+		SensorManager.getInstance().registerListenerForSensorWithFrequency(myListener, sensor, 0);
+		// Create sensor mock with the sensor and listener that will receive events
+		SensorMock sensorMock = new SensorMock(sensor, myListener, 0, 0);
+
+		// Read from previously built file and feed events to the listener
+		sensorMock.startGeneratingSensorEvents();
+
+		assertThat(eventListenerOnSensorChanged).isEqualTo(10);
 	}
 
 	@Test
@@ -96,10 +101,10 @@ public class SensorEventListenerTest {
 		float[] valuesPastThreshold = { 99.0f };
 		SensorEvent event = new SensorEvent(sensor, values);
 
-		assertThat(listener.onSensorChanged(event)).isTrue();
+		assertThat(listener.onSensorChanged(event)).isFalse();
 		Thread.sleep(minDelayBetweenReadingsMillis);
 		SensorEvent event2 = new SensorEvent(sensor, valuesPastThreshold);
-		assertThat(listener.onSensorChanged(event2)).isTrue();
+		assertThat(listener.onSensorChanged(event2)).isFalse();
 
 	}
 

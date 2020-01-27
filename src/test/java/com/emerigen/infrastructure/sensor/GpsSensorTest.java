@@ -10,8 +10,11 @@ public class GpsSensorTest {
 	public final void givenTwoCloseGpsSensorReadings_whenDistanceCalculated_thenItIsLessThanRequired() {
 		SensorManager sensorManager = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
+		GpsSensorEventListener gpsListener = new GpsSensorEventListener();
 		Sensor gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		SensorManager.getInstance().registerListenerForSensorWithFrequency(gpsListener, gpsSensor,
+				0);
 
 		float[] firstSensorReading = { 29.738547f, -98.687334f }; // home address
 		float[] secondSensorReading = { 29.591613f, -98.596793f };
@@ -19,8 +22,7 @@ public class GpsSensorTest {
 
 		SensorEvent event1 = new SensorEvent(gpsSensor, firstSensorReading);
 		SensorEvent event2 = new SensorEvent(gpsSensor, secondSensorReading);
-		double distance = ((EmerigenSensorEventListener) listener)
-				.getDistanceBetweenGpsCoordinates(firstSensorReading, secondSensorReading);
+		double distance = gpsListener.getDistanceBetweenGpsCoordinates(event1, event2);
 		double distanceError = Math.abs(distance - expectedDistance);
 
 		// Allow the distance to be +- 0.5 kilometers

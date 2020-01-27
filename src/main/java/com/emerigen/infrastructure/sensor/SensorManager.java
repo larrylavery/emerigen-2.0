@@ -203,6 +203,27 @@ public class SensorManager {
 			logger.info("Creating Accelerometer sensor");
 			return sensor;
 
+		case Sensor.TYPE_SLEEP:
+			sensor = new SleepSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
+			allSensors.add(sensor);
+			logger.info("Creating Sleep monitoring sensor");
+			return sensor;
+
+		case Sensor.TYPE_BLOOD_PRESSURE:
+			sensor = new BloodPressureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
+			allSensors.add(sensor);
+			logger.info("Creating blood pressure monitoring sensor");
+			return sensor;
+
+		case Sensor.TYPE_GLUCOSE:
+			sensor = new GlucoseSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
+			allSensors.add(sensor);
+			logger.info("Creating glucose monitoring sensor");
+			return sensor;
+
 		case Sensor.TYPE_TEMPERATURE:
 			sensor = new TemperatureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);

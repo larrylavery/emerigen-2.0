@@ -48,6 +48,10 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	}
 
 	private void CreateAllSensors() {
+		bloodPressureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_BLOOD_PRESSURE,
+				Sensor.LOCATION_MACHINE);
+		glucoseSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GLUCOSE,
+				Sensor.LOCATION_MACHINE);
 		heartRateSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
 				Sensor.LOCATION_PHONE);
 		accelerometerSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
@@ -57,10 +61,6 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		sleepSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_SLEEP,
-				Sensor.LOCATION_MACHINE);
-		bloodPressureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_BLOOD_PRESSURE,
-				Sensor.LOCATION_MACHINE);
-		glucoseSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GLUCOSE,
 				Sensor.LOCATION_MACHINE);
 	}
 
@@ -184,11 +184,14 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 */
 	protected boolean minimumDelayBetweenReadingsIsSatisfied(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent, int minDelayBetweenReadingsMillis) {
+		if (previousSensorEvent != null) {
 
-		long currentTime = Long.parseLong(currentSensorEvent.getTimestamp());
-		long previousTime = Long.parseLong(previousSensorEvent.getTimestamp());
-		long elapsedTime = currentTime - previousTime;
-		return elapsedTime >= minDelayBetweenReadingsMillis;
+			long currentTime = Long.parseLong(currentSensorEvent.getTimestamp());
+			long previousTime = Long.parseLong(previousSensorEvent.getTimestamp());
+			long elapsedTime = currentTime - previousTime;
+			return elapsedTime >= minDelayBetweenReadingsMillis;
+		} else
+			return true;
 	}
 
 	/**

@@ -1,19 +1,20 @@
 package com.emerigen.infrastructure.sensor;
 
-public class HeartRateSensor extends Sensor {
+public class BloodPressureSensor extends Sensor {
 
-	public HeartRateSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH, reportingMode, minimumDelay,
+	public BloodPressureSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
+		super(Sensor.TYPE_BLOOD_PRESSURE, Sensor.LOCATION_MACHINE, reportingMode, minimumDelay,
 				isWakeUpSensor);
 	}
 
-	public HeartRateSensor(int sensorLocation, int reportingMode, int minimumDelay,
+	public BloodPressureSensor(int sensorLocation, int reportingMode, int minimumDelay,
 			boolean isWakeUpSensor) {
-		super(Sensor.TYPE_HEART_RATE, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_BLOOD_PRESSURE, sensorLocation, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
-	public HeartRateSensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelay,
-			boolean isWakeUpSensor) {
+	public BloodPressureSensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelay, boolean isWakeUpSensor) {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 

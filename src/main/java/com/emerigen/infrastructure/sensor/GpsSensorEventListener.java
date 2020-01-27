@@ -28,7 +28,7 @@ public class GpsSensorEventListener extends EmerigenSensorEventListener {
 	 * @param currentGpsCoordinates
 	 * @return
 	 */
-	private double getDistanceBetweenGpsCoordinates(SensorEvent previousSensorEvent,
+	public double getDistanceBetweenGpsCoordinates(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent) {
 		if (currentSensorEvent == null)
 			throw new IllegalArgumentException("Current gps coordinates must not be null.");

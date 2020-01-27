@@ -30,6 +30,10 @@ import com.emerigen.infrastructure.utils.ScheduledMethodTaskTest;
 import com.emerigen.infrastructure.utils.ScheduledMethodAspect;
 import com.emerigen.infrastructure.utils.LeakyBucket;
 import com.emerigen.infrastructure.sensor.AccelerometerSensor;
+//import com.emerigen.infrastructure.sensor.AccelerometerSensorEventListener;
+import com.emerigen.infrastructure.sensor.HeartRateSensorEventListener;
+//import com.emerigen.infrastructure.sensor.TemperatureSensorEventListener;
+import com.emerigen.infrastructure.sensor.GpsSensorEventListener;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.GpsSensor;
 import com.emerigen.infrastructure.sensor.TemperatureSensor;
@@ -61,9 +65,13 @@ aspect Trace extends AbstractTrace {
 		|| within(InformationWithRelevanceHolder) 
 		|| within(EvaporationAspect) 
 		|| within(AccelerometerSensor) 
+		|| within(AccelerometerSensorEventListener) 
 		|| within(HeartRateSensor) 
+		|| within(HeartRateSensorEventListener) 
 		|| within(TemperatureSensor) 
+		|| within(TemperatureSensorEventListener) 
 		|| within(GpsSensor) 
+		|| within(GpsSensorEventListener) 
 		|| within(EmerigenSensorEventListener) 
 		|| within(SensorEventListener) 
 		|| within(SensorManager) 
