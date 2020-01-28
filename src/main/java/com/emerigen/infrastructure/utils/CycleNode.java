@@ -98,4 +98,20 @@ public class CycleNode<T> {
 		this(sensorEvent, startTime, dataPointDuration, maxStandardDeviationForCompares);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dataPointDuration == null) ? 0 : dataPointDuration.hashCode());
+		result = prime * result + ((sensorEvent == null) ? 0 : sensorEvent.hashCode());
+		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
+		return result;
+	}
+
+	private double getStandardDeviation(double mean, double value) {
+		double stdDeviation = Math.sqrt(Math.abs(mean - value));
+		logger.info("standard deviation is (" + stdDeviation + ")");
+		return stdDeviation;
+	}
+
 }

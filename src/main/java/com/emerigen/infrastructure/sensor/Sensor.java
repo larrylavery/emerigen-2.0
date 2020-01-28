@@ -1,5 +1,7 @@
 package com.emerigen.infrastructure.sensor;
 
+import org.apache.log4j.Logger;
+
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
@@ -25,7 +27,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
  * @author Larry
  *
  */
-public class Sensor {
+public abstract class Sensor {
 
 	/**
 	 * Report events at a constant rate as defined by the sampling period
@@ -63,6 +65,8 @@ public class Sensor {
 	private String locationName;
 	private String typeName;
 
+	private static final Logger logger = Logger.getLogger(Sensor.class);
+
 	public Sensor() {
 
 	}
@@ -98,6 +102,16 @@ public class Sensor {
 						.getValue("sensor.default.minimum.delay.between.readings.millis")),
 				isWakeUpSensor);
 	}
+
+	/**
+	 * Calculate the distance between GPS coordinates using the Haversine algorithm
+	 * 
+	 * @param previousGpsCoordinates
+	 * @param currentGpsCoordinates
+	 * @return
+	 */
+	public abstract double getDifferenceBetweenReadings(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent);
 
 	public int getReportingMode() {
 		return reportingMode;

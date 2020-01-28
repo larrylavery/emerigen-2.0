@@ -117,7 +117,7 @@ public class SensorManagerTest {
 		// given
 		SensorManager sensorManager = SensorManager.getInstance();
 		SensorEventListener totalListener = new EmerigenSensorEventListener();
-		Sensor sensorOld = new Sensor(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE,
+		Sensor sensorOld = new GpsSensor(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE,
 				Sensor.REPORTING_MODE_CONTINUOUS, Sensor.DELAY_NORMAL, false);
 
 		// when

@@ -42,4 +42,11 @@ public class BloodPressureSensor extends Sensor {
 		return super.isActivated();
 	}
 
+	@Override
+	public double getDifferenceBetweenReadings(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent) {
+		// TODO implement getDifferenceBetweenReadings
+		return 0;
+	}
+
 }

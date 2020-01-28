@@ -4,18 +4,20 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class TemperatureSensor extends Sensor {
 
-
-	public TemperatureSensor(int sensorLocation, int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_ACCELEROMETER, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+	public TemperatureSensor(int sensorLocation, int reportingMode, int minimumDelay,
+			boolean isWakeUpSensor) {
+		super(Sensor.TYPE_ACCELEROMETER, sensorLocation, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
-	public TemperatureSensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelay,
-			boolean isWakeUpSensor) {
+	public TemperatureSensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelay, boolean isWakeUpSensor) {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 
 	public TemperatureSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_TEMPERATURE,Sensor.LOCATION_PHONE, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_TEMPERATURE, Sensor.LOCATION_PHONE, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
 	private float previousTempurature;
@@ -24,8 +26,8 @@ public class TemperatureSensor extends Sensor {
 	 * A temperature change of at least significantChangeThreshold causes an event
 	 * to be published
 	 */
-	private float significantChangeThreshold = Float
-			.parseFloat(EmerigenProperties.getInstance().getValue("sensor.temperature.significant.change.threshold"));
+	private float significantChangeThreshold = Float.parseFloat(EmerigenProperties.getInstance()
+			.getValue("sensor.temperature.significant.change.threshold"));
 
 	/**
 	 * Use sensor-specific logic to access the current value of this h/w sensor.
@@ -61,5 +63,12 @@ public class TemperatureSensor extends Sensor {
 	public boolean deactivate() {
 		// TODO How to deactivate this temperature sensor. Research
 		return true;
+	}
+
+	@Override
+	public double getDifferenceBetweenReadings(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

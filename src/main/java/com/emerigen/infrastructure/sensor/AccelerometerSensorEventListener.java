@@ -14,25 +14,25 @@ public class AccelerometerSensorEventListener extends EmerigenSensorEventListene
 	public AccelerometerSensorEventListener() {
 	}
 
+	/**
+	 * For accelerometer there is no difference (distance) between readings. So the
+	 * distance is not important. We care about the speed of the device since the
+	 * last reading.
+	 * 
+	 * If the speed is currently faster than a "shake threshold", it is significant.
+	 * Even if the speed was slower or faster than the last speed it is not
+	 * important. Only if speed since last measurement >= some threshold.
+	 * 
+	 */
+
 	@Override
 	protected boolean significantChangeHasOccurred(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent) {
 
-		// Retrieve the parameters from the sensor events
-		float currX = currentSensorEvent.getValues()[0];
-		float currY = currentSensorEvent.getValues()[1];
-		float currZ = currentSensorEvent.getValues()[2];
-
-		float lastX = previousSensorEvent.getValues()[0];
-		float lastY = previousSensorEvent.getValues()[1];
-		float lastZ = previousSensorEvent.getValues()[2];
-
-		long elapseTime = Long.parseLong(currentSensorEvent.getTimestamp())
-				- Long.parseLong(previousSensorEvent.getTimestamp());
-
 		// Calculate the device's speed
-		float speed = Math.abs(currX + currY + currZ - lastX - lastY - lastZ) / elapseTime * 1000;
-		logger.info("The device speed is (" + speed + ")");
+		double speed = currentSensorEvent.getSensor()
+				.getDifferenceBetweenReadings(previousSensorEvent, currentSensorEvent);
+
 		if (speed > SHAKE_THRESHOLD) {
 			logger.info("The speed  (" + speed + ") exceeds the 'shake threshold' of "
 					+ SHAKE_THRESHOLD);

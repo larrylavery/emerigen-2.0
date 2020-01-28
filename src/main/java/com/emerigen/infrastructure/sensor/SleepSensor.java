@@ -41,4 +41,11 @@ public class SleepSensor extends Sensor {
 		return super.isActivated();
 	}
 
+	@Override
+	public double getDifferenceBetweenReadings(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

@@ -22,7 +22,7 @@ public class GpsSensorTest {
 
 		SensorEvent event1 = new SensorEvent(gpsSensor, firstSensorReading);
 		SensorEvent event2 = new SensorEvent(gpsSensor, secondSensorReading);
-		double distance = gpsListener.getDistanceBetweenGpsCoordinates(event1, event2);
+		double distance = gpsSensor.getDifferenceBetweenReadings(event1, event2);
 		double distanceError = Math.abs(distance - expectedDistance);
 
 		// Allow the distance to be +- 0.5 kilometers
