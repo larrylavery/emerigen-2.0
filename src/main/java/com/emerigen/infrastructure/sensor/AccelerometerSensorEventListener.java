@@ -4,14 +4,14 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
-public class AccelerometerSenorEventListener extends EmerigenSensorEventListener {
+public class AccelerometerSensorEventListener extends EmerigenSensorEventListener {
 
 	private static final Logger logger = Logger.getLogger(AccelerometerSensor.class);
 
 	private static final float SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties.getInstance()
 			.getValue("sensor.accelerometer.shake.threshold.millis"));
 
-	public AccelerometerSenorEventListener() {
+	public AccelerometerSensorEventListener() {
 	}
 
 	@Override
