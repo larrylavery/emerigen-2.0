@@ -59,7 +59,18 @@ public class Utils {
 	}
 
 	public static final double getStandardDeviation(double mean, double value) {
-		return Math.sqrt(Math.pow((value - mean), 2) / 2);
+		return Math.sqrt(Math.pow((value - mean), 2) / 2.0);
+	}
+
+	/**
+	 * Calculate the standard deviation given the difference between the mean and a
+	 * value.
+	 * 
+	 * @param difference the difference between the mean and the value
+	 * @return
+	 */
+	public static final double getStandardDeviation(double difference) {
+		return Math.sqrt(Math.pow(difference, 2) / 2.0);
 	}
 
 }

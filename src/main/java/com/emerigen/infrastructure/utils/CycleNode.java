@@ -2,6 +2,8 @@ package com.emerigen.infrastructure.utils;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.sensor.SensorEvent;
+
 /**
  * @IDEA Cycles/Nodes/Fields with standard deviation-based equality. Allows each
  *       field to adapts its equality based on it current value relating to any
@@ -13,7 +15,7 @@ import org.apache.log4j.Logger;
  *
  * @param <T>
  */
-public class CycleNode<SensorEvent> {
+public class CycleNode {
 
 	/**
 	 * The event that defines this node. It may be a GPS, heart rate, etc... If GPS
@@ -74,6 +76,9 @@ public class CycleNode<SensorEvent> {
 			.parseDouble(EmerigenProperties.getInstance()
 					.getValue("cycle.allowable.std.deviation.for.equality"));
 
+	private static long defaultDataPointDurationMillis = Long.parseLong(
+			EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.millis"));
+
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
 	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long dataPointDurationMillis,
@@ -97,6 +102,46 @@ public class CycleNode<SensorEvent> {
 
 	}
 
+	/**
+	 * Construct a new CycleNode from a sensor event. This used during cycle
+	 * creation.
+	 * 
+	 * @param sensorEvent
+	 */
+	public CycleNode(SensorEvent sensorEvent) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("SensorEvent must not be null");
+
+		this.startTimeMillis = sensorEvent.getTimestamp();
+		this.dataPointDurationMillis = defaultDataPointDurationMillis;
+		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+		this.sensorEvent = sensorEvent;
+	}
+
+	/**
+	 * Merge information from the given cycle node into this cycle node. Use my
+	 * start time as the new node's start time. Add the duration time from both
+	 * events.
+	 * 
+	 * @param nodeToMergeWith
+	 * @return a new node with accumulated "time at data point"
+	 */
+	public CycleNode merge(CycleNode nodeToMergeWith) {
+		if (nodeToMergeWith == null)
+			throw new IllegalArgumentException("nodeToMergeWith must not be null");
+
+		CycleNode newCycleNode = new CycleNode(nodeToMergeWith.sensorEvent,
+				this.getStartTimeMillis(),
+				this.defaultDataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis);
+		return newCycleNode;
+
+//		this.startTimeMillis = nodeToMergeWith.getTimestamp();
+//		this.dataPointDurationMillis = this.defaultDataPointDurationMillis
+//				+ nodeToMergeWith.dataPointDurationMillis;
+//		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+//		this.sensorEvent = sensorEvent;
+	}
+
 	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long dataPointDurationMillis) {
 		this(sensorEvent, startTimeMillis, dataPointDurationMillis,
 				allowableStandardDeviationForEquality);
@@ -110,13 +155,14 @@ public class CycleNode<SensorEvent> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ (int) (dataPointDurationMillis ^ (dataPointDurationMillis >>> 32));
 		result = prime * result + ((sensorEvent == null) ? 0 : sensorEvent.hashCode());
-		result = prime * result + (int) (startTimeMillis ^ (startTimeMillis >>> 32));
 		return result;
 	}
 
+	/**
+	 * Return true if their data point measurements are statistically equal (ie
+	 * equal within a specified standard deviation).
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -126,16 +172,18 @@ public class CycleNode<SensorEvent> {
 		if (getClass() != obj.getClass())
 			return false;
 		CycleNode other = (CycleNode) obj;
-		if (dataPointDurationMillis != other.dataPointDurationMillis)
+
+		double difference = sensorEvent.getSensor().getDifferenceBetweenReadings(sensorEvent,
+				other.getSensorEvent());
+		if (Utils.getStandardDeviation(difference) > allowableStandardDeviationForEquality) {
+			logger.info(
+					"this cycleNode IS NOT equal to the next cycleNode [ in terms of data point difference]");
 			return false;
-		if (sensorEvent == null) {
-			if (other.sensorEvent != null)
-				return false;
-		} else if (!sensorEvent.equals(other.sensorEvent))
-			return false;
-		if (startTimeMillis != other.startTimeMillis)
-			return false;
-		return true;
+		} else {
+			logger.info(
+					"this cycleNode IS equal to the next cycleNode [ in terms of data point difference]");
+			return true;
+		}
 	}
 
 	/**
@@ -164,6 +212,50 @@ public class CycleNode<SensorEvent> {
 	 */
 	public static double getAllowableStandardDeviationForEquality() {
 		return allowableStandardDeviationForEquality;
+	}
+
+	@Override
+	public String toString() {
+		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationMillis="
+				+ dataPointDurationMillis + ", startTimeMillis=" + startTimeMillis + "]";
+	}
+
+	/**
+	 * @return the defaultDataPointDurationMillis
+	 */
+	public static long getDefaultDataPointDurationMillis() {
+		return defaultDataPointDurationMillis;
+	}
+
+	/**
+	 * @param sensorEvent the sensorEvent to set
+	 */
+	public void setSensorEvent(SensorEvent sensorEvent) {
+		this.sensorEvent = sensorEvent;
+	}
+
+	/**
+	 * @param dataPointDurationMillis the dataPointDurationMillis to set
+	 */
+	public void setDataPointDurationMillis(long dataPointDurationMillis) {
+		this.dataPointDurationMillis = dataPointDurationMillis;
+	}
+
+	/**
+	 * @param startTimeMillis the startTimeMillis to set
+	 */
+	public void setStartTimeMillis(long startTimeMillis) {
+		this.startTimeMillis = startTimeMillis;
+	}
+
+	/**
+	 * @param allowableStandardDeviationForEquality the
+	 *                                              allowableStandardDeviationForEquality
+	 *                                              to set
+	 */
+	public static void setAllowableStandardDeviationForEquality(
+			double allowableStandardDeviationForEquality) {
+		CycleNode.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
 	}
 
 }
