@@ -26,6 +26,8 @@ import com.emerigen.knowledge.Transition;
 import com.emerigen.infrastructure.evaporation.EvaporationAspect;
 import com.emerigen.infrastructure.evaporation.InformationWithRelevanceHolder;
 import com.emerigen.infrastructure.evaporation.RelevantInformation;
+import com.emerigen.infrastructure.learning.Cycle;
+import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.ScheduledMethodTaskTest;
 import com.emerigen.infrastructure.utils.ScheduledMethodAspect;
@@ -47,8 +49,6 @@ import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.sensor.Sensor;
-import com.emerigen.infrastructure.utils.Cycle;
-import com.emerigen.infrastructure.utils.CycleNode;
 import com.emerigen.infrastructure.utils.Utils;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 

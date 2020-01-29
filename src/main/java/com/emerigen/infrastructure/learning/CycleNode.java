@@ -1,8 +1,10 @@
-package com.emerigen.infrastructure.utils;
+package com.emerigen.infrastructure.learning;
 
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * @IDEA Cycles/Nodes/Fields with standard deviation-based equality. Allows each
@@ -40,7 +42,8 @@ public class CycleNode {
 	/**
 	 * The start time that this dataPoint was encountered.
 	 */
-	private long startTimeMillis;
+	private long originStartTimeMillis;
+	private long startTimeOffsetMillis;
 
 	/**
 	 * The standard deviation for equality is used during comparisons of data in
@@ -81,14 +84,16 @@ public class CycleNode {
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
-	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long dataPointDurationMillis,
-			double allowableStandardDeviationForEquality) {
+	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long originStartTimeMillis,
+			long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
 
 		// Validate parms
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("SensorEvent must not be null");
 		if (startTimeMillis < 0)
 			throw new IllegalArgumentException("startTimeMillis must be zero or more");
+		if (originStartTimeMillis < 0)
+			throw new IllegalArgumentException("originStartTimeMillis must be zero or more");
 		if (dataPointDurationMillis <= 0)
 			throw new IllegalArgumentException("dataPointDurationMillis must be positive");
 		if (allowableStandardDeviationForEquality < 0)
@@ -97,22 +102,24 @@ public class CycleNode {
 
 		this.dataPointDurationMillis = dataPointDurationMillis;
 		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
-		this.startTimeMillis = startTimeMillis;
+		this.startTimeOffsetMillis = startTimeMillis - originStartTimeMillis;
+		this.originStartTimeMillis = originStartTimeMillis;
 		this.sensorEvent = sensorEvent;
 
 	}
 
 	/**
-	 * Construct a new CycleNode from a sensor event. This used during cycle
+	 * Construct a new CycleNode from a sensor event. This is used during cycle
 	 * creation.
 	 * 
 	 * @param sensorEvent
 	 */
-	public CycleNode(SensorEvent sensorEvent) {
+	public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("SensorEvent must not be null");
 
-		this.startTimeMillis = sensorEvent.getTimestamp();
+		this.originStartTimeMillis = originStartTimeMillis;
+		this.startTimeOffsetMillis = sensorEvent.getTimestamp() - originStartTimeMillis;
 		this.dataPointDurationMillis = defaultDataPointDurationMillis;
 		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
 		this.sensorEvent = sensorEvent;
@@ -131,9 +138,12 @@ public class CycleNode {
 			throw new IllegalArgumentException("nodeToMergeWith must not be null");
 
 		CycleNode newCycleNode = new CycleNode(nodeToMergeWith.sensorEvent,
-				this.getStartTimeMillis(),
-				this.defaultDataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis);
+				this.getStartTimeMillis(), this.originStartTimeMillis,
+				this.defaultDataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis,
+				allowableStandardDeviationForEquality);
 		return newCycleNode;
+//		private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long originStartTimeMillis,
+//				long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
 
 //		this.startTimeMillis = nodeToMergeWith.getTimestamp();
 //		this.dataPointDurationMillis = this.defaultDataPointDurationMillis
@@ -142,9 +152,9 @@ public class CycleNode {
 //		this.sensorEvent = sensorEvent;
 	}
 
-	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long dataPointDurationMillis) {
-		this(sensorEvent, startTimeMillis, dataPointDurationMillis,
-				allowableStandardDeviationForEquality);
+	CycleNode(SensorEvent sensorEvent, long originStartTimeMillis, long dataPointDurationMillis) {
+		this(sensorEvent, sensorEvent.getTimestamp(), originStartTimeMillis,
+				dataPointDurationMillis, allowableStandardDeviationForEquality);
 	}
 
 	private double getStandardDeviation(double mean, double value) {
@@ -204,7 +214,7 @@ public class CycleNode {
 	 * @return the startTimeMillis
 	 */
 	public long getStartTimeMillis() {
-		return startTimeMillis;
+		return startTimeOffsetMillis + originStartTimeMillis;
 	}
 
 	/**
@@ -217,7 +227,8 @@ public class CycleNode {
 	@Override
 	public String toString() {
 		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationMillis="
-				+ dataPointDurationMillis + ", startTimeMillis=" + startTimeMillis + "]";
+				+ dataPointDurationMillis + ", originStartTimeMillis=" + originStartTimeMillis
+				+ ", startTimeOffsetMillis=" + startTimeOffsetMillis + "]";
 	}
 
 	/**
@@ -245,7 +256,7 @@ public class CycleNode {
 	 * @param startTimeMillis the startTimeMillis to set
 	 */
 	public void setStartTimeMillis(long startTimeMillis) {
-		this.startTimeMillis = startTimeMillis;
+		this.startTimeOffsetMillis = startTimeMillis - originStartTimeMillis;
 	}
 
 	/**
@@ -256,6 +267,20 @@ public class CycleNode {
 	public static void setAllowableStandardDeviationForEquality(
 			double allowableStandardDeviationForEquality) {
 		CycleNode.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+	}
+
+	/**
+	 * @return the originStartTimeMillis
+	 */
+	public long getOriginStartTimeMillis() {
+		return originStartTimeMillis;
+	}
+
+	/**
+	 * @return the startTimeOffsetMillis
+	 */
+	public long getStartTimeOffsetMillis() {
+		return startTimeOffsetMillis;
 	}
 
 }
