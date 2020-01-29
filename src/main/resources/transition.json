@@ -21,7 +21,7 @@
 		},
 		"timestamp": {
 			"description": "The time this transition was logged",
-			"type": "string"
+			"type": "number"
 		},
 		"firstSensorEventKey": {
 			"description": "The first sensor event of the transition",

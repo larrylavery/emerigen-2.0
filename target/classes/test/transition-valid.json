@@ -2,7 +2,7 @@
 {
 	"sensorType" : 1,
 	"sensorLocation": 1,
-	"timestamp" : "1",
+	"timestamp" : 1,
 	"firstSensorEventKey" : "p1",
 	"predictedSensorEventKey" : "p2"	
 }

@@ -186,8 +186,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			SensorEvent currentSensorEvent, int minDelayBetweenReadingsMillis) {
 		if (previousSensorEvent != null) {
 
-			long currentTime = Long.parseLong(currentSensorEvent.getTimestamp());
-			long previousTime = Long.parseLong(previousSensorEvent.getTimestamp());
+			long currentTime = currentSensorEvent.getTimestamp();
+			long previousTime = previousSensorEvent.getTimestamp();
 			long elapsedTime = currentTime - previousTime;
 			return elapsedTime >= minDelayBetweenReadingsMillis;
 		} else

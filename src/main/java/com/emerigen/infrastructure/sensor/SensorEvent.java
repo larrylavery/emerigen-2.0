@@ -46,7 +46,7 @@ public class SensorEvent {
 	/**
 	 * In nanoseconds
 	 */
-	private String timestamp = String.valueOf(System.nanoTime());
+	private long timestamp = System.nanoTime();
 
 	/**
 	 * The length and meaning of these values is sensor specific. One in particular
@@ -93,7 +93,7 @@ public class SensorEvent {
 	/**
 	 * @return the timestamp
 	 */
-	public String getTimestamp() {
+	public long getTimestamp() {
 		return timestamp;
 	}
 

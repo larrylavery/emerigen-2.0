@@ -56,8 +56,7 @@ public class AccelerometerSensor extends Sensor {
 		float lastY = previousSensorEvent.getValues()[1];
 		float lastZ = previousSensorEvent.getValues()[2];
 
-		long elapseTime = Long.parseLong(currentSensorEvent.getTimestamp())
-				- Long.parseLong(previousSensorEvent.getTimestamp());
+		long elapseTime = currentSensorEvent.getTimestamp() - previousSensorEvent.getTimestamp();
 
 		// Calculate the device's speed
 		double speed = Math.abs(currX + currY + currZ - lastX - lastY - lastZ) / elapseTime * 1000;

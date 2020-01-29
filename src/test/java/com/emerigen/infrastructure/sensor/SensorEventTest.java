@@ -31,7 +31,7 @@ public class SensorEventTest {
 		// Given
 		Sensor sensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
-		String timestamp = String.valueOf(System.nanoTime());
+		long timestamp = System.nanoTime();
 
 		Random rd = new Random(); // creating Random object
 

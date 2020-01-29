@@ -1,5 +1,5 @@
 {	
 	"sensorLocation": 1,
-	"timestamp" : "1",
+	"timestamp" : 1,
 	"values" : [1.1, 2.2]
 }

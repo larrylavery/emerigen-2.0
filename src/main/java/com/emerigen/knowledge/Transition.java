@@ -6,7 +6,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 
 public class Transition {
 
-	private String timestamp = String.valueOf(System.nanoTime());
+	private long timestamp = System.nanoTime();
 
 	String firstPatternKey = null, predictedPatternKey = null;
 
@@ -15,29 +15,24 @@ public class Transition {
 	public Transition() {
 	}
 
-	public Transition(final SensorEvent firstSensorEvent,
-			final SensorEvent predictedSensorEvent) {
+	public Transition(final SensorEvent firstSensorEvent, final SensorEvent predictedSensorEvent) {
 
-		firstPatternKey = "" + firstSensorEvent.getSensorType()
-				+ firstSensorEvent.getTimestamp();
+		firstPatternKey = "" + firstSensorEvent.getSensorType() + firstSensorEvent.getTimestamp();
 
 		predictedPatternKey = "" + predictedSensorEvent.getSensorType()
 				+ predictedSensorEvent.getTimestamp();
 
 		if (firstSensorEvent.getSensorType() != predictedSensorEvent.getSensorType()) {
-			throw new IllegalArgumentException(
-					"Transition patterns must belong to the same sensor."
-							+ " firstPattern sensorType: "
-							+ firstSensorEvent.getSensorType()
-							+ ", predictedPattern sensorType: "
-							+ predictedSensorEvent.getSensorType());
+			throw new IllegalArgumentException("Transition patterns must belong to the same sensor."
+					+ " firstPattern sensorType: " + firstSensorEvent.getSensorType()
+					+ ", predictedPattern sensorType: " + predictedSensorEvent.getSensorType());
 		}
 	}
 
 	/**
 	 * @return the timestamp
 	 */
-	public String getTimestamp() {
+	public long getTimestamp() {
 		return timestamp;
 	}
 
@@ -45,8 +40,7 @@ public class Transition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((firstPatternKey == null) ? 0 : firstPatternKey.hashCode());
+		result = prime * result + ((firstPatternKey == null) ? 0 : firstPatternKey.hashCode());
 		result = prime * result
 				+ ((predictedPatternKey == null) ? 0 : predictedPatternKey.hashCode());
 		return result;
@@ -76,8 +70,8 @@ public class Transition {
 
 	@Override
 	public String toString() {
-		return "Transition [timestamp=" + timestamp + ", firstPatternKey="
-				+ firstPatternKey + ", predictedPatternKey=" + predictedPatternKey + "]";
+		return "Transition [timestamp=" + timestamp + ", firstPatternKey=" + firstPatternKey
+				+ ", predictedPatternKey=" + predictedPatternKey + "]";
 	}
 
 	/**
@@ -97,7 +91,7 @@ public class Transition {
 	/**
 	 * @param timestamp the timestamp to set
 	 */
-	void setTimestamp(String timestamp) {
+	void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 

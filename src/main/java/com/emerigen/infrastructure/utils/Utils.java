@@ -2,6 +2,11 @@ package com.emerigen.infrastructure.utils;
 
 public class Utils {
 
+	// This the default if one is not specified
+	private static double allowableStandardDeviationForEquality = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("cycle.allowable.std.deviation.for.equality"));
+
 	/**
 	 * Compare two values allowing them to deviate by up to the given standard
 	 * deviation. Create methods for all number types.
@@ -16,19 +21,31 @@ public class Utils {
 			double allowableDeviation) {
 
 		double stdDeviation = getStandardDeviation(firstValue, secondValue);
-		if (stdDeviation < allowableDeviation)
+		if (stdDeviation < allowableStandardDeviationForEquality)
 			return true;
 		else
 			return false;
 	}
 
+	public static final boolean equals(double firstValue, double secondValue) {
+		return Utils.equals(firstValue, secondValue, allowableStandardDeviationForEquality);
+	}
+
 	public static final boolean equals(float firstValue, float secondValue,
 			double allowableDeviation) {
-		return equals((double) firstValue, (double) secondValue, allowableDeviation);
+		return Utils.equals((double) firstValue, (double) secondValue, allowableDeviation);
+	}
+
+	public static final boolean equals(float firstValue, float secondValue) {
+		return Utils.equals(firstValue, secondValue, allowableStandardDeviationForEquality);
 	}
 
 	public static final boolean equals(int firstValue, int secondValue, double allowableDeviation) {
-		return equals((double) firstValue, (double) secondValue, allowableDeviation);
+		return Utils.equals((double) firstValue, (double) secondValue, allowableDeviation);
+	}
+
+	public static final boolean equals(int firstValue, int secondValue) {
+		return Utils.equals(firstValue, secondValue, allowableStandardDeviationForEquality);
 	}
 
 	/**
@@ -38,7 +55,7 @@ public class Utils {
 	 * @return the standard deviation for the mean and one other value
 	 */
 	public static final double getStandardDeviation(int mean, int value) {
-		return getStandardDeviation((double) mean, (double) value);
+		return Utils.getStandardDeviation((double) mean, (double) value);
 	}
 
 	public static final double getStandardDeviation(double mean, double value) {

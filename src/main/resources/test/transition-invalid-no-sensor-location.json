@@ -1,5 +1,5 @@
 {
-	"timestamp": "3",
+	"timestamp": 3,
 	"sensorLocation": 1,
 	"firstSensorEventKey" : "p1",
 	"predictedSensorEventKey" : "p2"	

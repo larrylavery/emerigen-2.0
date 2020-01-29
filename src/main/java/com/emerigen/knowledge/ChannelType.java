@@ -1,32 +1,33 @@
 package com.emerigen.knowledge;
 
-import java.time.Instant;
-
 public class ChannelType {
-	
-	//Identifies the type of channel (eg visual, touch, xyz, etc). Unique per entity
-	 String channelType = null;
-	
-	//The uri of the file containing the sensory events for this channel type
-	 String sensoryEventsUri = null;
 
-	//An indication of whether learning for this channel has completed (ie all sensory events have been processed
-	 boolean learningComplete = true;
+	// Identifies the type of channel (eg visual, touch, xyz, etc). Unique per
+	// entity
+	String channelType = null;
 
-	 private String timestamp = String.valueOf(System.nanoTime());
+	// The uri of the file containing the sensory events for this channel type
+	String sensoryEventsUri = null;
 
-	
-	 public ChannelType() {}
-	 
-	 public ChannelType(String channelType, String sensoryEventsUri, boolean learningComplete) {
-		
-		//Validate parms
+	// An indication of whether learning for this channel has completed (ie all
+	// sensory events have been processed
+	boolean learningComplete = true;
+
+	private long timestamp = System.nanoTime();
+
+	public ChannelType() {
+	}
+
+	public ChannelType(String channelType, String sensoryEventsUri, boolean learningComplete) {
+
+		// Validate parms
 		if (channelType == null || channelType.isEmpty()) {
 			throw new IllegalArgumentException("ChannelType must not be null or empty");
-		} if (sensoryEventsUri == null || sensoryEventsUri.isEmpty()) {
-			throw new IllegalArgumentException("sensoryEventsUri must not be null or empty");			
-		} 
-		
+		}
+		if (sensoryEventsUri == null || sensoryEventsUri.isEmpty()) {
+			throw new IllegalArgumentException("sensoryEventsUri must not be null or empty");
+		}
+
 		this.channelType = channelType;
 		this.sensoryEventsUri = sensoryEventsUri;
 		this.learningComplete = learningComplete;
@@ -87,7 +88,7 @@ public class ChannelType {
 	/**
 	 * @return the timestamp
 	 */
-	public String getTimestamp() {
+	public long getTimestamp() {
 		return timestamp;
 	}
 
@@ -115,7 +116,7 @@ public class ChannelType {
 	/**
 	 * @param timestamp the timestamp to set
 	 */
-	void setTimestamp(String timestamp) {
+	void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 

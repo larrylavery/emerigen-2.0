@@ -1,20 +1,19 @@
 package com.emerigen.infrastructure.utils;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import org.apache.log4j.Logger;
 
-import com.emerigen.infrastructure.sensor.SensorEvent;
-
 /**
- * @IDEA Cycles/Nodes/Fields with standard deviation-based equality
+ * @IDEA Cycles/Nodes/Fields with standard deviation-based equality. Allows each
+ *       field to adapts its equality based on it current value relating to any
+ *       other value. This is much better than a static range which does not
+ *       take into account the number magnitude. With this the range
+ *       automatically grows as the value grows; or shrinks as the case may be.
  * 
  * @author Larry
  *
  * @param <T>
  */
-public class CycleNode<T> {
+public class CycleNode<SensorEvent> {
 
 	/**
 	 * The event that defines this node. It may be a GPS, heart rate, etc... If GPS
@@ -25,21 +24,21 @@ public class CycleNode<T> {
 	private SensorEvent sensorEvent;
 
 	/**
-	 * The length of time that the data point [measurement] (as given by the sensor
-	 * event) is valid. If the event is a GPS measurement, then the
-	 * dataPointDuration is the length of time the GPS coordinates did not
+	 * The length of time that the data point [measurement] (as measured by the
+	 * sensor event) is valid. If the event is a GPS measurement, then the
+	 * dataPointDurationMillis is the length of time the GPS coordinates did not
 	 * significantly change (ie how long the user stayed at [visited] this location.
 	 * 
 	 * For a heart rate sensor, it represents the lengh of time the heart rate
 	 * stayed at the given heart rate (plus or minus the standard deviation of
 	 * course.
 	 */
-	private Duration dataPointDuration;
+	private long dataPointDurationMillis;
 
 	/**
 	 * The start time that this dataPoint was encountered.
 	 */
-	private Instant startTime;
+	private long startTimeMillis;
 
 	/**
 	 * The standard deviation for equality is used during comparisons of data in
@@ -56,10 +55,13 @@ public class CycleNode<T> {
 	 * fuzziness (as in real life). For example, when one goes to lunch for an hour
 	 * every day the fuzziness is relatively greater since the destination (for
 	 * lunch) may be radically different, while the visitation and start times may
-	 * be less fuzzy. TODO - should there be field-specific std deviation or
-	 * node-specific deviation? Field-specific fuzziness supports different
-	 * destinations for lunch while time frames are much more strict.
+	 * be less fuzzy.
 	 * 
+	 * TODO - should there be field-specific std deviation or node-specific
+	 * deviation? Field-specific fuzziness supports different destinations for lunch
+	 * while time frames are much more strict. Utils.equals() allows any numeric
+	 * field to be compared using a standard deviation. Compromise on field-level
+	 * fuzziness.
 	 * 
 	 * Fuzziness types: Cycle, Node, node fields. Hierarchy: Cycle provides default
 	 * for Nodes and node fields if not specified there. Node overrides Cycle and
@@ -68,50 +70,100 @@ public class CycleNode<T> {
 	 * 
 	 * TODO implement Node-specific std deviation for now. add Cycle/Field later
 	 */
-	private static double maxStandardDeviationForCompares = Double.parseDouble(
-			EmerigenProperties.getInstance().getValue("cycle.max.std.deviation.for.equality"));
+	private static double allowableStandardDeviationForEquality = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("cycle.allowable.std.deviation.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
-	private CycleNode(SensorEvent sensorEvent, Instant startTime, Duration dataPointDuration,
-			double maxStandardDeviationForCompares) {
+	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long dataPointDurationMillis,
+			double allowableStandardDeviationForEquality) {
 
 		// Validate parms
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("SensorEvent must not be null");
-		if (startTime == null)
-			throw new IllegalArgumentException("startTime must not be null");
-		if (dataPointDuration == null)
-			throw new IllegalArgumentException("dataPointDuration must not be null");
-		if (maxStandardDeviationForCompares < 0)
+		if (startTimeMillis < 0)
+			throw new IllegalArgumentException("startTimeMillis must be zero or more");
+		if (dataPointDurationMillis <= 0)
+			throw new IllegalArgumentException("dataPointDurationMillis must be positive");
+		if (allowableStandardDeviationForEquality < 0)
 			throw new IllegalArgumentException(
-					"maxStandardDeviationForCompares must not be negative");
+					"allowableStandardDeviationForEquality must not be negative");
 
-		this.dataPointDuration = dataPointDuration;
-		this.maxStandardDeviationForCompares = maxStandardDeviationForCompares;
-		this.startTime = startTime;
+		this.dataPointDurationMillis = dataPointDurationMillis;
+		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+		this.startTimeMillis = startTimeMillis;
 		this.sensorEvent = sensorEvent;
 
 	}
 
-	private CycleNode(SensorEvent sensorEvent, Instant startTime, Duration dataPointDuration) {
-		this(sensorEvent, startTime, dataPointDuration, maxStandardDeviationForCompares);
+	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long dataPointDurationMillis) {
+		this(sensorEvent, startTimeMillis, dataPointDurationMillis,
+				allowableStandardDeviationForEquality);
+	}
+
+	private double getStandardDeviation(double mean, double value) {
+		return Utils.getStandardDeviation(mean, value);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dataPointDuration == null) ? 0 : dataPointDuration.hashCode());
+		result = prime * result
+				+ (int) (dataPointDurationMillis ^ (dataPointDurationMillis >>> 32));
 		result = prime * result + ((sensorEvent == null) ? 0 : sensorEvent.hashCode());
-		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
+		result = prime * result + (int) (startTimeMillis ^ (startTimeMillis >>> 32));
 		return result;
 	}
 
-	private double getStandardDeviation(double mean, double value) {
-		double stdDeviation = Math.sqrt(Math.abs(mean - value));
-		logger.info("standard deviation is (" + stdDeviation + ")");
-		return stdDeviation;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CycleNode other = (CycleNode) obj;
+		if (dataPointDurationMillis != other.dataPointDurationMillis)
+			return false;
+		if (sensorEvent == null) {
+			if (other.sensorEvent != null)
+				return false;
+		} else if (!sensorEvent.equals(other.sensorEvent))
+			return false;
+		if (startTimeMillis != other.startTimeMillis)
+			return false;
+		return true;
+	}
+
+	/**
+	 * @return the sensorEvent
+	 */
+	public SensorEvent getSensorEvent() {
+		return sensorEvent;
+	}
+
+	/**
+	 * @return the dataPointDurationMillis
+	 */
+	public long getDataPointDurationMillis() {
+		return dataPointDurationMillis;
+	}
+
+	/**
+	 * @return the startTimeMillis
+	 */
+	public long getStartTimeMillis() {
+		return startTimeMillis;
+	}
+
+	/**
+	 * @return the allowableStandardDeviationForEquality
+	 */
+	public static double getAllowableStandardDeviationForEquality() {
+		return allowableStandardDeviationForEquality;
 	}
 
 }

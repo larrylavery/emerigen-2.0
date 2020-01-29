@@ -47,6 +47,9 @@ import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.sensor.Sensor;
+import com.emerigen.infrastructure.utils.Cycle;
+import com.emerigen.infrastructure.utils.CycleNode;
+import com.emerigen.infrastructure.utils.Utils;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 
 aspect Trace extends AbstractTrace {
@@ -91,6 +94,7 @@ aspect Trace extends AbstractTrace {
 		|| within(NeighborhoodImpl));
 
 	pointcut repositoryClasses():
+		
 		(within(CouchbaseRepository)
 		|| within(KnowledgeRepository));
 
@@ -104,11 +108,15 @@ aspect Trace extends AbstractTrace {
 		|| within(LeakyBucket) 
 		|| within(RepositoryException) 
 		|| within(BucketNotFoundException) 
+		|| within(Utils) 
+		|| within(Cycle) 
+		|| within(CycleNode) 
 		|| within(CouchbaseRepositoryConfig));
 
 	pointcut infrastructureClasses():
 		(within(RelevantInformation)
 		|| within(EvaporationAspect) 
+		|| within(ScheduledMethodAspect) 
 		|| within(ScheduledMethodTaskTest)
 		|| within(ScheduledMethodAspect)
 		|| within(InformationWithRelevanceHolder));

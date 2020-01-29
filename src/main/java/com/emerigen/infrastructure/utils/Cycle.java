@@ -29,8 +29,4 @@ public class Cycle<T> {
 		this.stdDeviation = stdDeviation; // Standard Deviation for equality purposes
 	}
 
-//	public float getDistanceBetweenNodes(CycleNode node1, CycleNode node2) {
-//		return Math.abs(startTime)
-//	}
-
 }

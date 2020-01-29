@@ -14,7 +14,7 @@
 		},
 		 "timestamp" : {
 		 	"description" : "The time this pattern was logged",
-		 	"type" : "string"
+		 	"type" : "number"
 		 },
 		 "values" : {
 		 	"description" : "The sensor-specific measurements",
