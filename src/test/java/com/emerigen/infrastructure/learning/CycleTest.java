@@ -1,72 +1,108 @@
 package com.emerigen.infrastructure.learning;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.BDDAssertions.then;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+
+import org.assertj.core.api.SoftAssertions;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.sensor.SensorEvent;
+
 public class CycleTest {
 
 	@Test
-	public final void givenDifferentTypes_whenCycleMerged_thenIllegalArgurmentException() {
+	public final void givenDifferentCycleTypes_whenCycleMerged_thenIllegalArgurmentException() {
 		fail("Not yet implemented"); // TODO
 	}
 
 	@Test
-	public final void givenNullOrEmptySensorEvents_whenCycleCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
+	public final void givenNullSensorEvents_whenCycleCreated_thenIllegalArgurmentException() {
+		SoftAssertions softly = new SoftAssertions();
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> new DailyCycle(null));
+
+		then(throwable)
+				.as("A null sensorEvent list for cycle CTOR throws an IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
 	}
 
 	@Test
-	public final void givenNonPositiveCycleDuration_whenCycleCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
+	public final void givenEmptySensorEvents_whenCycleCreated_thenIllegalArgurmentException() {
+		SoftAssertions softly = new SoftAssertions();
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(
+				() -> new DailyCycle(new ArrayList<SensorEvent>()));
+
+		then(throwable)
+				.as("A empty sensorEvent list for cycle ctor throws an IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
 	}
 
 	@Test
-	public final void givenNonPositiveCycleStartTime_whenCycleCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
+	public final void givenNullSensorEvent_whenCycleNodeCreated_thenIllegalArgurmentException() {
+		SoftAssertions softly = new SoftAssertions();
+
+		// public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> new CycleNode(null, 1));
+
+		then(throwable).as("A null sensorEvent list throws a CycleNode  IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
 	}
 
 	@Test
-	public final void givenNonPositiveStandardDeviation_whenCycleCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
+	public final void givenNonPositiveCycleStartTime_whenCycleNodeCreated_thenIllegalArgurmentException() {
+		SoftAssertions softly = new SoftAssertions();
+
+		// public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> new CycleNode(new SensorEvent(), -11));
+
+		then(throwable)
+				.as("A non positive cycle start time throws a CycleNode  IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
 	}
 
 	@Test
-	public final void givenNullOrEmptySensorEvent_whenCycleNodeCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
-	}
+	public final void givenDailyCycle_whenCycleCreated_thenCycleStartTimeMustBe12am() {
+		DailyCycle dc = new DailyCycle();
 
-	@Test
-	public final void givenNonPositiveOriginStartTime_whenCycleNodeCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
-	}
+		ZoneId zoneId = ZoneId.of("US/Central");
+		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
 
-	@Test
-	public final void givenOriginStartTimeNotBasedOnCycleType_whenCycleCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenDailyCycle_whenCycleCreated_thenOriginTimeMustBe12am() {
-		fail("Not yet implemented"); // TODO
+		assertThat(dc.getCycleStartTimeMillis()).isEqualTo(todayStart.getSecond() * 1000);
 	}
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe24Hours() {
-		fail("Not yet implemented"); // TODO
+		DailyCycle dc = new DailyCycle();
+		assertThat(dc.getCycleDurationMillis()).isEqualTo(24 * 60 * 60 * 1000);
 	}
 
 	@Test
 	public final void givenHourlyCycle_whenCycleCreated_thenOriginTimeMustBe0Minutes() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe60Minutes() {
 		fail("Not yet implemented"); // TODO
 	}
 
@@ -102,12 +138,28 @@ public class CycleTest {
 
 	@Test
 	public final void givenNonPositiveDataPointDuration_whenCycleNodeCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
+//		private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long cycleStartTimeMillis,
+//				long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
+
+		final Throwable throwable = catchThrowable(
+				() -> new CycleNode(new SensorEvent(), 1, 1, -1, 1.2));
+
+		then(throwable).as("A non positive data point duration throws a  IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
 	}
 
 	@Test
 	public final void givenNonPositiveStandardDeviation_whenCycleNodeCreated_thenIllegalArgurmentException() {
-		fail("Not yet implemented"); // TODO
+//		private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long cycleStartTimeMillis,
+//		long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
+
+		final Throwable throwable = catchThrowable(
+				() -> new CycleNode(new SensorEvent(), 1, 1, 1, -1.2));
+
+		then(throwable).as("A non positive data point duration throws a  IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
 	}
 
 	@Test
@@ -176,18 +228,35 @@ public class CycleTest {
 	}
 
 	@Test
-	public final void givenInvalidStandardDeviation_whenSetOnNode_thenIllegalArgumentException() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
 	public final void givenNonPositiveDataPointDuration_whenSetOnNode_thenIllegalArgumentException() {
-		fail("Not yet implemented"); // TODO
+		SoftAssertions softly = new SoftAssertions();
+
+		// public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
+		CycleNode cn = new CycleNode(null, 1);
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> cn.setDataPointDurationMillis(-1));
+
+		then(throwable).as("A non positive duration throws IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
 	}
 
 	@Test
 	public final void givenNullSensorEvent_whenSetOnNode_thenIllegalArgumentException() {
-		fail("Not yet implemented"); // TODO
+		SoftAssertions softly = new SoftAssertions();
+
+		// public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
+		CycleNode cn = new CycleNode(new SensorEvent(), 1);
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> cn.setSensorEvent(null));
+
+		then(throwable).as("A null sensor event on cycle node throws IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
 	}
 
 	@Test

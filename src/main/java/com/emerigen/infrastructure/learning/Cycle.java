@@ -10,59 +10,66 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.CircularList;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
  * @author Larry
  *
  */
-public class Cycle<T> {
+public abstract class Cycle {
 
-	private CircularList<CycleNode> cycle;
-	private long startTimeMillis;
-	private long cycleDurationMillis;
-	private float allowableStandardDeviation;
+	/**
+	 * All cycles are implemented as a circular list
+	 */
+	protected CircularList<CycleNode> cycle;
+
+	/**
+	 * This is the starting timestamp for the beginning of each cycle type. For
+	 * example, Hourly cycles start at 0 minutes 0 seconds of the current hour,
+	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
+	 * 12:00am Sunday morning of the current week, etc
+	 */
+//	protected final long cycleStartTimeMillis;
+
+	/**
+	 * This is the duration for a cycle. Using the "Period" class will automatically
+	 * correct for Daylight savings time and local time zones. Generally, this will
+	 * be 168 hours for a weekly cycle, 24 hours for a daily cycle, etc.; all
+	 * converted to milliseconds.
+	 */
+//	protected final long cycleDurationMillis;
+
+	/**
+	 * @IDEA - enable cycle data point fuzzines using equality based on std
+	 *       deviation. As long as values are within this standard deviation from
+	 *       each other they will be considered to be equal. This allows for
+	 *       fuzziness of the data points associated with the nodes of a cycle;
+	 *       effectively enabling predictions when data points vary somewhat, but
+	 *       not in principle (all too often occurs dealing with life). For example,
+	 *       with GPS daily routes, multiple things may influence route node
+	 *       visitations (and visitation durations) including traffic, working late,
+	 *       detours, stopping for gas, stopping by the grocery store on the way
+	 *       home, going to lunch at different places, ...
+	 */
 	private List<SensorEvent> sensorEvents;
+
+	private final double allowableStandardDeviationForEquality = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("cycle.allowable.std.deviation.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
-	public Cycle(long startTimeMillis, long cycleDurationMillis, float allowableStandardDeviation) {
-		if (startTimeMillis < 0)
-			throw new IllegalArgumentException("startTimeMillis must be zero or more");
-		if (cycleDurationMillis <= 0)
-			throw new IllegalArgumentException("cycleDurationMillis must be positive");
-		if (allowableStandardDeviation < 0)
-			throw new IllegalArgumentException("allowableStandardDeviation must be positive");
-
-		this.cycleDurationMillis = cycleDurationMillis;
-		this.startTimeMillis = startTimeMillis;
-		this.allowableStandardDeviation = allowableStandardDeviation; // Standard Deviation for
-																		// equality purposes
+	public Cycle() {
 	}
 
 	/**
 	 * Construct a cycle from the given collection of SensorEvents
 	 * 
-	 * @param startTimeMillis
-	 * @param cycleDurationMillis
-	 * @param stdDeviation
+	 * @param sensorEvents
 	 */
-	public Cycle(List<SensorEvent> sensorEvents, long startTimeMillis, long cycleDurationMillis,
-			float allowableStandardDeviation) {
-
+	public Cycle(List<SensorEvent> sensorEvents) {
 		if (sensorEvents == null || sensorEvents.isEmpty())
 			throw new IllegalArgumentException("sensorEvents must not be null o empty");
-		if (startTimeMillis < 0)
-			throw new IllegalArgumentException("startTimeMillis must be zero or more");
-		if (cycleDurationMillis <= 0)
-			throw new IllegalArgumentException("cycleDurationMillis must be positive");
-		if (allowableStandardDeviation < 0)
-			throw new IllegalArgumentException("allowableStandardDeviation must be positive");
-
-		this.cycleDurationMillis = cycleDurationMillis;
-		this.sensorEvents = sensorEvents;
-		this.startTimeMillis = startTimeMillis;
-		this.allowableStandardDeviation = allowableStandardDeviation; // Standard Deviation for
-																		// equality purposes
 	}
 
 	/**
@@ -133,6 +140,30 @@ public class Cycle<T> {
 		} // end-while there are more consecutive cycle nodes
 		logger.info("Returning potential cycle nodes: " + cycleNodes.toString());
 		return cycleNodes;
+	}
+
+	/**
+	 * @return the cycle
+	 */
+	public CircularList<CycleNode> getCycle() {
+		return cycle;
+	}
+
+	/**
+	 * @return the cycleStartTimeMillis
+	 */
+	public abstract long calculateCycleStartTimeMillis();
+
+	/**
+	 * @return the cycleDurationMillis
+	 */
+	public abstract long calculateCycleDurationMillis();
+
+	/**
+	 * @return the sensorEvents
+	 */
+	public List<SensorEvent> getSensorEvents() {
+		return sensorEvents;
 	}
 
 	// stream list and compare item n with n+1

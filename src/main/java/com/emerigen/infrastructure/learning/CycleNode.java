@@ -42,7 +42,7 @@ public class CycleNode {
 	/**
 	 * The start time that this dataPoint was encountered.
 	 */
-	private long originStartTimeMillis;
+	private long cycleStartTimeMillis;
 	private long startTimeOffsetMillis;
 
 	/**
@@ -84,7 +84,7 @@ public class CycleNode {
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
-	private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long originStartTimeMillis,
+	CycleNode(SensorEvent sensorEvent, long startTimeMillis, long cycleStartTimeMillis,
 			long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
 
 		// Validate parms
@@ -92,8 +92,8 @@ public class CycleNode {
 			throw new IllegalArgumentException("SensorEvent must not be null");
 		if (startTimeMillis < 0)
 			throw new IllegalArgumentException("startTimeMillis must be zero or more");
-		if (originStartTimeMillis < 0)
-			throw new IllegalArgumentException("originStartTimeMillis must be zero or more");
+		if (cycleStartTimeMillis < 0)
+			throw new IllegalArgumentException("cycleStartTimeMillis must be zero or more");
 		if (dataPointDurationMillis <= 0)
 			throw new IllegalArgumentException("dataPointDurationMillis must be positive");
 		if (allowableStandardDeviationForEquality < 0)
@@ -102,8 +102,8 @@ public class CycleNode {
 
 		this.dataPointDurationMillis = dataPointDurationMillis;
 		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
-		this.startTimeOffsetMillis = startTimeMillis - originStartTimeMillis;
-		this.originStartTimeMillis = originStartTimeMillis;
+		this.startTimeOffsetMillis = startTimeMillis - cycleStartTimeMillis;
+		this.cycleStartTimeMillis = cycleStartTimeMillis;
 		this.sensorEvent = sensorEvent;
 
 	}
@@ -114,12 +114,14 @@ public class CycleNode {
 	 * 
 	 * @param sensorEvent
 	 */
-	public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
+	public CycleNode(SensorEvent sensorEvent, long cycleStartTimeMillis) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("SensorEvent must not be null");
+		if (cycleStartTimeMillis < 0)
+			throw new IllegalArgumentException("cycleStartTimeMillis must be psotive");
 
-		this.originStartTimeMillis = originStartTimeMillis;
-		this.startTimeOffsetMillis = sensorEvent.getTimestamp() - originStartTimeMillis;
+		this.cycleStartTimeMillis = cycleStartTimeMillis;
+		this.startTimeOffsetMillis = sensorEvent.getTimestamp() - cycleStartTimeMillis;
 		this.dataPointDurationMillis = defaultDataPointDurationMillis;
 		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
 		this.sensorEvent = sensorEvent;
@@ -138,23 +140,15 @@ public class CycleNode {
 			throw new IllegalArgumentException("nodeToMergeWith must not be null");
 
 		CycleNode newCycleNode = new CycleNode(nodeToMergeWith.sensorEvent,
-				this.getStartTimeMillis(), this.originStartTimeMillis,
+				this.getStartTimeMillis(), this.cycleStartTimeMillis,
 				this.defaultDataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis,
 				allowableStandardDeviationForEquality);
 		return newCycleNode;
-//		private CycleNode(SensorEvent sensorEvent, long startTimeMillis, long originStartTimeMillis,
-//				long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
-
-//		this.startTimeMillis = nodeToMergeWith.getTimestamp();
-//		this.dataPointDurationMillis = this.defaultDataPointDurationMillis
-//				+ nodeToMergeWith.dataPointDurationMillis;
-//		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
-//		this.sensorEvent = sensorEvent;
 	}
 
-	CycleNode(SensorEvent sensorEvent, long originStartTimeMillis, long dataPointDurationMillis) {
-		this(sensorEvent, sensorEvent.getTimestamp(), originStartTimeMillis,
-				dataPointDurationMillis, allowableStandardDeviationForEquality);
+	CycleNode(SensorEvent sensorEvent, long cycleStartTimeMillis, long dataPointDurationMillis) {
+		this(sensorEvent, sensorEvent.getTimestamp(), cycleStartTimeMillis, dataPointDurationMillis,
+				allowableStandardDeviationForEquality);
 	}
 
 	private double getStandardDeviation(double mean, double value) {
@@ -214,7 +208,7 @@ public class CycleNode {
 	 * @return the startTimeMillis
 	 */
 	public long getStartTimeMillis() {
-		return startTimeOffsetMillis + originStartTimeMillis;
+		return startTimeOffsetMillis + cycleStartTimeMillis;
 	}
 
 	/**
@@ -227,7 +221,7 @@ public class CycleNode {
 	@Override
 	public String toString() {
 		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationMillis="
-				+ dataPointDurationMillis + ", originStartTimeMillis=" + originStartTimeMillis
+				+ dataPointDurationMillis + ", cycleStartTimeMillis=" + cycleStartTimeMillis
 				+ ", startTimeOffsetMillis=" + startTimeOffsetMillis + "]";
 	}
 
@@ -242,6 +236,8 @@ public class CycleNode {
 	 * @param sensorEvent the sensorEvent to set
 	 */
 	public void setSensorEvent(SensorEvent sensorEvent) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensor event must not be null");
 		this.sensorEvent = sensorEvent;
 	}
 
@@ -256,7 +252,7 @@ public class CycleNode {
 	 * @param startTimeMillis the startTimeMillis to set
 	 */
 	public void setStartTimeMillis(long startTimeMillis) {
-		this.startTimeOffsetMillis = startTimeMillis - originStartTimeMillis;
+		this.startTimeOffsetMillis = startTimeMillis - cycleStartTimeMillis;
 	}
 
 	/**
@@ -270,10 +266,10 @@ public class CycleNode {
 	}
 
 	/**
-	 * @return the originStartTimeMillis
+	 * @return the cycleStartTimeMillis
 	 */
-	public long getOriginStartTimeMillis() {
-		return originStartTimeMillis;
+	public long getCycleStartTimeMillis() {
+		return cycleStartTimeMillis;
 	}
 
 	/**
