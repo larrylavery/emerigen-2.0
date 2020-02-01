@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -26,34 +25,9 @@ import com.emerigen.infrastructure.utils.Utils;
 
 public class CycleConstraintsTest {
 
-	Cycle myCycle = new WeeklyCycle() {
-
-		@Override
-		public long calculateCycleStartTimeMillis() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public long calculateCycleDurationMillis() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-	};
-	Cycle myCycle2 = new MonthlyCycle() {
-
-		@Override
-		public long calculateCycleStartTimeMillis() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public long calculateCycleDurationMillis() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-	};
+	int sensorType = 1;
+	Cycle myCycle = new WeeklyCycle(1);
+	Cycle myCycle2 = new MonthlyCycle(1);
 
 	@Test
 	public final void givenDifferentCycleTypes_whenCycleMerged_thenIllegalArgurmentException() {
@@ -67,29 +41,13 @@ public class CycleConstraintsTest {
 	}
 
 	@Test
-	public final void givenNullSensorEvents_whenCycleCreated_thenIllegalArgurmentException() {
+	public final void givenNonPositiveSensorType_whenCycleCreated_thenIllegalArgurmentException() {
 		SoftAssertions softly = new SoftAssertions();
 
 		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> new DailyCycle(null));
+		final Throwable throwable = catchThrowable(() -> new DailyCycle(-1));
 
-		then(throwable)
-				.as("A null sensorEvent list for cycle CTOR throws an IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-		softly.assertAll();
-	}
-
-	@Test
-	public final void givenEmptySensorEvents_whenCycleCreated_thenIllegalArgurmentException() {
-		SoftAssertions softly = new SoftAssertions();
-
-		// When the instance is validated
-		final Throwable throwable = catchThrowable(
-				() -> new DailyCycle(new ArrayList<SensorEvent>()));
-
-		then(throwable)
-				.as("A empty sensorEvent list for cycle ctor throws an IllegalArgumentException")
+		then(throwable).as("A non positive sensorType throws an IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -123,7 +81,7 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenCycleStartTimeMustBe12am() {
-		DailyCycle dc = new DailyCycle();
+		DailyCycle dc = new DailyCycle(1);
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
@@ -133,20 +91,20 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe24Hours() {
-		DailyCycle dc = new DailyCycle();
+		DailyCycle dc = new DailyCycle(1);
 		assertThat(dc.getCycleDurationMillis()).isEqualTo(24 * 60 * 60 * 1000);
 	}
 
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
-		WeeklyCycle dc = new WeeklyCycle();
+		WeeklyCycle dc = new WeeklyCycle(1);
 		assertThat(dc.getCycleDurationMillis()).isEqualTo(7 * 24 * 60 * 60 * 1000);
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenCycleStartTimeMustBe12amFirstDayOfMonth() {
 //		Utils.equals(time, yrCycle.getCycleDurationMillis());
-		MonthlyCycle mc = new MonthlyCycle();
+		MonthlyCycle mc = new MonthlyCycle(1);
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		LocalDate today = LocalDate.now();
@@ -160,7 +118,7 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
-		MonthlyCycle dc = new MonthlyCycle();
+		MonthlyCycle dc = new MonthlyCycle(1);
 		System.out.println("monthly duration is: " + dc.getCycleDurationMillis());
 		assertThat(Utils.equals(dc.getCycleDurationMillis(), 2629746000f, 10.0)).isTrue();
 	}
@@ -175,7 +133,7 @@ public class CycleConstraintsTest {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		long time = cal.getTimeInMillis();
-		YearlyCycle yrCycle = new YearlyCycle();
+		YearlyCycle yrCycle = new YearlyCycle(1);
 		Utils.equals(time, yrCycle.getCycleDurationMillis());
 
 	}

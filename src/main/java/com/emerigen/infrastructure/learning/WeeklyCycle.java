@@ -8,9 +8,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-
-import com.emerigen.infrastructure.sensor.SensorEvent;
 
 /**
  * @author Larry
@@ -27,13 +24,8 @@ public class WeeklyCycle extends Cycle {
 	private long cycleStartTimeMillis;
 	private long cycleDurationMillis;
 
-	public WeeklyCycle() {
-		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
-		this.cycleDurationMillis = calculateCycleDurationMillis();
-	}
-
-	public WeeklyCycle(List<SensorEvent> sensorEvents) {
-		super(sensorEvents);
+	public WeeklyCycle(int sensorType) {
+		super(sensorType);
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}

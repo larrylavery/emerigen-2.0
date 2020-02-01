@@ -3,9 +3,6 @@
  */
 package com.emerigen.infrastructure.learning;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -54,6 +51,7 @@ public abstract class Cycle {
 	protected CircularList<CycleNode> cycle;
 
 	private int previousCycleNodeIndex = -1;
+	private int sensorType;
 
 	private final double allowableStandardDeviationForEquality = Double
 			.parseDouble(EmerigenProperties.getInstance()
@@ -61,86 +59,12 @@ public abstract class Cycle {
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
-	public Cycle() {
+	public Cycle(int sensorType) {
+		if (sensorType <= 0)
+			throw new IllegalArgumentException("sensor type must be positive");
+		this.sensorType = sensorType;
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
-	}
-
-	/**
-	 * Construct a cycle from the given collection of SensorEvents
-	 * 
-	 * @param sensorEvents
-	 */
-	public Cycle(List<SensorEvent> sensorEvents) {
-		this();
-		if (sensorEvents == null || sensorEvents.isEmpty())
-			throw new IllegalArgumentException("sensorEvents must not be null o empty");
-	}
-
-	/**
-	 * Merge all consecutive sensor events (data points) that have insignificantly
-	 * different data points,accumulating their durations. When complete, the cycle
-	 * nodes represent data points that have the longest durations. For example, GPS
-	 * data points will have the longest visitation times making them a good
-	 * predictor of future cycle-based (hour, daily, weekly, etc) destinations and
-	 * predictions.
-	 * 
-	 * This logic is not specific to one type of data point and should work just as
-	 * well for most sensors (one exception is Accelerometer).
-	 * 
-	 * @param allSensorEvents
-	 * @return the current cycle node processed
-	 */
-	public List<CycleNode> generateCycleNodes(List<SensorEvent> allSensorEvents) {
-
-		if (allSensorEvents == null || allSensorEvents.isEmpty())
-			throw new IllegalArgumentException("allSensorEvents must not be null or empty");
-
-		// First, transform sensor events into CycleNodes for learning purposes
-		long originTimeStamp = allSensorEvents.get(0).getTimestamp(); // This is the original
-																		// timestamp
-		List<CycleNode> cycleNodes = allSensorEvents.stream()
-				.map(sensorEvent -> new CycleNode(this, sensorEvent, originTimeStamp))
-				.collect(Collectors.toList());
-
-		// Next, merge consecutive nodes and accumulate data point duration times
-		int index = 0;
-
-		while (index < cycleNodes.size()) {
-			if (index == cycleNodes.size() - 1) {
-
-				// No more consecutive nodes, return potential data point candidate nodes
-				logger.info("Returning potential cycle nodes: " + cycleNodes.toString());
-				return cycleNodes;
-			} else if (cycleNodes.get(index).equals(cycleNodes.get(index + 1))) {
-
-				/**
-				 * Merge the Node information, accumulating the duration of this data point and
-				 * adjust the start time of the next data point to include the current
-				 * measurement start time.
-				 */
-				long mergedDuration = cycleNodes.get(index).getDataPointDurationMillis()
-						+ cycleNodes.get(index + 1).getDataPointDurationMillis();
-				CycleNode newCycleNode = new CycleNode(this,
-						cycleNodes.get(index + 1).getSensorEvent(), mergedDuration);
-
-				/**
-				 * Finally, replace the two consecutive nodes with the new one
-				 */
-				cycleNodes.remove(index);
-				cycleNodes.remove(index);
-				cycle.add(index, newCycleNode);
-			} else {
-
-				/**
-				 * The previous and current cycle nodes are statistically different so increment
-				 * the previous and wait for the next sensor event.
-				 */
-				previousCycleNodeIndex++;
-			}
-		} // end-while there are more consecutive cycle nodes
-		logger.info("Returning potential cycle nodes: " + cycleNodes.toString());
-		return cycleNodes;
 	}
 
 	/**
@@ -164,6 +88,9 @@ public abstract class Cycle {
 	public CycleNode onNewSensorEvent(SensorEvent sensorEvent) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("sensorEvent must not be null");
+		if (!(sensorType == sensorEvent.getSensorType()))
+			throw new IllegalArgumentException("given sensor type (" + sensorEvent.getSensorType()
+					+ "), does not match cycle sensor type (" + sensorType + ")");
 
 		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
 

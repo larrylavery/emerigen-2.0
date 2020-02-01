@@ -5,9 +5,6 @@ package com.emerigen.infrastructure.learning;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-
-import com.emerigen.infrastructure.sensor.SensorEvent;
 
 /**
  * @author Larry
@@ -24,13 +21,8 @@ public class DailyCycle extends Cycle {
 	private long cycleStartTimeMillis;
 	private long cycleDurationMillis;
 
-	public DailyCycle() {
-		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
-		this.cycleDurationMillis = calculateCycleDurationMillis();
-	}
-
-	public DailyCycle(List<SensorEvent> sensorEvents) {
-		super(sensorEvents);
+	public DailyCycle(int sensorType) {
+		super(sensorType);
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
