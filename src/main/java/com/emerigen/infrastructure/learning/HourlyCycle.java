@@ -14,7 +14,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  * @param <T>
  *
  */
-public class DailyCycle extends Cycle {
+public class HourlyCycle extends Cycle {
 
 	final private long hoursPerDay = 24;
 	final private long minutesPerHour = 60;
@@ -24,19 +24,19 @@ public class DailyCycle extends Cycle {
 	private long cycleStartTimeMillis;
 	private long cycleDurationMillis;
 
-	public DailyCycle() {
+	public HourlyCycle() {
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
-	public DailyCycle(List<SensorEvent> sensorEvents) {
+	public HourlyCycle(List<SensorEvent> sensorEvents) {
 		super(sensorEvents);
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
 	/**
-	 * Calculate the start time of my cycle as 12am today
+	 * Calculate cycle start time as 0 minutes, 0 seconds of the current hour
 	 */
 	@Override
 	public long calculateCycleStartTimeMillis() {
@@ -47,7 +47,7 @@ public class DailyCycle extends Cycle {
 	}
 
 	/**
-	 * Caculate duration of 24 hours expressed as milliseconds
+	 * Caculate duration of 1 hour expressed as milliseconds
 	 */
 	@Override
 	public long calculateCycleDurationMillis() {

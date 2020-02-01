@@ -3,8 +3,10 @@
  */
 package com.emerigen.infrastructure.learning;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -14,44 +16,48 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  * @param <T>
  *
  */
-public class DailyCycle extends Cycle {
+public class MonthlyCycle extends Cycle {
 
-	final private long hoursPerDay = 24;
-	final private long minutesPerHour = 60;
-	final private long secondsPerMinute = 60;
+	final private long secondsPerYear = 31556952L;
 	final private long milliSecondsPerSecond = 1000;
-
 	private long cycleStartTimeMillis;
 	private long cycleDurationMillis;
 
-	public DailyCycle() {
+	public MonthlyCycle() {
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
-	public DailyCycle(List<SensorEvent> sensorEvents) {
+	public MonthlyCycle(List<SensorEvent> sensorEvents) {
 		super(sensorEvents);
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
 	/**
-	 * Calculate the start time of my cycle as 12am today
+	 * Calculate the start time of my cycle as day 1, 12am of the current month
 	 */
 	@Override
 	public long calculateCycleStartTimeMillis() {
 		ZoneId zoneId = ZoneId.systemDefault();
-		ZonedDateTime now = ZonedDateTime.now(zoneId);
-		ZonedDateTime todayStart = now.toLocalDate().atStartOfDay(zoneId);
-		return todayStart.getSecond() * milliSecondsPerSecond;
+
+		// Get the first day of this month
+		LocalDate today = LocalDate.now();
+		LocalDate firstDayOfCurrentMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+
+		// Get the start of that day
+		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
+		return firtDayStartTime.getSecond() * milliSecondsPerSecond;
 	}
 
 	/**
-	 * Caculate duration of 24 hours expressed as milliseconds
+	 * Caculate duration of 1 month expressed as milliseconds
 	 */
 	@Override
 	public long calculateCycleDurationMillis() {
-		return hoursPerDay * minutesPerHour * secondsPerMinute * milliSecondsPerSecond;
+
+		long secondsPerMonth = secondsPerYear / 12;
+		return secondsPerMonth * milliSecondsPerSecond;
 	}
 
 	/**

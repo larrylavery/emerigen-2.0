@@ -28,16 +28,21 @@ public abstract class Cycle {
 	 * example, Hourly cycles start at 0 minutes 0 seconds of the current hour,
 	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
 	 * 12:00am Sunday morning of the current week, etc
+	 * 
+	 * This is an absolute value of milliseconds since Jan 1, 1970. It is used to
+	 * calculate offsets for data point timestamps in the sensor events. This field
+	 * is rolled over to the next Cycle start time at the end of the duration of the
+	 * present cycle (i.e. moved to the next 24 hours for DailyCycle, 7 days for a
+	 * weekly cycle, etc.).
 	 */
-//	protected final long cycleStartTimeMillis;
+	protected final long cycleStartTimeMillis;
 
 	/**
-	 * This is the duration for a cycle. Using the "Period" class will automatically
-	 * correct for Daylight savings time and local time zones. Generally, this will
-	 * be 168 hours for a weekly cycle, 24 hours for a daily cycle, etc.; all
-	 * converted to milliseconds.
+	 * This is the duration for a cycle. Time zones and Daylight Savings times are
+	 * taken into account. Generally, this will be 168 hours for a weekly cycle, 24
+	 * hours for a daily cycle, etc.; all converted to milliseconds.
 	 */
-//	protected final long cycleDurationMillis;
+	protected final long cycleDurationMillis;
 
 	/**
 	 * @IDEA - enable cycle data point fuzzines using equality based on std
@@ -60,6 +65,8 @@ public abstract class Cycle {
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
 	public Cycle() {
+		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
+		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
 	/**
@@ -68,6 +75,7 @@ public abstract class Cycle {
 	 * @param sensorEvents
 	 */
 	public Cycle(List<SensorEvent> sensorEvents) {
+		this();
 		if (sensorEvents == null || sensorEvents.isEmpty())
 			throw new IllegalArgumentException("sensorEvents must not be null o empty");
 	}
@@ -87,7 +95,7 @@ public abstract class Cycle {
 	 * @param allSensorEvents
 	 * @return a list of merged sensor events representing the data points with the
 	 *         most accumulated "time at data point" values. These are the potential
-	 *         noeds in a cycle.
+	 *         nodes in a cycle.
 	 */
 	public List<CycleNode> generateCycleNodes(List<SensorEvent> allSensorEvents) {
 
@@ -98,7 +106,7 @@ public abstract class Cycle {
 		long originTimeStamp = allSensorEvents.get(0).getTimestamp(); // This is the original
 																		// timestamp
 		List<CycleNode> cycleNodes = allSensorEvents.stream()
-				.map(sensorEvent -> new CycleNode(sensorEvent, originTimeStamp))
+				.map(sensorEvent -> new CycleNode(this, sensorEvent, originTimeStamp))
 				.collect(Collectors.toList());
 
 		// Next, merge consecutive nodes and accumulate data point duration times
@@ -117,18 +125,17 @@ public abstract class Cycle {
 				 * adjust the start time of the next data point to include the current
 				 * measurement start time.
 				 */
-				CycleNode currentCycleNode = cycleNodes.get(index);
-				CycleNode nextCycleNode = cycleNodes.get(index + 1);
-
-				long mergedDuration = currentCycleNode.getDataPointDurationMillis()
-						+ nextCycleNode.getDataPointDurationMillis();
-				nextCycleNode.setDataPointDurationMillis(mergedDuration);
-				nextCycleNode.setStartTimeMillis(currentCycleNode.getStartTimeMillis());
+				long mergedDuration = cycleNodes.get(index).getDataPointDurationMillis()
+						+ cycleNodes.get(index + 1).getDataPointDurationMillis();
+				CycleNode newCycleNode = new CycleNode(this,
+						cycleNodes.get(index + 1).getSensorEvent(), mergedDuration);
 
 				/**
-				 * Finally, remove the current node since it has been merged into the next node.
+				 * Finally, replace the two consecutive nodes with the new one
 				 */
 				cycleNodes.remove(index);
+				cycleNodes.remove(index);
+				cycle.add(index, newCycleNode);
 			} else {
 
 				/**
@@ -164,6 +171,20 @@ public abstract class Cycle {
 	 */
 	public List<SensorEvent> getSensorEvents() {
 		return sensorEvents;
+	}
+
+	/**
+	 * @return the cycleStartTimeMillis
+	 */
+	public long getCycleStartTimeMillis() {
+		return cycleStartTimeMillis;
+	}
+
+	/**
+	 * @return the cycleDurationMillis
+	 */
+	public long getCycleDurationMillis() {
+		return cycleDurationMillis;
 	}
 
 	// stream list and compare item n with n+1

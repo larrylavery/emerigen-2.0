@@ -40,21 +40,25 @@ public class CycleNode {
 	private long dataPointDurationMillis;
 
 	/**
-	 * The start time that this dataPoint was encountered.
+	 * The Cycle that I belong to
 	 */
-	private long cycleStartTimeMillis;
+	private Cycle myCycle;
+
+	/**
+	 * The offset, from the cycle start time, that this dataPoint was encountered,
+	 */
 	private long startTimeOffsetMillis;
 
 	/**
 	 * The standard deviation for equality is used during comparisons of data in
-	 * this class. For example, if two field values are within this maximum standard
-	 * deviation then they are considered equal.
+	 * this class. For example, if two field values are within this maximum
+	 * allowable standard deviation then they are considered equal.
 	 * 
-	 * This field enables "Cycle Node", and overall "Cycle Fuzziness" meaning that
-	 * the individual nodes will match even when, in the case of GPS, the user does
-	 * not exactly match previously learned cycle nodes. Larger values increase
-	 * fuzziness whereas smaller values enforce more "strict" adherence to the
-	 * learned cycle.
+	 * This field enables "Cycle Node", and overall "Cycle" fuzziness" meaning that
+	 * the individual nodes will match even when, in the case of GPS, the data
+	 * points do not exactly match previously learned cycle nodes. Larger values
+	 * increase fuzziness whereas smaller values enforce more "strict" adherence to
+	 * the learned cycle.
 	 * 
 	 * Finally, the deviation is node-specific to support a mixture of overall cycle
 	 * fuzziness (as in real life). For example, when one goes to lunch for an hour
@@ -79,58 +83,32 @@ public class CycleNode {
 			.parseDouble(EmerigenProperties.getInstance()
 					.getValue("cycle.allowable.std.deviation.for.equality"));
 
-	private static long defaultDataPointDurationMillis = Long.parseLong(
-			EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.millis"));
-
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
-	CycleNode(SensorEvent sensorEvent, long startTimeMillis, long cycleStartTimeMillis,
-			long dataPointDurationMillis, double allowableStandardDeviationForEquality) {
-
-		// Validate parms
-		if (sensorEvent == null)
-			throw new IllegalArgumentException("SensorEvent must not be null");
-		if (startTimeMillis < 0)
-			throw new IllegalArgumentException("startTimeMillis must be zero or more");
-		if (cycleStartTimeMillis < 0)
-			throw new IllegalArgumentException("cycleStartTimeMillis must be zero or more");
-		if (dataPointDurationMillis <= 0)
-			throw new IllegalArgumentException("dataPointDurationMillis must be positive");
-		if (allowableStandardDeviationForEquality < 0)
-			throw new IllegalArgumentException(
-					"allowableStandardDeviationForEquality must not be negative");
-
-		this.dataPointDurationMillis = dataPointDurationMillis;
-		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
-		this.startTimeOffsetMillis = startTimeMillis - cycleStartTimeMillis;
-		this.cycleStartTimeMillis = cycleStartTimeMillis;
-		this.sensorEvent = sensorEvent;
-
-	}
-
 	/**
-	 * Construct a new CycleNode from a sensor event. This is used during cycle
-	 * creation.
 	 * 
+	 * @param myCycle
 	 * @param sensorEvent
+	 * @param dataPointDurationMillis
 	 */
-	public CycleNode(SensorEvent sensorEvent, long cycleStartTimeMillis) {
+	public CycleNode(Cycle myCycle, SensorEvent sensorEvent, long dataPointDurationMillis) {
+		if (myCycle == null)
+			throw new IllegalArgumentException("myCycle must not be null");
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("SensorEvent must not be null");
-		if (cycleStartTimeMillis < 0)
-			throw new IllegalArgumentException("cycleStartTimeMillis must be psotive");
+		if (dataPointDurationMillis < 0)
+			throw new IllegalArgumentException("dataPointDurationMillis must be positive");
 
-		this.cycleStartTimeMillis = cycleStartTimeMillis;
-		this.startTimeOffsetMillis = sensorEvent.getTimestamp() - cycleStartTimeMillis;
-		this.dataPointDurationMillis = defaultDataPointDurationMillis;
-		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+		this.myCycle = myCycle;
+		this.dataPointDurationMillis = dataPointDurationMillis;
+		this.startTimeOffsetMillis = getTimeOffset(sensorEvent.getTimestamp());
 		this.sensorEvent = sensorEvent;
 	}
 
 	/**
 	 * Merge information from the given cycle node into this cycle node. Use my
-	 * start time as the new node's start time. Add the duration time from both
-	 * events.
+	 * start time offset as the new node's start time offset. Add the duration time
+	 * from both events.
 	 * 
 	 * @param nodeToMergeWith
 	 * @return a new node with accumulated "time at data point"
@@ -138,21 +116,16 @@ public class CycleNode {
 	public CycleNode merge(CycleNode nodeToMergeWith) {
 		if (nodeToMergeWith == null)
 			throw new IllegalArgumentException("nodeToMergeWith must not be null");
+		if (nodeToMergeWith.myCycle != myCycle)
+			throw new IllegalArgumentException("Both nodes must be part of the same cycle");
 
-		CycleNode newCycleNode = new CycleNode(nodeToMergeWith.sensorEvent,
-				this.getStartTimeMillis(), this.cycleStartTimeMillis,
-				this.defaultDataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis,
-				allowableStandardDeviationForEquality);
+		CycleNode newCycleNode = new CycleNode(myCycle, nodeToMergeWith.getSensorEvent(),
+				this.dataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis);
 		return newCycleNode;
 	}
 
-	CycleNode(SensorEvent sensorEvent, long cycleStartTimeMillis, long dataPointDurationMillis) {
-		this(sensorEvent, sensorEvent.getTimestamp(), cycleStartTimeMillis, dataPointDurationMillis,
-				allowableStandardDeviationForEquality);
-	}
-
-	private double getStandardDeviation(double mean, double value) {
-		return Utils.getStandardDeviation(mean, value);
+	public long getTimeOffset(long timestamp) {
+		return timestamp - myCycle.getCycleStartTimeMillis();
 	}
 
 	@Override
@@ -178,7 +151,7 @@ public class CycleNode {
 		CycleNode other = (CycleNode) obj;
 
 		double difference = sensorEvent.getSensor().getDifferenceBetweenReadings(sensorEvent,
-				other.getSensorEvent());
+				other.sensorEvent);
 		if (Utils.getStandardDeviation(difference) > allowableStandardDeviationForEquality) {
 			logger.info(
 					"this cycleNode IS NOT equal to the next cycleNode [ in terms of data point difference]");
@@ -191,54 +164,10 @@ public class CycleNode {
 	}
 
 	/**
-	 * @return the sensorEvent
-	 */
-	public SensorEvent getSensorEvent() {
-		return sensorEvent;
-	}
-
-	/**
 	 * @return the dataPointDurationMillis
 	 */
 	public long getDataPointDurationMillis() {
 		return dataPointDurationMillis;
-	}
-
-	/**
-	 * @return the startTimeMillis
-	 */
-	public long getStartTimeMillis() {
-		return startTimeOffsetMillis + cycleStartTimeMillis;
-	}
-
-	/**
-	 * @return the allowableStandardDeviationForEquality
-	 */
-	public static double getAllowableStandardDeviationForEquality() {
-		return allowableStandardDeviationForEquality;
-	}
-
-	@Override
-	public String toString() {
-		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationMillis="
-				+ dataPointDurationMillis + ", cycleStartTimeMillis=" + cycleStartTimeMillis
-				+ ", startTimeOffsetMillis=" + startTimeOffsetMillis + "]";
-	}
-
-	/**
-	 * @return the defaultDataPointDurationMillis
-	 */
-	public static long getDefaultDataPointDurationMillis() {
-		return defaultDataPointDurationMillis;
-	}
-
-	/**
-	 * @param sensorEvent the sensorEvent to set
-	 */
-	public void setSensorEvent(SensorEvent sensorEvent) {
-		if (sensorEvent == null)
-			throw new IllegalArgumentException("sensor event must not be null");
-		this.sensorEvent = sensorEvent;
 	}
 
 	/**
@@ -249,34 +178,10 @@ public class CycleNode {
 	}
 
 	/**
-	 * @param startTimeMillis the startTimeMillis to set
+	 * @return the sensorEvent
 	 */
-	public void setStartTimeMillis(long startTimeMillis) {
-		this.startTimeOffsetMillis = startTimeMillis - cycleStartTimeMillis;
-	}
-
-	/**
-	 * @param allowableStandardDeviationForEquality the
-	 *                                              allowableStandardDeviationForEquality
-	 *                                              to set
-	 */
-	public static void setAllowableStandardDeviationForEquality(
-			double allowableStandardDeviationForEquality) {
-		CycleNode.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
-	}
-
-	/**
-	 * @return the cycleStartTimeMillis
-	 */
-	public long getCycleStartTimeMillis() {
-		return cycleStartTimeMillis;
-	}
-
-	/**
-	 * @return the startTimeOffsetMillis
-	 */
-	public long getStartTimeOffsetMillis() {
-		return startTimeOffsetMillis;
+	public SensorEvent getSensorEvent() {
+		return sensorEvent;
 	}
 
 }
