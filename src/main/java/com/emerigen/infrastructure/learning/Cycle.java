@@ -19,11 +19,6 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public abstract class Cycle {
 
 	/**
-	 * All cycles are implemented as a circular list
-	 */
-	protected CircularList<CycleNode> cycle;
-
-	/**
 	 * This is the starting timestamp for the beginning of each cycle type. For
 	 * example, Hourly cycles start at 0 minutes 0 seconds of the current hour,
 	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
@@ -56,7 +51,9 @@ public abstract class Cycle {
 	 *       detours, stopping for gas, stopping by the grocery store on the way
 	 *       home, going to lunch at different places, ...
 	 */
-	private List<SensorEvent> sensorEvents;
+	protected CircularList<CycleNode> cycle;
+
+	private int previousCycleNodeIndex = -1;
 
 	private final double allowableStandardDeviationForEquality = Double
 			.parseDouble(EmerigenProperties.getInstance()
@@ -82,20 +79,17 @@ public abstract class Cycle {
 
 	/**
 	 * Merge all consecutive sensor events (data points) that have insignificantly
-	 * different data points,accumulating their durations. When complete, the
-	 * remaining cycle nodes have the potential to become part of the cycle being
-	 * learned because they are the data points with the longest durations. For
-	 * example, GPS data points remaining will have the longest visitation times
-	 * making them a good predictor of future cycle-based (hour, daily, weekly, etc)
-	 * destinations.
+	 * different data points,accumulating their durations. When complete, the cycle
+	 * nodes represent data points that have the longest durations. For example, GPS
+	 * data points will have the longest visitation times making them a good
+	 * predictor of future cycle-based (hour, daily, weekly, etc) destinations and
+	 * predictions.
 	 * 
-	 * Fortunately, this logic is not specific to one type of data point and should
-	 * work just as well for most sensors (one exception is Accelerometer).
+	 * This logic is not specific to one type of data point and should work just as
+	 * well for most sensors (one exception is Accelerometer).
 	 * 
 	 * @param allSensorEvents
-	 * @return a list of merged sensor events representing the data points with the
-	 *         most accumulated "time at data point" values. These are the potential
-	 *         nodes in a cycle.
+	 * @return the current cycle node processed
 	 */
 	public List<CycleNode> generateCycleNodes(List<SensorEvent> allSensorEvents) {
 
@@ -139,10 +133,10 @@ public abstract class Cycle {
 			} else {
 
 				/**
-				 * The current and next cycle nodes are statistically different so examine the
-				 * next two consecutive entries.
+				 * The previous and current cycle nodes are statistically different so increment
+				 * the previous and wait for the next sensor event.
 				 */
-				index++;
+				previousCycleNodeIndex++;
 			}
 		} // end-while there are more consecutive cycle nodes
 		logger.info("Returning potential cycle nodes: " + cycleNodes.toString());
@@ -150,10 +144,72 @@ public abstract class Cycle {
 	}
 
 	/**
-	 * @return the cycle
+	 * Called whenever a new sensor event is generated that matches its sensor type.
+	 * It will learn new events by attempting to aggregate consecutive data point
+	 * duration times. The end result of processing many new sensor events is a
+	 * cycle list populated with cycle nodes that have the longest durations.
+	 * 
+	 * For example, in the case of a GPS sensor, the nodes represent the GPS
+	 * locations that have the longest visition durations; effectively the route
+	 * prediction nodes for the specified cycle duration (ie daily, weekly, monthly,
+	 * ...)
+	 * 
+	 * This logic is not specific to one type of data point or cycle and should work
+	 * just as well for most sensors (one exception is Accelerometer) and all cycle
+	 * durations.
+	 * 
+	 * @param sensorEvent
+	 * @return
 	 */
-	public CircularList<CycleNode> getCycle() {
-		return cycle;
+	public CycleNode onNewSensorEvent(SensorEvent sensorEvent) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null");
+
+		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
+
+		if (previousCycleNodeIndex < 0) {
+
+			/**
+			 * If we are creating a new cycle, then calulate the data point duration from
+			 * the cycle start, add the node to the list, and update previous node index.
+			 */
+			newCycleNode.setDataPointDurationMillis(
+					newCycleNode.getTimeOffset(sensorEvent.getTimestamp()));
+			cycle.add(newCycleNode);
+			previousCycleNodeIndex = 0;
+			logger.info("New cycle list, adding first node: " + newCycleNode.toString());
+
+		} else if (cycle.get(previousCycleNodeIndex).equals(newCycleNode)) {
+
+			/**
+			 * The previous and current cycle nodes are statistically equal, so merge the
+			 * Node information, accumulating the duration of this data point and adjust the
+			 * start time of the next data point to include the current measurement start
+			 * time.
+			 */
+			long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationMillis()
+					+ newCycleNode.getDataPointDurationMillis();
+			newCycleNode.setDataPointDurationMillis(mergedDuration);
+
+			// Replace the previous cycle node with the merged node
+			cycle.remove(previousCycleNodeIndex);
+			cycle.add(previousCycleNodeIndex, newCycleNode);
+			logger.info("New Node merged with previous node, merged node: "
+					+ newCycleNode.toString() + ", cycle list: " + cycle.toString());
+
+		} else {
+
+			/**
+			 * The previous and current cycle nodes are statistically different, so add the
+			 * current node and update previous node index.
+			 */
+			cycle.add(newCycleNode);
+			previousCycleNodeIndex++;
+			logger.info("Previous and new nodes are statistically different. adding New Node: "
+					+ newCycleNode.toString() + ", cycle list: " + cycle.toString());
+		}
+
+		return newCycleNode;
 	}
 
 	/**
@@ -165,13 +221,6 @@ public abstract class Cycle {
 	 * @return the cycleDurationMillis
 	 */
 	public abstract long calculateCycleDurationMillis();
-
-	/**
-	 * @return the sensorEvents
-	 */
-	public List<SensorEvent> getSensorEvents() {
-		return sensorEvents;
-	}
 
 	/**
 	 * @return the cycleStartTimeMillis

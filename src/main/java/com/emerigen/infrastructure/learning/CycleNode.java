@@ -83,6 +83,9 @@ public class CycleNode {
 			.parseDouble(EmerigenProperties.getInstance()
 					.getValue("cycle.allowable.std.deviation.for.equality"));
 
+	private static long defaultCycleNodeDurationMillis = Long.parseLong(
+			EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.millis"));
+
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
 	/**
@@ -103,6 +106,10 @@ public class CycleNode {
 		this.dataPointDurationMillis = dataPointDurationMillis;
 		this.startTimeOffsetMillis = getTimeOffset(sensorEvent.getTimestamp());
 		this.sensorEvent = sensorEvent;
+	}
+
+	public CycleNode(Cycle myCycle, SensorEvent sensorEvent) {
+		this(myCycle, sensorEvent, defaultCycleNodeDurationMillis);
 	}
 
 	/**
