@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ CircularListTest.class, CycleTest.class })
+@SuiteClasses({ CircularListTest.class, CycleConstraintsTest.class, CycleLearningTest.class })
 public class AllTests {
 
 }

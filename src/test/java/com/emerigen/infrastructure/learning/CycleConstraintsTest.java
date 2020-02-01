@@ -2,11 +2,12 @@ package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -23,7 +24,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.Utils;
 
-public class CycleTest {
+public class CycleConstraintsTest {
 
 	Cycle myCycle = new WeeklyCycle() {
 
@@ -137,20 +138,24 @@ public class CycleTest {
 	}
 
 	@Test
-	public final void givenHourlyCycle_whenCycleCreated_thenOriginTimeMustBe0Minutes() {
-		HourlyCycle dc = new HourlyCycle();
-		assertThat(dc.getCycleDurationMillis()).isEqualTo(60 * 60 * 1000);
-	}
-
-	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
-		HourlyCycle dc = new HourlyCycle();
+		WeeklyCycle dc = new WeeklyCycle();
 		assertThat(dc.getCycleDurationMillis()).isEqualTo(7 * 24 * 60 * 60 * 1000);
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenCycleStartTimeMustBe12amFirstDayOfMonth() {
-		fail("Not yet implemented"); // TODO
+//		Utils.equals(time, yrCycle.getCycleDurationMillis());
+		MonthlyCycle mc = new MonthlyCycle();
+
+		ZoneId zoneId = ZoneId.systemDefault();
+		LocalDate today = LocalDate.now();
+		LocalDate firstDayOfCurrentMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+
+		// Get the start of that day
+		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
+		assertThat((firtDayStartTime.getSecond() * 1000) == mc.getCycleStartTimeMillis()).isTrue();
+
 	}
 
 	@Test
@@ -171,7 +176,7 @@ public class CycleTest {
 		cal.set(Calendar.SECOND, 0);
 		long time = cal.getTimeInMillis();
 		YearlyCycle yrCycle = new YearlyCycle();
-		Utils.equals(time, yrCycle.cycleDurationMillis);
+		Utils.equals(time, yrCycle.getCycleDurationMillis());
 
 	}
 
@@ -184,11 +189,6 @@ public class CycleTest {
 		then(throwable).as("A non positive data point duration throws a  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
-	}
-
-	@Test
-	public final void givenValidParameters_whenDifferenceCalculatedBySensor_thenCorrect() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@Test
@@ -241,26 +241,11 @@ public class CycleTest {
 	}
 
 	@Test
-	public final void givenNodeWithValidStartTimeAndOffst_whenRetrieved_thenCorrect() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenSensorEventListWithDifferentSensorTypes_whenCreatingCycle_thenIllegalArgumentException() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenValidCycleNodes_whenDurationsAdded_thenMustEqualCycleDuration() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
 	public final void givenNonPositiveDataPointDuration_whenSetOnNode_thenIllegalArgumentException() {
 		SoftAssertions softly = new SoftAssertions();
 
 		// public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
-		CycleNode cn = new CycleNode(myCycle, new SensorEvent(), -11);
+		CycleNode cn = new CycleNode(myCycle, new SensorEvent(), 11);
 
 		// When the instance is validated
 		final Throwable throwable = catchThrowable(() -> cn.setDataPointDurationMillis(-1));
@@ -269,11 +254,6 @@ public class CycleTest {
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
-	}
-
-	@Test
-	public final void givenValidSensorEvents_whenCycleCreated_thenNodesMustBeInAscendingTimeOrder() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@Test
@@ -287,41 +267,6 @@ public class CycleTest {
 				.isInstanceOf(IllegalArgumentException.class);
 
 		// public CycleNode merge(CycleNode nodeToMergeWith) {
-	}
-
-	@Test
-	public final void givenValidCycle_whenCurrentNodeBeforeLastNodeSelected_thenPredictionsMustBeValid() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenValidSortedSensorEvents_whenNodesCreated_thenTimestampsAndOffsetsValid() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenValidSortedSensorEvents_whenNodesCreated_thenTimestampsAndOffsetsInAscendingOrder() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleValidCyclesForSensor_whenCurrentNodeBeforeLastNodeSelectedOnAnyCycle_thenPredictionsOnAllCyclesMustBeReturned() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleCyclesForSensor_whenCurrentSensorEventMatches_thenCorrectCycleNodesArePredicted() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleCyclesForSensor_whenCyclesMerged_thenCyclesMergedAtJoinedPoints() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleCyclesForSensor_whenCyclesMerged_thenCyclesBranchedAtDistinctPoints() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@BeforeClass

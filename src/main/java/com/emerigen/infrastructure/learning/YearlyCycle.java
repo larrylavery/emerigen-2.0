@@ -39,14 +39,6 @@ public class YearlyCycle extends Cycle {
 	 */
 	@Override
 	public long calculateCycleStartTimeMillis() {
-//		Calendar cal = GregorianCalendar.getInstance();
-//		cal.set(Calendar.DAY_OF_MONTH, 1);// I might have the wrong Calendar constant...
-//		cal.set(Calendar.MONTH, 0);// -1 as month is zero-based
-//		cal.set(Calendar.YEAR, 2020);
-//		cal.set(Calendar.HOUR, 0);
-//		cal.set(Calendar.MINUTE, 0);
-//		cal.set(Calendar.SECOND, 0);
-//		long time = cal.getTimeInMillis();
 
 		ZoneId zoneId = ZoneId.systemDefault();
 

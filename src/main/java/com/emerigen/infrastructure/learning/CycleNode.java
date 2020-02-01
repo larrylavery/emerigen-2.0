@@ -174,6 +174,8 @@ public class CycleNode {
 	 * @param dataPointDurationMillis the dataPointDurationMillis to set
 	 */
 	public void setDataPointDurationMillis(long dataPointDurationMillis) {
+		if (dataPointDurationMillis <= 0)
+			throw new IllegalArgumentException("data point duration must be positive");
 		this.dataPointDurationMillis = dataPointDurationMillis;
 	}
 
