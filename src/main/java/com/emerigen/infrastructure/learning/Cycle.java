@@ -27,7 +27,7 @@ public abstract class Cycle {
 	 * present cycle (i.e. moved to the next 24 hours for DailyCycle, 7 days for a
 	 * weekly cycle, etc.).
 	 */
-	protected final long cycleStartTimeMillis;
+	protected long cycleStartTimeMillis;
 
 	/**
 	 * This is the duration for a cycle. Time zones and Daylight Savings times are
@@ -62,6 +62,7 @@ public abstract class Cycle {
 	public Cycle(int sensorType) {
 		if (sensorType <= 0)
 			throw new IllegalArgumentException("sensor type must be positive");
+		cycle = new CircularList<>();
 		this.sensorType = sensorType;
 		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
 		this.cycleDurationMillis = calculateCycleDurationMillis();
@@ -92,13 +93,35 @@ public abstract class Cycle {
 			throw new IllegalArgumentException("given sensor type (" + sensorEvent.getSensorType()
 					+ "), does not match cycle sensor type (" + sensorType + ")");
 
+		// Verify new event is after the last event
+		if (previousCycleNodeIndex >= 0) {
+			long previousEventTimestamp = cycle.get(previousCycleNodeIndex).getSensorEvent()
+					.getTimestamp();
+			if (sensorEvent.getTimestamp() < previousEventTimestamp)
+				throw new IllegalArgumentException("sensorEvent out of order received");
+		}
+
+		// Skip cycles if the event timestamp is past our current duration
+		if ((sensorEvent.getTimestamp() - getCycleStartTimeMillis()) > getCycleDurationMillis()) {
+			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeMillis())
+					/ getCycleDurationMillis();
+
+			cycleStartTimeMillis = cycleStartTimeMillis + (cyclesToSkip * getCycleDurationMillis());
+			logger.info(
+					"Incoming event was past our current cycle duration so the new cycleStartTime ("
+							+ cycleStartTimeMillis + "), sensor event timestamp ("
+							+ sensorEvent.getTimestamp() + ")");
+		}
+
+		// Now that the cycle start time has been adjusted, create a new CycleNode
 		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
 
 		if (previousCycleNodeIndex < 0) {
 
 			/**
-			 * If we are creating a new cycle, then calulate the data point duration from
-			 * the cycle start, add the node to the list, and update previous node index.
+			 * If this is the first node in the cycle, then calulate the data point duration
+			 * from the cycle start, add the node to the list, and update previous node
+			 * index.
 			 */
 			newCycleNode.setDataPointDurationMillis(
 					newCycleNode.getTimeOffset(sensorEvent.getTimestamp()));
@@ -109,16 +132,15 @@ public abstract class Cycle {
 		} else if (cycle.get(previousCycleNodeIndex).equals(newCycleNode)) {
 
 			/**
-			 * The previous and current cycle nodes are statistically equal, so merge the
-			 * Node information, accumulating the duration of this data point and adjust the
-			 * start time of the next data point to include the current measurement start
-			 * time.
+			 * If the previous and current cycle nodes are statistically equal, merge the
+			 * Node information, accumulating the duration of the data point and adjust the
+			 * start time of the current data point to include the previous measurement
+			 * start time. Then replace the previous node with the merged node.
 			 */
 			long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationMillis()
 					+ newCycleNode.getDataPointDurationMillis();
 			newCycleNode.setDataPointDurationMillis(mergedDuration);
 
-			// Replace the previous cycle node with the merged node
 			cycle.remove(previousCycleNodeIndex);
 			cycle.add(previousCycleNodeIndex, newCycleNode);
 			logger.info("New Node merged with previous node, merged node: "
@@ -127,7 +149,7 @@ public abstract class Cycle {
 		} else {
 
 			/**
-			 * The previous and current cycle nodes are statistically different, so add the
+			 * If the previous and current cycle nodes are statistically different, add the
 			 * current node and update previous node index.
 			 */
 			cycle.add(newCycleNode);
@@ -161,6 +183,22 @@ public abstract class Cycle {
 	 */
 	public long getCycleDurationMillis() {
 		return cycleDurationMillis;
+	}
+
+	/**
+	 * @return the cycle
+	 */
+	public CircularList<CycleNode> getCycle() {
+		return cycle;
+	}
+
+	@Override
+	public String toString() {
+		return "Cycle [cycleStartTimeMillis=" + cycleStartTimeMillis + ", cycleDurationMillis="
+				+ cycleDurationMillis + ", cycle=" + cycle + ", previousCycleNodeIndex="
+				+ previousCycleNodeIndex + ", sensorType=" + sensorType
+				+ ", allowableStandardDeviationForEquality=" + allowableStandardDeviationForEquality
+				+ "]";
 	}
 
 	// stream list and compare item n with n+1

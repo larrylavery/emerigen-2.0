@@ -6,6 +6,8 @@ package com.emerigen.infrastructure.learning;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author Larry
  * @param <T>
@@ -17,14 +19,10 @@ public class DailyCycle extends Cycle {
 	final private long minutesPerHour = 60;
 	final private long secondsPerMinute = 60;
 	final private long milliSecondsPerSecond = 1000;
-
-	private long cycleStartTimeMillis;
-	private long cycleDurationMillis;
+	private static final Logger logger = Logger.getLogger(DailyCycle.class);
 
 	public DailyCycle(int sensorType) {
 		super(sensorType);
-		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
-		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
 	/**
@@ -35,7 +33,9 @@ public class DailyCycle extends Cycle {
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime now = ZonedDateTime.now(zoneId);
 		ZonedDateTime todayStart = now.toLocalDate().atStartOfDay(zoneId);
-		return todayStart.getSecond() * milliSecondsPerSecond;
+		long startTime = todayStart.toEpochSecond() * milliSecondsPerSecond;
+		logger.info("cycleStartTimeMillis = " + startTime);
+		return todayStart.toEpochSecond() * milliSecondsPerSecond;
 	}
 
 	/**
@@ -46,20 +46,9 @@ public class DailyCycle extends Cycle {
 		return hoursPerDay * minutesPerHour * secondsPerMinute * milliSecondsPerSecond;
 	}
 
-	/**
-	 * @return the cycleStartTimeMillis
-	 */
 	@Override
-	public long getCycleStartTimeMillis() {
-		return cycleStartTimeMillis;
-	}
-
-	/**
-	 * @return the cycleDurationMillis
-	 */
-	@Override
-	public long getCycleDurationMillis() {
-		return cycleDurationMillis;
+	public String toString() {
+		return "DailyCycle []";
 	}
 
 }

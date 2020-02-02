@@ -35,7 +35,7 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		// Given
 		// Create two JSON Documents
-		long timestamp = System.nanoTime();
+		long timestamp = System.currentTimeMillis();
 		float[] values = { 1.1f, 2.1f };
 		float[] values2 = { 4.1f, 2.1f };
 		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,

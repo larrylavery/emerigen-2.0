@@ -21,13 +21,9 @@ public class WeeklyCycle extends Cycle {
 	final private long minutesPerHour = 60;
 	final private long secondsPerMinute = 60;
 	final private long milliSecondsPerSecond = 1000;
-	private long cycleStartTimeMillis;
-	private long cycleDurationMillis;
 
 	public WeeklyCycle(int sensorType) {
 		super(sensorType);
-		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
-		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
 	/**
@@ -43,7 +39,7 @@ public class WeeklyCycle extends Cycle {
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentWeek.atStartOfDay(zoneId);
-		return firtDayStartTime.getSecond() * milliSecondsPerSecond;
+		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond;
 	}
 
 	/**
@@ -53,22 +49,6 @@ public class WeeklyCycle extends Cycle {
 	public long calculateCycleDurationMillis() {
 		return daysPerWeek * hoursPerDay * minutesPerHour * secondsPerMinute
 				* milliSecondsPerSecond;
-	}
-
-	/**
-	 * @return the cycleStartTimeMillis
-	 */
-	@Override
-	public long getCycleStartTimeMillis() {
-		return cycleStartTimeMillis;
-	}
-
-	/**
-	 * @return the cycleDurationMillis
-	 */
-	@Override
-	public long getCycleDurationMillis() {
-		return cycleDurationMillis;
 	}
 
 }

@@ -17,13 +17,9 @@ public class MonthlyCycle extends Cycle {
 
 	final private long secondsPerYear = 31556952L;
 	final private long milliSecondsPerSecond = 1000;
-	private long cycleStartTimeMillis;
-	private long cycleDurationMillis;
 
 	public MonthlyCycle(int sensorType) {
 		super(sensorType);
-		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
-		this.cycleDurationMillis = calculateCycleDurationMillis();
 	}
 
 	/**
@@ -39,7 +35,7 @@ public class MonthlyCycle extends Cycle {
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		return firtDayStartTime.getSecond() * milliSecondsPerSecond;
+		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond;
 	}
 
 	/**
@@ -50,22 +46,6 @@ public class MonthlyCycle extends Cycle {
 
 		long secondsPerMonth = secondsPerYear / 12;
 		return secondsPerMonth * milliSecondsPerSecond;
-	}
-
-	/**
-	 * @return the cycleStartTimeMillis
-	 */
-	@Override
-	public long getCycleStartTimeMillis() {
-		return cycleStartTimeMillis;
-	}
-
-	/**
-	 * @return the cycleDurationMillis
-	 */
-	@Override
-	public long getCycleDurationMillis() {
-		return cycleDurationMillis;
 	}
 
 }

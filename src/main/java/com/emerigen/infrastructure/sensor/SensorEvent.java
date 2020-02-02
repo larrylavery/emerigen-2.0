@@ -43,10 +43,7 @@ public class SensorEvent {
 	private int sensorLocation = 0;
 	private String key = null;
 
-	/**
-	 * In nanoseconds
-	 */
-	private long timestamp = System.nanoTime();
+	private long timestamp = System.currentTimeMillis();
 
 	/**
 	 * The length and meaning of these values is sensor specific. One in particular
@@ -72,7 +69,7 @@ public class SensorEvent {
 	}
 
 	public String getKey() {
-		return "" + sensor.getType() + sensor.getLocation() + getTimestamp();
+		return "" + sensor.getType() + sensor.getLocation() + getTimestamp() + values.hashCode();
 	}
 
 	public float[] getValues() {
@@ -95,6 +92,13 @@ public class SensorEvent {
 	 */
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	/**
+	 * @return the timestamp
+	 */
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	@Override

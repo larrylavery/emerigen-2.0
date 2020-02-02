@@ -86,7 +86,7 @@ public class CycleConstraintsTest {
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
 
-		assertThat(dc.getCycleStartTimeMillis()).isEqualTo(todayStart.getSecond() * 1000);
+		assertThat(dc.getCycleStartTimeMillis()).isEqualTo(todayStart.toEpochSecond() * 1000);
 	}
 
 	@Test
@@ -112,7 +112,8 @@ public class CycleConstraintsTest {
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		assertThat((firtDayStartTime.getSecond() * 1000) == mc.getCycleStartTimeMillis()).isTrue();
+		assertThat((firtDayStartTime.toEpochSecond() * 1000) == mc.getCycleStartTimeMillis())
+				.isTrue();
 
 	}
 

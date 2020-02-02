@@ -193,4 +193,11 @@ public class CycleNode {
 		return sensorEvent;
 	}
 
+	@Override
+	public String toString() {
+		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationMillis="
+				+ dataPointDurationMillis + ", myCycle=" + myCycle + ", startTimeOffsetMillis="
+				+ startTimeOffsetMillis + "]";
+	}
+
 }
