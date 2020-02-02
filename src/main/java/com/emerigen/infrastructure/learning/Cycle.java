@@ -164,6 +164,8 @@ public abstract class Cycle {
 	 * TODO revisit offset calculation and verify with test
 	 */
 	private void addFirstCycleNode(CycleNode newCycleNode) {
+		newCycleNode.setDataPointDurationMillis(
+				newCycleNode.getTimeOffset(newCycleNode.getSensorEvent().getTimestamp()));
 		cycle.add(newCycleNode);
 		previousCycleNodeIndex = cycle.indexOf(newCycleNode);
 		logger.info("New cycle list, adding first node: " + newCycleNode.toString());
