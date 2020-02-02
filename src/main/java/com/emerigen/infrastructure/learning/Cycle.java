@@ -79,13 +79,141 @@ public abstract class Cycle {
 	 * prediction nodes for the specified cycle duration (ie daily, weekly, monthly,
 	 * ...)
 	 * 
-	 * This logic is not specific to one type of data point or cycle and should work
+	 * The logic is not specific to one type of data point or cycle and should work
 	 * just as well for most sensors (one exception is Accelerometer) and all cycle
 	 * durations.
 	 * 
 	 * @param sensorEvent
 	 * @return
 	 */
+	public boolean onSensorChanged(SensorEvent sensorEvent) {
+
+		// Validate parms
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null");
+		if (!(sensorType == sensorEvent.getSensorType()))
+			throw new IllegalArgumentException("given sensor type (" + sensorEvent.getSensorType()
+					+ "), does not match cycle sensor type (" + sensorType + ")");
+
+		if (eventIsOutOfOrder(sensorEvent))
+			throw new IllegalArgumentException("sensorEvent out of order received.");
+
+		// Roll over n cycles if the event timestamp is past our current end time
+		adjustCycleStartTimeToClosestEnclosingCycle(sensorEvent);
+
+		// Create new cycle node based on the adjusted cycle start time
+		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
+
+		// Empty cycle list?
+		if (previousCycleNodeIndex < 0) {
+			addFirstCycleNode(newCycleNode);
+			return true;
+
+		} else {
+
+			// Locate the right position to insert the new cycle node
+			for (int i = 0; i < cycle.size(); i++) {
+
+				// Previous and new sensor events are equal?
+				if (sensorEventsAreEqual(sensorEvent,
+						cycle.get(previousCycleNodeIndex).getSensorEvent())) {
+					return mergeAndReplacePreviousNode(newCycleNode);
+
+					// Have we passed the most recent previous cycle node?
+				} else if (previousNodeTimeIsGreaterThanNewNodeTime(newCycleNode)) {
+					return insertBeforePreviousNode(newCycleNode);
+				}
+				previousCycleNodeIndex++;
+
+			} // end for
+
+			/**
+			 * Non-empty list, no equals found, no prior closest found, add to the current
+			 * "end", which is really at the end of one circular cycle traversal.
+			 */
+			cycle.add(previousCycleNodeIndex, newCycleNode);
+			return true;
+		}
+	}
+
+	private boolean previousNodeTimeIsGreaterThanNewNodeTime(CycleNode newCycleNode) {
+		return cycle.get(previousCycleNodeIndex).getStartTimeOffsetMillis() > newCycleNode
+				.getStartTimeOffsetMillis();
+	}
+
+	private boolean sensorEventsAreEqual(SensorEvent firstSensorEvent,
+			SensorEvent secondSensorEvent) {
+		return firstSensorEvent.getSensor().equals(firstSensorEvent, secondSensorEvent);
+	}
+
+	/**
+	 * We have moved just past the closest event in the past. Insert new node before
+	 * the previous node and return
+	 */
+	private boolean insertBeforePreviousNode(CycleNode newCycleNode) {
+		previousCycleNodeIndex--;
+		cycle.add(previousCycleNodeIndex, newCycleNode);
+		return true;
+	}
+
+	/**
+	 * This is the first cycle node for my cycle. Calulate data point duration and
+	 * time offset from the cycle start time. Add the node to the cycle, and update
+	 * previous node index.
+	 * 
+	 * TODO revisit offset calculation and verify with test
+	 */
+	private void addFirstCycleNode(CycleNode newCycleNode) {
+		cycle.add(newCycleNode);
+		previousCycleNodeIndex = cycle.indexOf(newCycleNode);
+		logger.info("New cycle list, adding first node: " + newCycleNode.toString());
+	}
+
+	/**
+	 * The previous and current cycle nodes are statistically equal, merge the Node
+	 * information, accumulating the duration of the data point and adjust the start
+	 * time of the current data point to include the previous measurement start
+	 * time. Then replace the previous node with the merged node.
+	 */
+	private boolean mergeAndReplacePreviousNode(CycleNode newCycleNode) {
+		long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationMillis()
+				+ newCycleNode.getDataPointDurationMillis();
+		newCycleNode.setDataPointDurationMillis(mergedDuration);
+
+		cycle.remove(previousCycleNodeIndex);
+		cycle.add(previousCycleNodeIndex, newCycleNode);
+		logger.info("New cycle Node merged with previous node, merged node: "
+				+ newCycleNode.toString() + ", cycle list: " + cycle.toString());
+		return true;
+	}
+
+	private void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
+		if ((sensorEvent.getTimestamp() - getCycleStartTimeMillis()) > getCycleDurationMillis()) {
+
+			// Calculate closest enclosing cycle
+			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeMillis())
+					/ getCycleDurationMillis();
+
+			cycleStartTimeMillis = cycleStartTimeMillis + (cyclesToSkip * getCycleDurationMillis());
+			logger.info(
+					"Incoming event was past our current cycle duration so the new cycleStartTime ("
+							+ cycleStartTimeMillis + "), sensor event timestamp ("
+							+ sensorEvent.getTimestamp() + ")");
+		}
+	}
+
+	private boolean eventIsOutOfOrder(SensorEvent sensorEvent) {
+
+		// If event occured prior to the previous event then out of order
+		if (previousCycleNodeIndex >= 0) {
+			long previousEventTimestamp = cycle.get(previousCycleNodeIndex).getSensorEvent()
+					.getTimestamp();
+			if (sensorEvent.getTimestamp() < previousEventTimestamp)
+				return true;
+		}
+		return false;
+	}
+
 	public CycleNode onNewSensorEvent(SensorEvent sensorEvent) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("sensorEvent must not be null");
@@ -101,17 +229,7 @@ public abstract class Cycle {
 				throw new IllegalArgumentException("sensorEvent out of order received");
 		}
 
-		// Skip cycles if the event timestamp is past our current duration
-		if ((sensorEvent.getTimestamp() - getCycleStartTimeMillis()) > getCycleDurationMillis()) {
-			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeMillis())
-					/ getCycleDurationMillis();
-
-			cycleStartTimeMillis = cycleStartTimeMillis + (cyclesToSkip * getCycleDurationMillis());
-			logger.info(
-					"Incoming event was past our current cycle duration so the new cycleStartTime ("
-							+ cycleStartTimeMillis + "), sensor event timestamp ("
-							+ sensorEvent.getTimestamp() + ")");
-		}
+		adjustCycleStartTimeToClosestEnclosingCycle(sensorEvent);
 
 		// Now that the cycle start time has been adjusted, create a new CycleNode
 		CycleNode newCycleNode = new CycleNode(this, sensorEvent);

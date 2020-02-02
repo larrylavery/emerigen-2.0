@@ -1,5 +1,7 @@
 package com.emerigen.infrastructure.sensor;
 
+import com.emerigen.infrastructure.utils.Utils;
+
 public class BloodPressureSensor extends Sensor {
 
 	public BloodPressureSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
@@ -47,6 +49,24 @@ public class BloodPressureSensor extends Sensor {
 			SensorEvent currentSensorEvent) {
 		// TODO implement getDifferenceBetweenReadings
 		return 0;
+	}
+
+	@Override
+	public boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
+		if (firstSensorEvent == null)
+			throw new IllegalArgumentException("first blood pressure must not be null.");
+		if (secondSensorEvent == null)
+			throw new IllegalArgumentException("second blood pressure must not be null.");
+
+		boolean systolicEquals = Utils.equals(firstSensorEvent.getValues()[0],
+				firstSensorEvent.getValues()[0]);
+		boolean dyastolicEquals = Utils.equals(firstSensorEvent.getValues()[1],
+				firstSensorEvent.getValues()[1]);
+		if (systolicEquals && dyastolicEquals) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

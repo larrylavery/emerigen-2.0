@@ -1,6 +1,7 @@
 package com.emerigen.infrastructure.sensor;
 
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class TemperatureSensor extends Sensor {
 
@@ -66,9 +67,23 @@ public class TemperatureSensor extends Sensor {
 	}
 
 	@Override
-	public double getDifferenceBetweenReadings(SensorEvent previousSensorEvent,
-			SensorEvent currentSensorEvent) {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getDifferenceBetweenReadings(SensorEvent firstSensorEvent,
+			SensorEvent secondSensorEvent) {
+		return secondSensorEvent.getValues()[0] - firstSensorEvent.getValues()[0];
 	}
+
+	@Override
+	public boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
+		if (firstSensorEvent == null)
+			throw new IllegalArgumentException("first event temperature not be null.");
+		if (secondSensorEvent == null)
+			throw new IllegalArgumentException("second temperature must not be null.");
+
+		if (Utils.equals(firstSensorEvent.getValues()[0], secondSensorEvent.getValues()[0])) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

@@ -263,4 +263,6 @@ public abstract class Sensor {
 				+ ", activated=" + activated + ", type=" + type + ", location=" + location
 				+ ", locationName=" + locationName + ", typeName=" + typeName + "]";
 	}
+
+	public abstract boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent);
 }

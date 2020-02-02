@@ -31,7 +31,7 @@ public class CycleLearningTest {
 		SensorEvent event2 = new SensorEvent(hrSensor, values);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
 
-		final Throwable throwable = catchThrowable(() -> gpsCycle.onNewSensorEvent(event2));
+		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event2));
 
 		then(throwable).as("A different sensor type event  throws an  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -52,14 +52,14 @@ public class CycleLearningTest {
 		float[] values2 = { 10.0f, 10.0f };
 		float[] values3 = { 100.0f, 100.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		CycleNode cn = gpsCycle.onNewSensorEvent(event1);
-		CycleNode cn2 = gpsCycle.onNewSensorEvent(event2);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values3);
+		gpsCycle.onSensorChanged(event1);
+		gpsCycle.onSensorChanged(event2);
 
 		// Then
 		assertThat(gpsCycle.getCycle().size()).isEqualTo(2);
-		assertThat(gpsCycle.getCycle().get(0)).isEqualTo(cn);
-		assertThat(gpsCycle.getCycle().get(1)).isEqualTo(cn2);
+		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getCycle().get(1).getSensorEvent()).isEqualTo(event2);
 	}
 
 	@Test
@@ -77,12 +77,11 @@ public class CycleLearningTest {
 		float[] values3 = { 100.0f, 100.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values);
-		CycleNode cn = gpsCycle.onNewSensorEvent(event1);
-		CycleNode cn2 = gpsCycle.onNewSensorEvent(event2);
+		gpsCycle.onSensorChanged(event1);
+		gpsCycle.onSensorChanged(event2);
 
 		// Then
 		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
-		assertThat(gpsCycle.getCycle().get(0)).isEqualTo(cn2);
 	}
 
 	@Test
@@ -101,12 +100,11 @@ public class CycleLearningTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values);
 		event2.setTimestamp(event2.getTimestamp() + 10000);
-		CycleNode cn = gpsCycle.onNewSensorEvent(event1);
-		CycleNode cn2 = gpsCycle.onNewSensorEvent(event2);
+		gpsCycle.onSensorChanged(event1);
+		gpsCycle.onSensorChanged(event2);
 
 		// Then
 		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
-		assertThat(gpsCycle.getCycle().get(0)).isEqualTo(cn2);
 		assertThat(gpsCycle.getCycle().get(0).getDataPointDurationMillis()).isGreaterThan(10000);
 	}
 
@@ -122,11 +120,11 @@ public class CycleLearningTest {
 		// When
 		float[] values = { 1.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		CycleNode cn = gpsCycle.onNewSensorEvent(event1);
+		gpsCycle.onSensorChanged(event1);
 
 		// Then
 		long timeOffset = event1.getTimestamp() - gpsCycle.getCycleStartTimeMillis();
-		assertThat(cn.getTimeOffset(event1.getTimestamp())).isEqualTo(timeOffset);
+		assertThat(gpsCycle.getCycle().get(0).getStartTimeOffsetMillis()).isEqualTo(timeOffset);
 	}
 
 	@Test
@@ -143,8 +141,8 @@ public class CycleLearningTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		event1.setTimestamp(event1.getTimestamp() - 1000);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		CycleNode cn = gpsCycle.onNewSensorEvent(event2);
-		final Throwable throwable = catchThrowable(() -> gpsCycle.onNewSensorEvent(event1));
+		gpsCycle.onSensorChanged(event2);
+		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event1));
 
 		then(throwable).as("An out of order sensor event throws  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -168,7 +166,7 @@ public class CycleLearningTest {
 		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationMillis);
 
 		long previousCycleStartTime = gpsCycle.getCycleStartTimeMillis();
-		CycleNode cn = gpsCycle.onNewSensorEvent(event1);
+		gpsCycle.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeMillis();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime)

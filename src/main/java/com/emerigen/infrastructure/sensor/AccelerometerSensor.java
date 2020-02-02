@@ -2,6 +2,8 @@ package com.emerigen.infrastructure.sensor;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.utils.Utils;
+
 public class AccelerometerSensor extends Sensor {
 
 	private static final Logger logger = Logger.getLogger(AccelerometerSensor.class);
@@ -62,6 +64,26 @@ public class AccelerometerSensor extends Sensor {
 		double speed = Math.abs(currX + currY + currZ - lastX - lastY - lastZ) / elapseTime * 1000;
 		logger.info("The device speed is (" + speed + ")");
 		return speed;
+	}
+
+	@Override
+	public boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
+		if (firstSensorEvent == null)
+			throw new IllegalArgumentException("first reading must not be null.");
+		if (secondSensorEvent == null)
+			throw new IllegalArgumentException("second reading must not be null.");
+
+		boolean xEquals = Utils.equals(firstSensorEvent.getValues()[0],
+				firstSensorEvent.getValues()[0]);
+		boolean yEquals = Utils.equals(firstSensorEvent.getValues()[1],
+				firstSensorEvent.getValues()[1]);
+		boolean zEquals = Utils.equals(firstSensorEvent.getValues()[2],
+				firstSensorEvent.getValues()[2]);
+		if (xEquals && yEquals && zEquals) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

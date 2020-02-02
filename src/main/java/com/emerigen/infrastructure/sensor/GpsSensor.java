@@ -2,6 +2,8 @@ package com.emerigen.infrastructure.sensor;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.utils.Utils;
+
 public class GpsSensor extends Sensor {
 
 	private static final Logger logger = Logger.getLogger(GpsSensor.class);
@@ -56,6 +58,24 @@ public class GpsSensor extends Sensor {
 		logger.info("returning GPS distance of (" + earthRadiusInMiles * c + ")");
 		return earthRadiusInMiles * c;
 
+	}
+
+	@Override
+	public boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
+		if (firstSensorEvent == null)
+			throw new IllegalArgumentException("Current gps coordinates must not be null.");
+		if (secondSensorEvent == null)
+			throw new IllegalArgumentException("Current gps coordinates must not be null.");
+
+		boolean latitudeEquals = Utils.equals(firstSensorEvent.getValues()[0],
+				secondSensorEvent.getValues()[0]);
+		boolean longitudeEquals = Utils.equals(firstSensorEvent.getValues()[1],
+				secondSensorEvent.getValues()[1]);
+		if (latitudeEquals && longitudeEquals) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private double toRadians(double deg) {

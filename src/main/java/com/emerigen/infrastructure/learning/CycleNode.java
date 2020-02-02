@@ -200,4 +200,11 @@ public class CycleNode {
 				+ startTimeOffsetMillis + "]";
 	}
 
+	/**
+	 * @return the startTimeOffsetMillis
+	 */
+	public long getStartTimeOffsetMillis() {
+		return startTimeOffsetMillis;
+	}
+
 }

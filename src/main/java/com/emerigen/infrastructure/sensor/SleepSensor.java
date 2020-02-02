@@ -48,4 +48,15 @@ public class SleepSensor extends Sensor {
 		return 0;
 	}
 
+	@Override
+	public boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
+		if (firstSensorEvent == null)
+			throw new IllegalArgumentException("first reading must not be null.");
+		if (secondSensorEvent == null)
+			throw new IllegalArgumentException("second reading must not be null.");
+
+		// TODO code equals for SleepSensor
+		return false;
+	}
+
 }
