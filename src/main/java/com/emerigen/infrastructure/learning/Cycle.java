@@ -123,7 +123,7 @@ public abstract class Cycle {
 				} else if (previousNodeTimeIsGreaterThanNewNodeTime(newCycleNode)) {
 					return insertBeforePreviousNode(newCycleNode);
 				}
-				previousCycleNodeIndex++;
+				previousCycleNodeIndex = wrapIndex(++previousCycleNodeIndex);
 
 			} // end for
 
@@ -131,9 +131,13 @@ public abstract class Cycle {
 			 * Non-empty list, no equals found, no prior closest found, add to the current
 			 * "end", which is really at the end of one circular cycle traversal.
 			 */
-			cycle.add(previousCycleNodeIndex, newCycleNode);
+			cycle.add(newCycleNode);
 			return true;
 		}
+	}
+
+	public int wrapIndex(int index) {
+		return index % cycle.size();
 	}
 
 	private boolean previousNodeTimeIsGreaterThanNewNodeTime(CycleNode newCycleNode) {
@@ -151,7 +155,6 @@ public abstract class Cycle {
 	 * the previous node and return
 	 */
 	private boolean insertBeforePreviousNode(CycleNode newCycleNode) {
-		previousCycleNodeIndex--;
 		cycle.add(previousCycleNodeIndex, newCycleNode);
 		return true;
 	}

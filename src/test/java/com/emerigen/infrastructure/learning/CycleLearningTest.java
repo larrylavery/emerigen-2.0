@@ -20,6 +20,142 @@ public class CycleLearningTest {
 	Cycle myCycle2 = new DailyCycle(Sensor.TYPE_GPS);
 
 	@Test
+	public final void givenValidCycleNodes_whenDurationsAdded_thenMustBeLessThanCycleDuration() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenValidCycle_whenCurrentNodeBeforeLastNodeSelected_thenPredictionsMustBeValid() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenMultipleValidCyclesForSensor_whenCurrentNodeBeforeLastNodeSelectedOnAnyCycle_thenPredictionsOnAllCyclesMustBeReturned() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenMultipleCyclesForSensor_whenCurrentSensorEventMatches_thenCorrectCycleNodesArePredicted() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenMultipleCyclesForSensor_whenCyclesMerged_thenCyclesMergedAtJoinedPoints() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenMultipleCyclesForSensor_whenCyclesMerged_thenCyclesBranchedAtDistinctPoints() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastSeveralExistingEvents_thenAddedAfterMostRecentPriorEvent() {
+
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+
+		// When
+		float[] values = { 1.0f, 1.0f };
+		float[] values2 = { 10.0f, 10.0f };
+		float[] values3 = { 100.0f, 100.0f };
+		float[] values4 = { 1000.0f, 1000.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+
+		// this event will go between event2 and event4 after cycle rolled over 1 period
+		// (24 hours in this case)
+		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationMillis);
+		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
+		gpsCycle.onSensorChanged(event1);
+		gpsCycle.onSensorChanged(event2);
+		gpsCycle.onSensorChanged(event4);
+		gpsCycle.onSensorChanged(event3);
+
+		// Then
+		assertThat(gpsCycle.getCycle().size()).isEqualTo(4);
+		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getCycle().get(1).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getCycle().get(2).getSensorEvent()).isEqualTo(event3);
+		assertThat(gpsCycle.getCycle().get(3).getSensorEvent()).isEqualTo(event4);
+
+	}
+
+	@Test
+	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd() {
+
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+
+		// When
+		float[] values = { 1.0f, 1.0f };
+		float[] values2 = { 10.0f, 10.0f };
+		float[] values3 = { 100.0f, 100.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		gpsCycle.onSensorChanged(event1);
+		gpsCycle.onSensorChanged(event2);
+		gpsCycle.onSensorChanged(event3);
+
+		// Then
+		assertThat(gpsCycle.getCycle().size()).isEqualTo(3);
+		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getCycle().get(1).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getCycle().get(2).getSensorEvent()).isEqualTo(event3);
+
+	}
+
+	@Test
+	public final void givenNonEmptyCycle_whenNewEqualSensorEvent_thenMergedAndPreviousReplaced() {
+
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+
+		// When
+		float[] values = { 1.0f, 1.0f };
+		float[] values2 = { 10.0f, 10.0f };
+		float[] values3 = { 100.0f, 100.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		gpsCycle.onSensorChanged(event1);
+		gpsCycle.onSensorChanged(event2);
+
+		// Then
+		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
+		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
+	public final void givenEmptyCycle_whenNewSensorEvent_thenAddedAndTimeOffsetCorrect() {
+
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+
+		// When
+		float[] values = { 1.0f, 1.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		gpsCycle.onSensorChanged(event1);
+
+		// Then
+		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
+		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
 	public final void givenNewSensorEventWithDifferentSensorType_whenOnNewEvent_thenIllegalArgumentException() {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -171,36 +307,6 @@ public class CycleLearningTest {
 
 		assertThat(currentCycleStartTime - previousCycleStartTime)
 				.isEqualTo(gpsCycle.cycleDurationMillis);
-	}
-
-	@Test
-	public final void givenValidCycleNodes_whenDurationsAdded_thenMustBeLessThanCycleDuration() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenValidCycle_whenCurrentNodeBeforeLastNodeSelected_thenPredictionsMustBeValid() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleValidCyclesForSensor_whenCurrentNodeBeforeLastNodeSelectedOnAnyCycle_thenPredictionsOnAllCyclesMustBeReturned() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleCyclesForSensor_whenCurrentSensorEventMatches_thenCorrectCycleNodesArePredicted() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleCyclesForSensor_whenCyclesMerged_thenCyclesMergedAtJoinedPoints() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenMultipleCyclesForSensor_whenCyclesMerged_thenCyclesBranchedAtDistinctPoints() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@BeforeClass
