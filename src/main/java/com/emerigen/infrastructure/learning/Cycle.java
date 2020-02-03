@@ -121,7 +121,9 @@ public abstract class Cycle {
 
 					// Have we passed the most recent previous cycle node?
 				} else if (previousNodeTimeIsGreaterThanNewNodeTime(newCycleNode)) {
-					return insertBeforePreviousNode(newCycleNode);
+					boolean result = insertBeforePreviousNode(newCycleNode);
+					previousCycleNodeIndex--;
+					return result;
 				}
 				previousCycleNodeIndex = wrapIndex(++previousCycleNodeIndex);
 
@@ -199,6 +201,10 @@ public abstract class Cycle {
 			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeMillis())
 					/ getCycleDurationMillis();
 
+			// Reset previous node pointer to first object of the new cycle
+			if (cyclesToSkip > 0)
+				previousCycleNodeIndex = 0;
+
 			cycleStartTimeMillis = cycleStartTimeMillis + (cyclesToSkip * getCycleDurationMillis());
 			logger.info(
 					"Incoming event was past our current cycle duration so the new cycleStartTime ("
@@ -217,71 +223,6 @@ public abstract class Cycle {
 				return true;
 		}
 		return false;
-	}
-
-	public CycleNode onNewSensorEvent(SensorEvent sensorEvent) {
-		if (sensorEvent == null)
-			throw new IllegalArgumentException("sensorEvent must not be null");
-		if (!(sensorType == sensorEvent.getSensorType()))
-			throw new IllegalArgumentException("given sensor type (" + sensorEvent.getSensorType()
-					+ "), does not match cycle sensor type (" + sensorType + ")");
-
-		// Verify new event is after the last event
-		if (previousCycleNodeIndex >= 0) {
-			long previousEventTimestamp = cycle.get(previousCycleNodeIndex).getSensorEvent()
-					.getTimestamp();
-			if (sensorEvent.getTimestamp() < previousEventTimestamp)
-				throw new IllegalArgumentException("sensorEvent out of order received");
-		}
-
-		adjustCycleStartTimeToClosestEnclosingCycle(sensorEvent);
-
-		// Now that the cycle start time has been adjusted, create a new CycleNode
-		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
-
-		if (previousCycleNodeIndex < 0) {
-
-			/**
-			 * If this is the first node in the cycle, then calulate the data point duration
-			 * from the cycle start, add the node to the list, and update previous node
-			 * index.
-			 */
-			newCycleNode.setDataPointDurationMillis(
-					newCycleNode.getTimeOffset(sensorEvent.getTimestamp()));
-			cycle.add(newCycleNode);
-			previousCycleNodeIndex = 0;
-			logger.info("New cycle list, adding first node: " + newCycleNode.toString());
-
-		} else if (cycle.get(previousCycleNodeIndex).equals(newCycleNode)) {
-
-			/**
-			 * If the previous and current cycle nodes are statistically equal, merge the
-			 * Node information, accumulating the duration of the data point and adjust the
-			 * start time of the current data point to include the previous measurement
-			 * start time. Then replace the previous node with the merged node.
-			 */
-			long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationMillis()
-					+ newCycleNode.getDataPointDurationMillis();
-			newCycleNode.setDataPointDurationMillis(mergedDuration);
-
-			cycle.remove(previousCycleNodeIndex);
-			cycle.add(previousCycleNodeIndex, newCycleNode);
-			logger.info("New Node merged with previous node, merged node: "
-					+ newCycleNode.toString() + ", cycle list: " + cycle.toString());
-
-		} else {
-
-			/**
-			 * If the previous and current cycle nodes are statistically different, add the
-			 * current node and update previous node index.
-			 */
-			cycle.add(newCycleNode);
-			previousCycleNodeIndex++;
-			logger.info("Previous and new nodes are statistically different. adding New Node: "
-					+ newCycleNode.toString() + ", cycle list: " + cycle.toString());
-		}
-
-		return newCycleNode;
 	}
 
 	/**

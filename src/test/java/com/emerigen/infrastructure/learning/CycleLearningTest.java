@@ -71,6 +71,7 @@ public class CycleLearningTest {
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
 		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationMillis);
 		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
+		event4.setTimestamp(event3.getTimestamp() + 100);
 		gpsCycle.onSensorChanged(event1);
 		gpsCycle.onSensorChanged(event2);
 		gpsCycle.onSensorChanged(event4);
