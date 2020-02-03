@@ -21,20 +21,20 @@ public abstract class Cycle {
 	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
 	 * 12:00am Sunday morning of the current week, etc
 	 * 
-	 * This is an absolute value of milliseconds since Jan 1, 1970. It is used to
+	 * This is an absolute value of nanoseconds since Jan 1, 1970. It is used to
 	 * calculate offsets for data point timestamps in the sensor events. This field
 	 * is rolled over to the next Cycle start time at the end of the duration of the
 	 * present cycle (i.e. moved to the next 24 hours for DailyCycle, 7 days for a
 	 * weekly cycle, etc.).
 	 */
-	protected long cycleStartTimeMillis;
+	protected long cycleStartTimeNano;
 
 	/**
 	 * This is the duration for a cycle. Time zones and Daylight Savings times are
 	 * taken into account. Generally, this will be 168 hours for a weekly cycle, 24
-	 * hours for a daily cycle, etc.; all converted to milliseconds.
+	 * hours for a daily cycle, etc.; all converted to nanoseconds.
 	 */
-	protected final long cycleDurationMillis;
+	protected final long cycleDurationNano;
 
 	/**
 	 * @IDEA - enable cycle data point fuzzines using equality based on std
@@ -64,8 +64,8 @@ public abstract class Cycle {
 			throw new IllegalArgumentException("sensor type must be positive");
 		cycle = new CircularList<>();
 		this.sensorType = sensorType;
-		this.cycleStartTimeMillis = calculateCycleStartTimeMillis();
-		this.cycleDurationMillis = calculateCycleDurationMillis();
+		this.cycleStartTimeNano = calculateCycleStartTimeNano();
+		this.cycleDurationNano = calculateCycleDurationNano();
 	}
 
 	/**
@@ -143,8 +143,8 @@ public abstract class Cycle {
 	}
 
 	private boolean previousNodeTimeIsGreaterThanNewNodeTime(CycleNode newCycleNode) {
-		return cycle.get(previousCycleNodeIndex).getStartTimeOffsetMillis() > newCycleNode
-				.getStartTimeOffsetMillis();
+		return cycle.get(previousCycleNodeIndex).getStartTimeOffsetNano() > newCycleNode
+				.getStartTimeOffsetNano();
 	}
 
 	private boolean sensorEventsAreEqual(SensorEvent firstSensorEvent,
@@ -169,8 +169,9 @@ public abstract class Cycle {
 	 * TODO revisit offset calculation and verify with test
 	 */
 	private void addFirstCycleNode(CycleNode newCycleNode) {
-		newCycleNode.setDataPointDurationMillis(
-				newCycleNode.getTimeOffset(newCycleNode.getSensorEvent().getTimestamp()));
+		long timestamp = newCycleNode.getSensorEvent().getTimestamp();
+		long duration = newCycleNode.getTimeOffset(timestamp);
+		newCycleNode.setDataPointDurationNano(duration);
 		cycle.add(newCycleNode);
 		previousCycleNodeIndex = cycle.indexOf(newCycleNode);
 		logger.info("New cycle list, adding first node: " + newCycleNode.toString());
@@ -183,9 +184,9 @@ public abstract class Cycle {
 	 * time. Then replace the previous node with the merged node.
 	 */
 	private boolean mergeAndReplacePreviousNode(CycleNode newCycleNode) {
-		long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationMillis()
-				+ newCycleNode.getDataPointDurationMillis();
-		newCycleNode.setDataPointDurationMillis(mergedDuration);
+		long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationNano()
+				+ newCycleNode.getDataPointDurationNano();
+		newCycleNode.setDataPointDurationNano(mergedDuration);
 
 		cycle.remove(previousCycleNodeIndex);
 		cycle.add(previousCycleNodeIndex, newCycleNode);
@@ -195,20 +196,20 @@ public abstract class Cycle {
 	}
 
 	private void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
-		if ((sensorEvent.getTimestamp() - getCycleStartTimeMillis()) > getCycleDurationMillis()) {
+		if ((sensorEvent.getTimestamp() - getCycleStartTimeNano()) > getCycleDurationNano()) {
 
 			// Calculate closest enclosing cycle
-			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeMillis())
-					/ getCycleDurationMillis();
+			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeNano())
+					/ getCycleDurationNano();
 
 			// Reset previous node pointer to first object of the new cycle
 			if (cyclesToSkip > 0)
 				previousCycleNodeIndex = 0;
 
-			cycleStartTimeMillis = cycleStartTimeMillis + (cyclesToSkip * getCycleDurationMillis());
+			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * getCycleDurationNano());
 			logger.info(
 					"Incoming event was past our current cycle duration so the new cycleStartTime ("
-							+ cycleStartTimeMillis + "), sensor event timestamp ("
+							+ cycleStartTimeNano + "), sensor event timestamp ("
 							+ sensorEvent.getTimestamp() + ")");
 		}
 	}
@@ -226,27 +227,27 @@ public abstract class Cycle {
 	}
 
 	/**
-	 * @return the cycleStartTimeMillis
+	 * @return the cycleStartTimeNano
 	 */
-	public abstract long calculateCycleStartTimeMillis();
+	public abstract long calculateCycleStartTimeNano();
 
 	/**
-	 * @return the cycleDurationMillis
+	 * @return the cycleDurationNano
 	 */
-	public abstract long calculateCycleDurationMillis();
+	public abstract long calculateCycleDurationNano();
 
 	/**
-	 * @return the cycleStartTimeMillis
+	 * @return the cycleStartTimeNano
 	 */
-	public long getCycleStartTimeMillis() {
-		return cycleStartTimeMillis;
+	public long getCycleStartTimeNano() {
+		return cycleStartTimeNano;
 	}
 
 	/**
-	 * @return the cycleDurationMillis
+	 * @return the cycleDurationNano
 	 */
-	public long getCycleDurationMillis() {
-		return cycleDurationMillis;
+	public long getCycleDurationNano() {
+		return cycleDurationNano;
 	}
 
 	/**
@@ -258,8 +259,8 @@ public abstract class Cycle {
 
 	@Override
 	public String toString() {
-		return "Cycle [cycleStartTimeMillis=" + cycleStartTimeMillis + ", cycleDurationMillis="
-				+ cycleDurationMillis + ", cycle=" + cycle + ", previousCycleNodeIndex="
+		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationNano="
+				+ cycleDurationNano + ", cycle=" + cycle + ", previousCycleNodeIndex="
 				+ previousCycleNodeIndex + ", sensorType=" + sensorType
 				+ ", allowableStandardDeviationForEquality=" + allowableStandardDeviationForEquality
 				+ "]";

@@ -19,6 +19,7 @@ public class DailyCycle extends Cycle {
 	final private long minutesPerHour = 60;
 	final private long secondsPerMinute = 60;
 	final private long milliSecondsPerSecond = 1000;
+	final private long nanoSecondsPerMillisecond = 1000000;
 	private static final Logger logger = Logger.getLogger(DailyCycle.class);
 
 	public DailyCycle(int sensorType) {
@@ -29,21 +30,23 @@ public class DailyCycle extends Cycle {
 	 * Calculate the start time of my cycle as 12am today
 	 */
 	@Override
-	public long calculateCycleStartTimeMillis() {
+	public long calculateCycleStartTimeNano() {
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime now = ZonedDateTime.now(zoneId);
 		ZonedDateTime todayStart = now.toLocalDate().atStartOfDay(zoneId);
-		long startTime = todayStart.toEpochSecond() * milliSecondsPerSecond;
-		logger.info("cycleStartTimeMillis = " + startTime);
-		return todayStart.toEpochSecond() * milliSecondsPerSecond;
+		long startTime = todayStart.toEpochSecond() * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond;
+		logger.info("cycleStartTimeNano = " + startTime);
+		return todayStart.toEpochSecond() * milliSecondsPerSecond * nanoSecondsPerMillisecond;
 	}
 
 	/**
 	 * Caculate duration of 24 hours expressed as milliseconds
 	 */
 	@Override
-	public long calculateCycleDurationMillis() {
-		return hoursPerDay * minutesPerHour * secondsPerMinute * milliSecondsPerSecond;
+	public long calculateCycleDurationNano() {
+		return hoursPerDay * minutesPerHour * secondsPerMinute * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond;
 	}
 
 	@Override

@@ -43,7 +43,7 @@ public class SensorEvent {
 	private int sensorLocation = 0;
 	private String key = null;
 
-	private long timestamp = System.currentTimeMillis();
+	private long timestamp = System.currentTimeMillis() * 1000000;
 
 	/**
 	 * The length and meaning of these values is sensor specific. One in particular

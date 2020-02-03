@@ -86,19 +86,21 @@ public class CycleConstraintsTest {
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
 
-		assertThat(dc.getCycleStartTimeMillis()).isEqualTo(todayStart.toEpochSecond() * 1000);
+		assertThat(dc.getCycleStartTimeNano())
+				.isEqualTo(todayStart.toEpochSecond() * 1000 * 1000000l);
 	}
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe24Hours() {
 		DailyCycle dc = new DailyCycle(1);
-		assertThat(dc.getCycleDurationMillis()).isEqualTo(24 * 60 * 60 * 1000);
+		long duration = 24 * 60 * 60 * 1000 * 1000000l;
+		assertThat(dc.getCycleDurationNano()).isEqualTo(duration);
 	}
 
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
 		WeeklyCycle dc = new WeeklyCycle(1);
-		assertThat(dc.getCycleDurationMillis()).isEqualTo(7 * 24 * 60 * 60 * 1000);
+		assertThat(dc.getCycleDurationNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
 	}
 
 	@Test
@@ -112,16 +114,17 @@ public class CycleConstraintsTest {
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		assertThat((firtDayStartTime.toEpochSecond() * 1000) == mc.getCycleStartTimeMillis())
-				.isTrue();
+		assertThat(
+				(firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == mc.getCycleStartTimeNano())
+						.isTrue();
 
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
 		MonthlyCycle dc = new MonthlyCycle(1);
-		System.out.println("monthly duration is: " + dc.getCycleDurationMillis());
-		assertThat(Utils.equals(dc.getCycleDurationMillis(), 2629746000f, 10.0)).isTrue();
+		System.out.println("monthly duration is: " + dc.getCycleDurationNano());
+		assertThat(Utils.equals(dc.getCycleDurationNano(), 2629746000000000f, 10.0)).isTrue();
 	}
 
 	@Test
@@ -135,7 +138,7 @@ public class CycleConstraintsTest {
 		cal.set(Calendar.SECOND, 0);
 		long time = cal.getTimeInMillis();
 		YearlyCycle yrCycle = new YearlyCycle(1);
-		Utils.equals(time, yrCycle.getCycleDurationMillis());
+		Utils.equals(time, yrCycle.getCycleDurationNano());
 
 	}
 
@@ -207,7 +210,7 @@ public class CycleConstraintsTest {
 		CycleNode cn = new CycleNode(myCycle, new SensorEvent(), 11);
 
 		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> cn.setDataPointDurationMillis(-1));
+		final Throwable throwable = catchThrowable(() -> cn.setDataPointDurationNano(-1));
 
 		then(throwable).as("A non positive duration throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);

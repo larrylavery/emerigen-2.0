@@ -69,7 +69,7 @@ public class CycleLearningTest {
 		// this event will go between event2 and event4 after cycle rolled over 1 period
 		// (24 hours in this case)
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationMillis);
+		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationNano);
 		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
 		event4.setTimestamp(event3.getTimestamp() + 100);
 		gpsCycle.onSensorChanged(event1);
@@ -242,7 +242,7 @@ public class CycleLearningTest {
 
 		// Then
 		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
-		assertThat(gpsCycle.getCycle().get(0).getDataPointDurationMillis()).isGreaterThan(10000);
+		assertThat(gpsCycle.getCycle().get(0).getDataPointDurationNano()).isGreaterThan(10000);
 	}
 
 	@Test
@@ -260,8 +260,8 @@ public class CycleLearningTest {
 		gpsCycle.onSensorChanged(event1);
 
 		// Then
-		long timeOffset = event1.getTimestamp() - gpsCycle.getCycleStartTimeMillis();
-		assertThat(gpsCycle.getCycle().get(0).getStartTimeOffsetMillis()).isEqualTo(timeOffset);
+		long timeOffset = event1.getTimestamp() - gpsCycle.getCycleStartTimeNano();
+		assertThat(gpsCycle.getCycle().get(0).getStartTimeOffsetNano()).isEqualTo(timeOffset);
 	}
 
 	@Test
@@ -300,14 +300,14 @@ public class CycleLearningTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
-		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationMillis);
+		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationNano);
 
-		long previousCycleStartTime = gpsCycle.getCycleStartTimeMillis();
+		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
 		gpsCycle.onSensorChanged(event1);
-		long currentCycleStartTime = gpsCycle.getCycleStartTimeMillis();
+		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(gpsCycle.cycleDurationMillis);
+				.isEqualTo(gpsCycle.cycleDurationNano);
 	}
 
 	@BeforeClass

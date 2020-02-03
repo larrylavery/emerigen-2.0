@@ -30,14 +30,14 @@ public class CycleNode {
 	/**
 	 * The length of time that the data point [measurement] (as measured by the
 	 * sensor event) is valid. If the event is a GPS measurement, then the
-	 * dataPointDurationMillis is the length of time the GPS coordinates did not
+	 * dataPointDurationNano is the length of time the GPS coordinates did not
 	 * significantly change (ie how long the user stayed at [visited] this location.
 	 * 
 	 * For a heart rate sensor, it represents the lengh of time the heart rate
 	 * stayed at the given heart rate (plus or minus the standard deviation of
 	 * course.
 	 */
-	private long dataPointDurationMillis;
+	private long dataPointDurationNano;
 
 	/**
 	 * The Cycle that I belong to
@@ -47,7 +47,7 @@ public class CycleNode {
 	/**
 	 * The offset, from the cycle start time, that this dataPoint was encountered,
 	 */
-	private long startTimeOffsetMillis;
+	private long startTimeOffsetNano;
 
 	/**
 	 * The standard deviation for equality is used during comparisons of data in
@@ -83,8 +83,8 @@ public class CycleNode {
 			.parseDouble(EmerigenProperties.getInstance()
 					.getValue("cycle.allowable.std.deviation.for.equality"));
 
-	private static long defaultCycleNodeDurationMillis = Long.parseLong(
-			EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.millis"));
+	private static long defaultCycleNodeDurationNano = Long.parseLong(
+			EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
@@ -92,24 +92,24 @@ public class CycleNode {
 	 * 
 	 * @param myCycle
 	 * @param sensorEvent
-	 * @param dataPointDurationMillis
+	 * @param dataPointDurationNano
 	 */
-	public CycleNode(Cycle myCycle, SensorEvent sensorEvent, long dataPointDurationMillis) {
+	public CycleNode(Cycle myCycle, SensorEvent sensorEvent, long dataPointDurationNano) {
 		if (myCycle == null)
 			throw new IllegalArgumentException("myCycle must not be null");
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("SensorEvent must not be null");
-		if (dataPointDurationMillis < 0)
-			throw new IllegalArgumentException("dataPointDurationMillis must be positive");
+		if (dataPointDurationNano < 0)
+			throw new IllegalArgumentException("dataPointDurationNano must be positive");
 
 		this.myCycle = myCycle;
-		this.dataPointDurationMillis = dataPointDurationMillis;
-		this.startTimeOffsetMillis = getTimeOffset(sensorEvent.getTimestamp());
+		this.dataPointDurationNano = dataPointDurationNano;
+		this.startTimeOffsetNano = getTimeOffset(sensorEvent.getTimestamp());
 		this.sensorEvent = sensorEvent;
 	}
 
 	public CycleNode(Cycle myCycle, SensorEvent sensorEvent) {
-		this(myCycle, sensorEvent, defaultCycleNodeDurationMillis);
+		this(myCycle, sensorEvent, defaultCycleNodeDurationNano);
 	}
 
 	/**
@@ -127,12 +127,12 @@ public class CycleNode {
 			throw new IllegalArgumentException("Both nodes must be part of the same cycle");
 
 		CycleNode newCycleNode = new CycleNode(myCycle, nodeToMergeWith.getSensorEvent(),
-				this.dataPointDurationMillis + nodeToMergeWith.dataPointDurationMillis);
+				this.dataPointDurationNano + nodeToMergeWith.dataPointDurationNano);
 		return newCycleNode;
 	}
 
 	public long getTimeOffset(long timestamp) {
-		return timestamp - myCycle.getCycleStartTimeMillis();
+		return timestamp - myCycle.getCycleStartTimeNano();
 	}
 
 	@Override
@@ -171,19 +171,19 @@ public class CycleNode {
 	}
 
 	/**
-	 * @return the dataPointDurationMillis
+	 * @return the dataPointDurationNano
 	 */
-	public long getDataPointDurationMillis() {
-		return dataPointDurationMillis;
+	public long getDataPointDurationNano() {
+		return dataPointDurationNano;
 	}
 
 	/**
-	 * @param dataPointDurationMillis the dataPointDurationMillis to set
+	 * @param dataPointDurationNano the dataPointDurationNano to set
 	 */
-	public void setDataPointDurationMillis(long dataPointDurationMillis) {
-		if (dataPointDurationMillis <= 0)
+	public void setDataPointDurationNano(long dataPointDurationNano) {
+		if (dataPointDurationNano <= 0)
 			throw new IllegalArgumentException("data point duration must be positive");
-		this.dataPointDurationMillis = dataPointDurationMillis;
+		this.dataPointDurationNano = dataPointDurationNano;
 	}
 
 	/**
@@ -195,16 +195,16 @@ public class CycleNode {
 
 	@Override
 	public String toString() {
-		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationMillis="
-				+ dataPointDurationMillis + ", myCycle=" + myCycle + ", startTimeOffsetMillis="
-				+ startTimeOffsetMillis + "]";
+		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationNano="
+				+ dataPointDurationNano + ", myCycle=" + myCycle + ", startTimeOffsetNano="
+				+ startTimeOffsetNano + "]";
 	}
 
 	/**
-	 * @return the startTimeOffsetMillis
+	 * @return the startTimeOffsetNano
 	 */
-	public long getStartTimeOffsetMillis() {
-		return startTimeOffsetMillis;
+	public long getStartTimeOffsetNano() {
+		return startTimeOffsetNano;
 	}
 
 }

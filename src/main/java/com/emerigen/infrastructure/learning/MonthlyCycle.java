@@ -16,6 +16,7 @@ import java.time.temporal.TemporalAdjusters;
 public class MonthlyCycle extends Cycle {
 
 	final private long secondsPerYear = 31556952L;
+	final private long nanosecondsPerMillisecond = 1000000;
 	final private long milliSecondsPerSecond = 1000;
 
 	public MonthlyCycle(int sensorType) {
@@ -26,7 +27,7 @@ public class MonthlyCycle extends Cycle {
 	 * Calculate the start time of my cycle as day 1, 12am of the current month
 	 */
 	@Override
-	public long calculateCycleStartTimeMillis() {
+	public long calculateCycleStartTimeNano() {
 		ZoneId zoneId = ZoneId.systemDefault();
 
 		// Get the first day of this month
@@ -35,17 +36,17 @@ public class MonthlyCycle extends Cycle {
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond;
+		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond * nanosecondsPerMillisecond;
 	}
 
 	/**
-	 * Caculate duration of 1 month expressed as milliseconds
+	 * Caculate duration of 1 month expressed as nanoseconds
 	 */
 	@Override
-	public long calculateCycleDurationMillis() {
+	public long calculateCycleDurationNano() {
 
 		long secondsPerMonth = secondsPerYear / 12;
-		return secondsPerMonth * milliSecondsPerSecond;
+		return secondsPerMonth * milliSecondsPerSecond * nanosecondsPerMillisecond;
 	}
 
 }

@@ -31,7 +31,7 @@ public class CouchbaseRepositoryQueryTest {
 		// Given
 		// Load 4 different sensorEvents
 		SoftAssertions softly = new SoftAssertions();
-		long timestamp = System.nanoTime();
+		long timestamp = System.currentTimeMillis() * 1000000;
 		float[] values = { 4.1f, 4.2f, 4.3f };
 		float[] values2 = { 4.11f, 4.21f, 4.31f };
 		float[] values3 = { 4.111f, 4.211f, 4.311f };
