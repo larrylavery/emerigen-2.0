@@ -24,7 +24,6 @@ public abstract class TransitionPatternRecognizer {
 	private SensorEvent sensorEvent;
 
 	private SensorEvent previousSensorEvent = null;
-
 	private static final Logger logger = Logger.getLogger(TransitionPatternRecognizer.class);
 
 	public TransitionPatternRecognizer() {
@@ -64,16 +63,13 @@ public abstract class TransitionPatternRecognizer {
 					.getPredictionsForSensorEvent(currentSensorEvent);
 
 			// Convert them to Predictions and calculate their probability
-			int predictionsSize = predictionEvents.size();
 			predictions = predictionEvents.stream()
 					.map(sensorEvent -> new TransitionPrediction(sensorEvent))
 					.collect(Collectors.toList());
 
 			// Calculate the probability for each
-			int predictionCount = predictions.size();
-			predictions.stream().map(prediction -> prediction.setProbability(predictionCount))
-					.collect(Collectors.toList());
-
+			double probability = 1.0 / predictions.size();
+			predictions.forEach(prediction -> prediction.setProbability(probability));
 			logger.info("Predictions from current sensorEvent: " + predictions);
 		}
 		// Update previous event
@@ -93,9 +89,8 @@ public abstract class TransitionPatternRecognizer {
 				.collect(Collectors.toList());
 
 		// Calculate the probability for each
-		int predictionCount = predictions.size();
-		predictions.stream().map(prediction -> prediction.setProbability(predictionCount))
-				.collect(Collectors.toList());
+		double probability = 1.0 / predictions.size();
+		predictions.forEach(prediction -> prediction.setProbability(probability));
 		return predictions;
 	}
 

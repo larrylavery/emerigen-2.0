@@ -38,10 +38,10 @@ public class CyclePrediction extends Prediction {
 	 * @return the probability
 	 */
 	@Override
-	public double getProbability(int numberOfPredictions) {
+	public double getProbability() {
 		// TODO calculate cycle node prediction
 		/**
-		 * Calculate the probability from sevaral metrics
+		 * Calculate the probability from several metrics
 		 */
 		double probability = 0.0;
 
@@ -54,6 +54,11 @@ public class CyclePrediction extends Prediction {
 	 */
 	public CycleNode getCycleNode() {
 		return cycleNode;
+	}
+
+	@Override
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 
 }

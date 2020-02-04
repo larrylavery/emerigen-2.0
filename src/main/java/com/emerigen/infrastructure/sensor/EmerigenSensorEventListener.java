@@ -216,6 +216,32 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 	}
 
+	/**
+	 * 
+	 * @param sensorEvent
+	 * @return true if predictions exist for the given event
+	 */
+	protected boolean eventHasPredictions(SensorEvent sensorEvent) {
+
+		// Retrieve the count of predictions for this sensor event
+		int predictionCount = KnowledgeRepository.getInstance()
+				.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
+						sensorEvent.getSensorLocation());
+		return predictionCount > 0;
+	}
+
+	/**
+	 * TODO the sensor event has just been logged, so this should return false???
+	 * 
+	 * @param sensorEvent
+	 * @return true if the sensorEvent is not in the repository
+	 */
+	private boolean isNewEvent(SensorEvent sensorEvent) {
+
+		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());
+		return null == event;
+	}
+
 	@Override
 	public void onPause() {
 

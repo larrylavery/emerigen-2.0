@@ -29,8 +29,8 @@ public class TransitionPrediction extends Prediction {
 	 * @return the probability
 	 */
 	@Override
-	public double getProbability(int numberOfPredictions) {
-		return 1.0 / numberOfPredictions;
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 
 }

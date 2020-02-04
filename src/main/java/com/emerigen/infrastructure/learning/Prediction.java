@@ -42,12 +42,11 @@ public abstract class Prediction {
 
 	private static final Logger logger = Logger.getLogger(Prediction.class);
 	private SensorEvent sensorEvent;
-	private double probability = 1.0;
+	protected double probability = 1.0;
 
 	public Prediction(SensorEvent sensorEvent) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("sensorEvent must not be null");
-
 		this.sensorEvent = sensorEvent;
 	}
 
@@ -69,7 +68,7 @@ public abstract class Prediction {
 	 * 
 	 * @return the probability
 	 */
-	public abstract double setProbability(int numberOfPredictions);
+	public abstract void setProbability(double probability);
 
 	/**
 	 * @return the probability
