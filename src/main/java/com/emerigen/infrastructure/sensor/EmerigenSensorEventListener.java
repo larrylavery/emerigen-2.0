@@ -4,10 +4,12 @@
 package com.emerigen.infrastructure.sensor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -26,8 +28,11 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	private Sensor glucoseSensor;
 	private Sensor bloodPressureSensor;
 	private final SensorManager sensorManager;
+	private HashMap<Integer, List<PatternRecognizer>> patternRecognizerMap = new HashMap<Integer, List<PatternRecognizer>>();
 	private SensorEvent previousSensorEvent;
+
 	private List<SensorEvent> predictions = new ArrayList<SensorEvent>();
+
 	private static final double GPS_DISTANCE_THRESHOLD = Double.parseDouble(
 			EmerigenProperties.getInstance().getValue("sensor.gps.distance.threshold.meters"));
 
@@ -82,31 +87,6 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	}
 
 	/**
-	 * 
-	 * @param sensorEvent
-	 * @return true if predictions exist for the given event
-	 */
-	protected boolean eventHasPredictions(SensorEvent sensorEvent) {
-
-		// Retrieve the count of predictions for this sensor event
-		int predictionCount = KnowledgeRepository.getInstance()
-				.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
-						sensorEvent.getSensorLocation());
-		return predictionCount > 0;
-	}
-
-	/**
-	 * 
-	 * @param sensorEvent
-	 * @return true if the sensorEvent is not in the repository
-	 */
-	protected boolean isNewEvent(SensorEvent sensorEvent) {
-
-		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());
-		return null == event;
-	}
-
-	/**
 	 * By default assume that a significant change has not occurred. All subclasses
 	 * should override this method.
 	 * 
@@ -150,17 +130,18 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		// Always log the new event
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
 
-		// If the required elapse time has passed
+		// Required elapse time has passed since last event?
 		if (minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent, sensorEvent,
 				minDelayBetweenReadingsMillis)) {
 
-			// AND the data has significantly changed, then process it
+			// Data has significantly changed?
 			if (significantChangeHasOccurred(previousSensorEvent, sensorEvent)) {
+				// TODO let cycle-based pattern recognizers have all events so durations merged
 
 				// This sensor event will be processed
 				result = true;
 
-				// TODO not sure what to do with these predictions yet
+				// Return prediction list that culls individual PR predictions
 				List<SensorEvent> predictions = getPredictionsForCurrentSensorEvent(
 						previousSensorEvent, sensorEvent);
 
