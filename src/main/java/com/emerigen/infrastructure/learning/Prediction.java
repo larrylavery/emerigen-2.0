@@ -68,7 +68,11 @@ public abstract class Prediction {
 	 * 
 	 * @return the probability
 	 */
-	public abstract void setProbability(double probability);
+	public void setProbability(double probability) {
+		if (probability < 0.0)
+			throw new IllegalArgumentException("probability must be zero or more");
+		this.probability = probability;
+	}
 
 	/**
 	 * @return the probability

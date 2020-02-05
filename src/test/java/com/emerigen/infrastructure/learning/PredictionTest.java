@@ -10,6 +10,16 @@ import org.junit.Test;
 
 class PredictionTest {
 
+	@Test
+	public final void givenNullSensorEvent_whenCreated_thenIllegalArgumentException() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenNegativeProbability_whenSet_thenIllegalArgumentException() {
+		fail("Not yet implemented"); // TODO
+	}
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -25,30 +35,4 @@ class PredictionTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-
-	@Test
-	public final void testPrediction() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testGetSensorEvent() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testSetProbabilityInt() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testGetProbability() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testSetProbabilityDouble() {
-		fail("Not yet implemented"); // TODO
-	}
-
 }

@@ -1,6 +1,6 @@
 package com.emerigen.infrastructure.learning;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,6 +9,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TransitionPredictionTest {
+
+	@Test
+	public final void givenPredictionCountZeroOrLess_whenSetProbability_thenIllegalArgumentException() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenNullSensorEvent_whenSetProbability_thenIllegalArgumentException() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenTwoTransitionPredictions_whenProbabilitySet_thenProbabilityEquals50Percent() {
+		fail("Not yet implemented"); // TODO
+	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -24,16 +39,6 @@ public class TransitionPredictionTest {
 
 	@After
 	public void tearDown() throws Exception {
-	}
-
-	@Test
-	public final void testSetProbabilityInt() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testTransitionPrediction() {
-		fail("Not yet implemented"); // TODO
 	}
 
 }

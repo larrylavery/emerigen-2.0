@@ -1,6 +1,6 @@
 package com.emerigen.infrastructure.learning;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,6 +9,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CyclePredictionTest {
+
+	@Test
+	public final void givenNullCycleNode_whenCreated_thenIllegalArgumentException() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenExpectedProbability_whenCreated_thenProbabilityCorrect() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public final void givenNegativeProbability_whenCreated_thenIllegalArgumentException() {
+		fail("Not yet implemented"); // TODO
+	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -24,21 +39,6 @@ public class CyclePredictionTest {
 
 	@After
 	public void tearDown() throws Exception {
-	}
-
-	@Test
-	public final void testCyclePrediction() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testGetProbabilityInt() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void testGetCycleNode() {
-		fail("Not yet implemented"); // TODO
 	}
 
 }
