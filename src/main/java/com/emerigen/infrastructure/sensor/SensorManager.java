@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.PatternRecognizer;
+import com.emerigen.infrastructure.repository.KnowledgeRepository;
+
 public class SensorManager {
 
 	public static final int SENSOR_DELAY_NORMAL = 0;
@@ -15,11 +18,14 @@ public class SensorManager {
 
 	private List<Sensor> allSensors = new ArrayList<Sensor>();
 
-	// Enable retrieving all event listeners for a sensor
+	// Enable retrieving all sensors for a listener
 	private HashMap<SensorEventListener, List<Sensor>> registeredSensorsPerListener;
 
 	// Enable retrieving all event listeners for a sensor
 	private HashMap<Sensor, List<SensorEventListener>> listenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
+
+	// Enable retrieving all pattern recognizers for a sensor type
+	private HashMap<Sensor, List<PatternRecognizer>> registeredPatternRecognizersPerSensor = new HashMap<Sensor, List<PatternRecognizer>>();
 
 	// Singleton infrastructure
 	private static SensorManager instance;
@@ -88,6 +94,93 @@ public class SensorManager {
 	}
 
 	/**
+	 * Register all pattern recognizers for the given sensor at the given sampling
+	 * frequency
+	 * 
+	 * @param patternRecognizer The pattern recognizer to invoke when sensor
+	 *                          publishes a new event
+	 * @param sensor            the sensor to register for
+	 * @param samplingFrequency the frequency at which this pattern recognizer
+	 *                          should receive new event notifications. The desired
+	 *                          delay between two consecutive events in nanoseconds
+	 * @return true if the pattern recognizer was successfully registered, otherwise
+	 *         false
+	 */
+	public boolean registerPatternRecognizersForSensorWithFrequency(Sensor sensor,
+			int samplingFrequencyMillis) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		if (samplingFrequencyMillis < 0)
+			throw new IllegalArgumentException("samplingFrequencyMillis must be zero or more");
+
+		// Retrieve all pattern recognizers for this sensor type
+		List<PatternRecognizer> patternRecognizers = KnowledgeRepository.getInstance()
+				.getPatternRecognizersForSensorType(sensor.getType());
+
+		if (patternRecognizers == null) {
+
+			// There are no pattern recognizers to register
+			return true;
+		} else if (patternRecognizers != null) {
+			/**
+			 * This will overwrite existing registered pattern recognizers
+			 */
+			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
+			return true;
+		} else {
+
+			// Registration already exists
+			return true;
+		}
+	}
+
+	/**
+	 * Register a pattern recognizer for the given sensor at the given sampling
+	 * frequency
+	 * 
+	 * @param patternRecognizer The pattern recognizer to invoke when sensor
+	 *                          publishes a new event
+	 * @param sensor            the sensor to register for
+	 * @param samplingFrequency the frequency at which this pattern recognizer
+	 *                          should receive new event notifications. The desired
+	 *                          delay between two consecutive events in nanoseconds
+	 * @return true if the pattern recognizer was successfully registered, otherwise
+	 *         false
+	 */
+	public boolean registerPatternRecognizerForSensorWithFrequency(
+			PatternRecognizer patternRecognizer, Sensor sensor, int samplingFrequencyMillis) {
+		if (patternRecognizer == null)
+			throw new IllegalArgumentException("patternRecognizer must not be null");
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		if (samplingFrequencyMillis < 0)
+			throw new IllegalArgumentException("samplingFrequencyMillis must be zero or more");
+
+		List<PatternRecognizer> patternRecognizers = registeredPatternRecognizersPerSensor
+				.get(sensor);
+
+		if (patternRecognizers == null) {
+
+			// pattern recognizer is not registered to the sensor type. Initialize data
+			patternRecognizers = new ArrayList<PatternRecognizer>();
+			patternRecognizers.add(patternRecognizer);
+			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
+			return true;
+		} else if (!patternRecognizers.contains(patternRecognizer)) {
+
+			// Sensor has pattern recognizers but not this patternRecognizer. Add it
+			patternRecognizers.add(patternRecognizer);
+			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
+			return true;
+		} else {
+
+			// Registration already exists
+			return true;
+		}
+
+	}
+
+	/**
 	 * Unregister the listener for the given sensor type
 	 * 
 	 * @param listener        the listener to unregister
@@ -105,6 +198,31 @@ public class SensorManager {
 			// Remove registration for given sensor
 			sensors.remove(sensor);
 			registeredSensorsPerListener.put(listener, sensors);
+			return true;
+		}
+	}
+
+	/**
+	 * Unregister the patternRecognizer for the given sensor and remove it from the
+	 * repository
+	 * 
+	 * @param patternRecognizer
+	 * @param sensor
+	 * @return
+	 */
+	public boolean unregisterPatternRecognizerFromSensor(PatternRecognizer patternRecognizer,
+			Sensor sensor) {
+		List<PatternRecognizer> patternRecognizers = registeredPatternRecognizersPerSensor
+				.get(patternRecognizer);
+		if (!patternRecognizers.contains(patternRecognizer)) {
+
+			// pattern recognizer was not registered to the given sensor
+			return true;
+		} else {
+
+			// Remove registration for given pattern recognizer
+			patternRecognizers.remove(patternRecognizer);
+			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
 			return true;
 		}
 	}

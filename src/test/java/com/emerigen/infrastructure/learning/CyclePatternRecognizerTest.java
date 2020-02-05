@@ -18,6 +18,11 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 public class CyclePatternRecognizerTest {
 
 	@Test
+	public final void givenNewDefaultSensor_whenCreated_thenAllCyclePatternRecognizersAndTransitionPRsAreRegistered() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
 	public final void givenNewEvent_whenOnSensorChangedCalled_thenEventAddedAtAppropriatePositionAndFollowingEventIsReturnedAsPrediction() {
 		fail("Not yet implemented"); // TODO
 	}

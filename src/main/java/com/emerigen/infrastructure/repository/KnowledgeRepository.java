@@ -23,6 +23,7 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -448,6 +449,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		} catch (IOException e) {
 			throw new RepositoryException(e);
 		}
+	}
+
+	public List<PatternRecognizer> getPatternRecognizersForSensorType(int sensorType) {
+		// TODO Retrieve all pattern recognizers for this sensor
+		return null;
 	}
 
 }

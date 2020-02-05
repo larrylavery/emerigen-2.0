@@ -24,6 +24,12 @@ public class EmerigenSensorEventListenerTest {
 	}
 
 	@Test
+	public void givenCycleWithInvalidSensorType_whenRegistered_thenIllegalArgumentException()
+			throws Exception {
+		fail("Not implemented yet");
+	}
+
+	@Test
 	public void givenOneCycleAndOneTransitionPatternRecognizers_whenRegistered_thenBothatternRecognizersReceivesAllEvents()
 			throws Exception {
 		fail("Not implemented yet");

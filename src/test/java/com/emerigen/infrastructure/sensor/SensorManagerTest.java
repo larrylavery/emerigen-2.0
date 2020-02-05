@@ -2,6 +2,7 @@ package com.emerigen.infrastructure.sensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.List;
@@ -31,6 +32,67 @@ public class SensorManagerTest {
 		@Override
 		public void onResume() {
 		}
+
+	}
+
+	@Test
+	public final void givenPatternRecognizerRegistered_whenRegistrationChecked_thenIsRegisteredIsTrue() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenNoPatternRecognizerRegistered_whenRegistrationChecked_thenIsRegisteredIsFalse() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenPatternRecognizerRegistrationsExist_whenUnregistered_thenIsRegisteredIsFalse() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenPatternRecognizerRegistrationsExist_whenNewCycleRegistered_thenIsRegisteredIsTrue() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenNoPatternRecognizersInRepository_whenAppStartup_thenIsRegisteredIsFalse() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenMultiplePatternRecognizersInRepository_whenAppStartup_thenIsRegisteredIsTrueForEach() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenOnePatternRecognizerInRepository_whenUnregistered_thenNoRegistrationsInRepository() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenMultiplePatternRecognizersInRepository_whenSomeUnregistered_thenNoRegistrationsInRepositoryForThose() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenMultiplePatternRecognizersInRepository_whenUnregisterAll_thenNoRegistrationsInRepositoryForThose() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenOnePatternRecognizerInRepository_whenAppStartup_thenIsRegisteredIsTrue() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenRegisteredPatternRecognizer_whenUnRegistered_thenIsRegisteredIsFalse() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public final void givenUnRegisteredPatternRecognizer_whenRegistered_thenIsRegisteredIsTrue() {
+		fail("not yet implemented");
 	}
 
 	@Test

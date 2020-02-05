@@ -84,6 +84,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, glucoseSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
+
+		// TODO retrieve and register all cycles for each sensor
 	}
 
 	/**
