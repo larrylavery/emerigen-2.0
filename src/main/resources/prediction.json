@@ -3,7 +3,7 @@
 	"title" : "Prediction",
 	"description" : "A schema representing that a prediction was made by a pattern recognizer",
 	"type" : "object",
-    "required": ["sensorType", "sensorLocation", "timestamp", "values"],
+    "required": ["sensorType", "sensorLocation", "probability", "timestamp", "values"],
     "properties": {         
 		 "sensorType" : {
 		 	"description" : "The identifier for the sensor type that the input pattern is associated with",
@@ -13,9 +13,13 @@
 			"description": "The location this sensor resides on",
 			"type": "number"
 		},
+		 "probability" : {
+		 	"description" : "The probability associated with this prediction",
+		 	"type": "number"
+		 },
 		 "timestamp" : {
-		 	"description" : "The time this prediction was logged",
-		 	"type" : "string"
+		 	"description" : "The time this prediction was created",
+		 	"type" : "number"
 		 },
 		 "values" : {
 		 	"description" : "The sensor-specific measurements",

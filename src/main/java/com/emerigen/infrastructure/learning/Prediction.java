@@ -44,6 +44,9 @@ public abstract class Prediction {
 	private SensorEvent sensorEvent;
 	protected double probability = 1.0;
 
+	public Prediction() {
+	}
+
 	public Prediction(SensorEvent sensorEvent) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("sensorEvent must not be null");
@@ -55,6 +58,12 @@ public abstract class Prediction {
 	 */
 	public SensorEvent getSensorEvent() {
 		return sensorEvent;
+	}
+
+	public void setSensorEvent(SensorEvent sensorEvent) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null");
+		this.sensorEvent = sensorEvent;
 	}
 
 	/**

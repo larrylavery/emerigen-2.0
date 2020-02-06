@@ -1,0 +1,6 @@
+{	
+	"sensorLocation": 1,
+	"probability" : 1.0,
+	"timestamp" : 1,
+	"values" : [1.1, 2.2]
+}

@@ -1,0 +1,13 @@
+{ 
+	"cycletype": "Daily",
+	"cycleStartTimeNano" : 1,
+	"cycleDurationTimeNano": 4,
+	"allowableStandardDeviationForEquality": 1.1,
+	"cycleNodes" : [
+		 {
+			"startTimeOffsetNano": 2,
+			"dataPointDuration": 1,
+			"probability": 0.4
+		}	
+	]
+}

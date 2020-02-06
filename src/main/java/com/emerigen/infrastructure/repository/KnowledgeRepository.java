@@ -153,7 +153,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 	@Override
 	public List<SensorEvent> getSensorEventsForKeys(List<String> sensorEventKeys) {
-		if (sensorEventKeys == null || sensorEventKeys.size() == 0) {
+		if (sensorEventKeys == null) {
 			throw new IllegalArgumentException("sensorEventKeys must not be null or empty");
 		}
 		ObjectMapper mapper = new ObjectMapper();

@@ -29,6 +29,8 @@ public class TransitionPrediction extends Prediction {
 	 * @return the probability
 	 */
 	public void setProbability(int predictionCount) {
+		if (predictionCount <= 0)
+			throw new IllegalArgumentException("predictionCount must be greater than zero");
 		this.probability = 1.0 / predictionCount;
 	}
 

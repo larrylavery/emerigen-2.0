@@ -3,6 +3,7 @@
  */
 package com.emerigen.infrastructure.learning;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -49,11 +50,27 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  */
 public abstract class PatternRecognizer {
 
+	private List<Prediction> currentPredictions = new ArrayList<Prediction>();
+
 	public PatternRecognizer() {
 	}
 
 	public abstract List<Prediction> onSensorChanged(SensorEvent sensorEvent);
 
 	public abstract List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent);
+
+	/**
+	 * @return the currentPredictions
+	 */
+	public List<Prediction> getCurrentPredictions() {
+		return currentPredictions;
+	}
+
+	/**
+	 * @param currentPredictions the currentPredictions to set
+	 */
+	public void setCurrentPredictions(List<Prediction> currentPredictions) {
+		this.currentPredictions = currentPredictions;
+	}
 
 }

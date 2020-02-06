@@ -23,10 +23,10 @@ public class CyclePrediction extends Prediction {
 	 * @param cycleNode the cycle node for which the predictions will be based.
 	 */
 	public CyclePrediction(CycleNode cycleNode) {
-		super(cycleNode.getSensorEvent());
 
 		if (cycleNode == null)
 			throw new IllegalArgumentException("cycleNode must not be null");
+		setSensorEvent(cycleNode.getSensorEvent());
 
 		this.cycleNode = cycleNode;
 	}
@@ -54,11 +54,6 @@ public class CyclePrediction extends Prediction {
 	 */
 	public CycleNode getCycleNode() {
 		return cycleNode;
-	}
-
-	@Override
-	public void setProbability(double probability) {
-		this.probability = probability;
 	}
 
 }

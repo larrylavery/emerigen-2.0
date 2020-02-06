@@ -1,6 +1,7 @@
 package com.emerigen.infrastructure.learning;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.then;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -8,16 +9,28 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-class PredictionTest {
+import com.emerigen.infrastructure.sensor.SensorEvent;
+
+public class PredictionTest {
 
 	@Test
 	public final void givenNullSensorEvent_whenCreated_thenIllegalArgumentException() {
-		fail("Not yet implemented"); // TODO
+
+		final Throwable throwable = catchThrowable(() -> new TransitionPrediction(null));
+
+		then(throwable).as("null sensor event throws IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public final void givenNegativeProbability_whenSet_thenIllegalArgumentException() {
-		fail("Not yet implemented"); // TODO
+
+		TransitionPrediction prediction = new TransitionPrediction(new SensorEvent());
+
+		final Throwable throwable = catchThrowable(() -> prediction.setProbability(-1.0));
+
+		then(throwable).as("negative probability throws IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@BeforeClass

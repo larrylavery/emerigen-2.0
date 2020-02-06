@@ -19,7 +19,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  * @author Larry
  *
  */
-public abstract class TransitionPatternRecognizer {
+public class TransitionPatternRecognizer extends PatternRecognizer {
 
 	private SensorEvent sensorEvent;
 
@@ -36,6 +36,7 @@ public abstract class TransitionPatternRecognizer {
 	 * @param previousSensorEvent
 	 * @param currentSensorEvent
 	 */
+	@Override
 	public List<Prediction> onSensorChanged(SensorEvent currentSensorEvent) {
 
 		List<Prediction> predictions = new ArrayList<Prediction>();
@@ -72,12 +73,15 @@ public abstract class TransitionPatternRecognizer {
 			predictions.forEach(prediction -> prediction.setProbability(probability));
 			logger.info("Predictions from current sensorEvent: " + predictions);
 		}
-		// Update previous event
+
+		// Update previous event and save any new predictions
 		previousSensorEvent = currentSensorEvent;
+		setCurrentPredictions(predictions);
 		return predictions;
 
 	}
 
+	@Override
 	public List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
 		List<SensorEvent> predictionEvents = KnowledgeRepository.getInstance()
 				.getPredictionsForSensorEvent(sensorEvent);
