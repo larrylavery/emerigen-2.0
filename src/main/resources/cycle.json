@@ -35,7 +35,7 @@
 				"required": [
 					"sensorEvent",
 					"startTimeOffsetNano",
-					"dataPointDuration",
+					"dataPointDurationNano",
 					"probability"
 				],
 				"properties": {
@@ -63,7 +63,8 @@
 					"cycletype",
 					"cycleStartTimeNano",
 					"cycleDurationTimeNano",
-					"allowableStandardDeviationForEquality"
+					"allowableStandardDeviationForEquality",
+					"cycleNodes"
 				],
 				"properties": {
 					"cycletype": {

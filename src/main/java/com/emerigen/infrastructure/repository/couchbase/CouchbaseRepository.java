@@ -78,6 +78,8 @@ public class CouchbaseRepository {
 			.getValue("couchbase.bucket.transition");
 	public static final String ENTITY = EmerigenProperties.getInstance()
 			.getValue("couchbase.bucket.entity");
+	public static final String CYCLE = EmerigenProperties.getInstance()
+			.getValue("couchbase.bucket.cycle");
 	public static final String PERSON = "person-sample";
 	private static final String PASSWORD = EmerigenProperties.getInstance()
 			.getValue("couchbase.server.password");
@@ -97,14 +99,14 @@ public class CouchbaseRepository {
 			.continuousKeepAliveEnabled(Boolean.valueOf(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.continuous.keep.alive.enabled")))
 			.keyValueServiceConfig(keyValueServiceConfig)
-			.connectTimeout(Integer.parseInt(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.connect.timeout")))
+			.connectTimeout(Integer.parseInt(
+					EmerigenProperties.getInstance().getValue("couchbase.server.connect.timeout")))
 			.socketConnectTimeout(Integer.parseInt(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.socket.connect.timeout")))
 			.disconnectTimeout(Integer.parseInt(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.disconnect.timeout")))
-			.kvTimeout(Integer.parseInt(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.kv.timeout")))
+			.kvTimeout(Integer.parseInt(
+					EmerigenProperties.getInstance().getValue("couchbase.server.kv.timeout")))
 			.keepAliveTimeout(Integer.parseInt(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.keep.alive.timeout")))
 			.build();
@@ -128,8 +130,7 @@ public class CouchbaseRepository {
 	}
 
 	private CouchbaseRepository() {
-		cluster = CouchbaseCluster.create(env,
-				couchbaseRepositoryConfig.getConnectionString());
+		cluster = CouchbaseCluster.create(env, couchbaseRepositoryConfig.getConnectionString());
 		cluster.authenticate(couchbaseRepositoryConfig.getUserID(),
 				couchbaseRepositoryConfig.getPassword());
 	}
@@ -145,8 +146,7 @@ public class CouchbaseRepository {
 		}
 	}
 
-	public void log(final String bucketName, final String primaryKey,
-			final JsonObject jsonObject) {
+	public void log(final String bucketName, final String primaryKey, final JsonObject jsonObject) {
 
 		openBucketIfNecessary(bucketName);
 
@@ -160,25 +160,39 @@ public class CouchbaseRepository {
 		}
 	}
 
+	public void logWithOverwrite(final String bucketName, final String primaryKey,
+			final JsonObject jsonObject) {
+
+		openBucketIfNecessary(bucketName);
+
+		Bucket bucket = buckets.get(bucketName);
+		if (bucket != null) {
+			// insert the jsonObject into my bucket
+			bucket.upsert(JsonDocument.create(primaryKey, jsonObject));
+		} else {
+			throw new BucketNotFoundException(
+					"log(bucketName() failed because the bucket was not found");
+		}
+	}
+
 	public N1qlQueryResult query(final String bucketName, final Statement statement,
 			final JsonArray placeholderValues) {
 
 		openBucketIfNecessary(bucketName);
 		Bucket bucket = buckets.get(bucketName);
 		if (bucket != null) {
-			ParameterizedN1qlQuery n1qlQuery = ParameterizedN1qlQuery
-					.parameterized(statement, placeholderValues);
+			ParameterizedN1qlQuery n1qlQuery = ParameterizedN1qlQuery.parameterized(statement,
+					placeholderValues);
 
 			// The actual Repository query() call
 			N1qlQueryResult result = bucket.query(n1qlQuery);
 			if (!result.finalSuccess()) {
-				throw new RepositoryException("N1qlQuery failure: " + result.errors()
-						+ "/n statement: " + statement);
+				throw new RepositoryException(
+						"N1qlQuery failure: " + result.errors() + "/n statement: " + statement);
 			}
 			return result;
 		} else {
-			throw new BucketNotFoundException(
-					"query(...) failed because the bucket was not found");
+			throw new BucketNotFoundException("query(...) failed because the bucket was not found");
 		}
 
 	}
@@ -192,19 +206,17 @@ public class CouchbaseRepository {
 			// The actual Repository query() call
 			N1qlQueryResult result = bucket.query(n1qlQuery);
 			if (!result.finalSuccess()) {
-				throw new RepositoryException("N1qlQuery failure: " + result.errors()
-						+ "/n statement: " + n1qlQuery);
+				throw new RepositoryException(
+						"N1qlQuery failure: " + result.errors() + "/n statement: " + n1qlQuery);
 			}
 			return result;
 		} else {
-			throw new BucketNotFoundException(
-					"query(...) failed because the bucket was not found");
+			throw new BucketNotFoundException("query(...) failed because the bucket was not found");
 		}
 
 	}
 
-	public JsonObject extractJsonResult(N1qlQueryResult result, String enclosingType,
-			int index) {
+	public JsonObject extractJsonResult(N1qlQueryResult result, String enclosingType, int index) {
 		return result.allRows().get(index).value().getObject(enclosingType);
 	}
 
@@ -216,8 +228,8 @@ public class CouchbaseRepository {
 
 			if (!bucket.bucketManager().flush()) {
 				throw new RepositoryException(
-						"Error occurred while deleting all documents in bucket ("
-								+ bucket.name() + ")");
+						"Error occurred while deleting all documents in bucket (" + bucket.name()
+								+ ")");
 			}
 		}
 	}
@@ -245,8 +257,7 @@ public class CouchbaseRepository {
 			JsonDocument jsonDocument = bucket.get(docID);
 			return jsonDocument;
 		} else {
-			throw new BucketNotFoundException(
-					"query(...) failed because the bucket was not found");
+			throw new BucketNotFoundException("query(...) failed because the bucket was not found");
 		}
 	}
 

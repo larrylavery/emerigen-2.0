@@ -28,6 +28,10 @@ public class CouchbaseSensorEventRepositoryTest {
 	String uuid = UUID.randomUUID().toString();
 
 	@Test
+	public final void givenTwoDifferentCyclesLogged_WhenCountQueriedByKey_ThenCountShouldBe2() {
+	}
+
+	@Test
 	public final void givenTwoSensorEventsLogged_WhenCountQueriedByKey_ThenCountShouldBe2() {
 
 		// Given - A Connection to the repository has been established

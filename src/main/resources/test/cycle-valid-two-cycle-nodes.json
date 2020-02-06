@@ -5,14 +5,28 @@
 	"allowableStandardDeviationForEquality": 1.1,
 	"cycleNodes" : [
 		 {
-			"startTimeOffsetNano": 2,
-			"dataPointDuration": 1,
-			"probability": 0.4
+		 "sensorEvent" : {
+		 	"timestamp": 123,
+		 	"sensorType": 1,
+		 	"sensorLocation": 1,
+		 	"values": [1.1,2.2]
+		 },
+	 	"timestamp": 123,
+		"startTimeOffsetNano": 2,
+		"dataPointDuration": 1,
+		"probability": 0.4
 		},
-		{
-			"startTimeOffsetNano": 3,
-			"dataPointDuration": 4,
-			"probability": 0.6
+				 {
+		 "sensorEvent" : {
+		 	"timestamp": 1234,
+		 	"sensorType": 1,
+		 	"sensorLocation": 1,
+		 	"values": [1.11,2.22]
+		 },
+	 	"timestamp": 1234,
+		"startTimeOffsetNano": 2,
+		"dataPointDuration": 1,
+		"probability": 0.4
 		}	
 			
 	]

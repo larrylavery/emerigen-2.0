@@ -5,8 +5,15 @@
 	"allowableStandardDeviationForEquality": 1.1,
 	"cycleNodes" : [
 		 {
+		 "sensorEvent" : {
+		 	"timestamp": 123,
+		 	"sensorType": 1,
+		 	"sensorLocation": 1,
+		 	"values": [1.1,2.2]
+		 },
+		 	"timestamp": 123,
 			"startTimeOffsetNano": 2,
-			"dataPointDuration": 1,
+			"dataPointDurationNano": 1,
 			"probability": 0.4
 		}	
 	]
