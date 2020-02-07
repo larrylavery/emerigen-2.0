@@ -13,6 +13,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.Prediction;
+import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
+
 public class SensorManagerTest {
 
 	public static int eventListenerOnSensorChanged = 0;
@@ -20,9 +23,9 @@ public class SensorManagerTest {
 	public class EventListener implements SensorEventListener {
 
 		@Override
-		public boolean onSensorChanged(SensorEvent sensorEvent) {
+		public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 			eventListenerOnSensorChanged++;
-			return true;
+			return null;
 		}
 
 		@Override
@@ -42,12 +45,28 @@ public class SensorManagerTest {
 
 	@Test
 	public final void givenNoPatternRecognizerRegistered_whenRegistrationChecked_thenIsRegisteredIsFalse() {
-		fail("not yet implemented");
+		SensorManager sensorManager = SensorManager.getInstance();
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
+
+		SensorEventListener listener = new TransitionPatternRecognizer();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+
 	}
 
 	@Test
 	public final void givenPatternRecognizerRegistrationsExist_whenUnregistered_thenIsRegisteredIsFalse() {
-		fail("not yet implemented");
+		SensorManager sensorManager = SensorManager.getInstance();
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
+
+		SensorEventListener listener = new TransitionPatternRecognizer();
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
+
+		sensorManager.unregisterListenerFromSensor(listener, sensor);
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+
 	}
 
 	@Test
@@ -86,13 +105,14 @@ public class SensorManagerTest {
 	}
 
 	@Test
-	public final void givenRegisteredPatternRecognizer_whenUnRegistered_thenIsRegisteredIsFalse() {
-		fail("not yet implemented");
-	}
-
-	@Test
 	public final void givenUnRegisteredPatternRecognizer_whenRegistered_thenIsRegisteredIsTrue() {
-		fail("not yet implemented");
+		SensorManager sensorManager = SensorManager.getInstance();
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
+
+		SensorEventListener listener = new TransitionPatternRecognizer();
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 	}
 
 	@Test

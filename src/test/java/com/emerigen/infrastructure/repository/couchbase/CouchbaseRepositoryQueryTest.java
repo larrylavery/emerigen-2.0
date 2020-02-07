@@ -26,7 +26,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public class CouchbaseRepositoryQueryTest {
 
 	@Test
-	public final void givenTwoTransitionAndFourRelatedSensorEventsLogged_WhenRelationshipsQueried_ThenTheyShouldBeValid() {
+	public final void givenTwoTransitionsAndFourRelatedSensorEventsLogged_WhenRelationshipsQueried_ThenTheyShouldBeValid() {
 
 		// Given
 		// Load 4 different sensorEvents
@@ -104,7 +104,7 @@ public class CouchbaseRepositoryQueryTest {
 
 		// Then there should be one of them with valid predictedSensorEvent key
 		assertThat(result).isNotNull().isNotEmpty();
-		assertThat(result.info().resultCount() == 1);
+		assertThat(result.info().resultCount() == 2);
 		// result.forEach(System.out::println);
 		softly.assertThat(result.allRows().get(0).value().getString("predictedSensorEventKey"))
 				.isEqualTo(event2.getKey());

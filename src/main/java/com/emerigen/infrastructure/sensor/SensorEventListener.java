@@ -1,11 +1,17 @@
 package com.emerigen.infrastructure.sensor;
 
+import java.util.List;
+
+import com.emerigen.infrastructure.learning.Prediction;
+
 public interface SensorEventListener {
 
-	public boolean onSensorChanged(SensorEvent sensorEvent);
+	public List<Prediction> onSensorChanged(SensorEvent sensorEvent);
 
-	public void onPause();
+	public default void onPause() {
+	}
 
-	public void onResume();
+	public default void onResume() {
+	}
 
 }

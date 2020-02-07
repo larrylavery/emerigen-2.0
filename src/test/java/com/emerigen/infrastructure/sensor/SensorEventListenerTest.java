@@ -2,12 +2,15 @@ package com.emerigen.infrastructure.sensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -24,9 +27,9 @@ public class SensorEventListenerTest {
 	public class EventListener implements SensorEventListener {
 
 		@Override
-		public boolean onSensorChanged(SensorEvent sensorEvent) {
+		public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 			eventListenerOnSensorChanged++;
-			return true;
+			return null;
 		}
 
 		@Override
@@ -88,7 +91,7 @@ public class SensorEventListenerTest {
 	}
 
 	@Test
-	public void gvenValidHeartRateSensorListenerRegistered_whenExecutedTwiceWithoutSufficientDifference_thenOnSensorChangedReturnsFalse()
+	public void gvenValidHeartRateSensorListenerRegistered_whenExecutedTwiceWithoutSufficientDifference_thenOnSensorChangedReturnsEmptyPredictions()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
@@ -101,10 +104,11 @@ public class SensorEventListenerTest {
 		float[] valuesPastThreshold = { 99.0f };
 		SensorEvent event = new SensorEvent(sensor, values);
 
-		assertThat(listener.onSensorChanged(event)).isFalse();
-		Thread.sleep(minDelayBetweenReadingsMillis);
+		assertThat(listener.onSensorChanged(event)).isNotNull().isEmpty();
 		SensorEvent event2 = new SensorEvent(sensor, valuesPastThreshold);
-		assertThat(listener.onSensorChanged(event2)).isFalse();
+//		Thread.sleep(minDelayBetweenReadingsMillis);
+//		SensorEvent event2 = new SensorEvent(sensor, valuesPastThreshold);
+		assertThat(listener.onSensorChanged(event2)).isNotNull().isEmpty();
 
 	}
 

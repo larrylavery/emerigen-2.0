@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -93,7 +94,7 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	}
 
 	@Override
-	public boolean onSensorChanged(SensorEvent sensorEvent) {
+	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 
 		// If the minimum delay has occurred then process the event
 		Sensor sensor = sensorEvent.getSensor();
@@ -115,11 +116,11 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		}
 
 		// Not a sensor we are interested in
-		return false;
+		return new ArrayList<Prediction>();
 
 	}
 
-	private boolean processTemperatureChange(SensorEvent sensorEvent) {
+	private List<Prediction> processTemperatureChange(SensorEvent sensorEvent) {
 
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapsedTime()
@@ -140,21 +141,21 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 
 				// Update for next change event
 				lastUpdateTemperature = currentTemparature;
-				return true;
+				return new ArrayList<Prediction>();
 			} else {
 				logger.info(
 						"The temperature difference did not exceed the 'temperature difference threshold' of "
 								+ TEMPERATURE_DIFFERENCE_THRESHOLD);
-				return false;
+				return new ArrayList<Prediction>();
 			}
 		} else {
 
 			// Minimum delay has not occurred
-			return false;
+			return new ArrayList<Prediction>();
 		}
 	}
 
-	private boolean processAccelerometerChange(SensorEvent sensorEvent) {
+	private List<Prediction> processAccelerometerChange(SensorEvent sensorEvent) {
 
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapsedTime()
@@ -179,20 +180,20 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 				last_x = x;
 				last_y = y;
 				last_z = z;
-				return true;
+				return new ArrayList<Prediction>();
 			} else {
 				logger.info("The speed did not exceed the 'shake threshold' of "
 						+ ACCEL_SHAKE_THRESHOLD);
-				return false;
+				return new ArrayList<Prediction>();
 			}
 		} else {
 
 			// Minimum delay has not occurred
-			return false;
+			return new ArrayList<Prediction>();
 		}
 	}
 
-	protected boolean processGpsChange(SensorEvent sensorEvent) {
+	protected List<Prediction> processGpsChange(SensorEvent sensorEvent) {
 
 		// determine the elapse time since the last onChanged processed
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
@@ -212,17 +213,17 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 
 				// Update for next change event
 				lastGpsCoordinates = sensorEvent.getValues();
-				return true;
+				return new ArrayList<Prediction>();
 			} else {
 				logger.info(
 						"The distance traveled since the last position did not exceed the 'distance threshold' of "
 								+ GPS_DISTANCE_THRESHOLD);
-				return false;
+				return new ArrayList<Prediction>();
 			}
 		} else {
 
 			// Minimum delay has not occurred
-			return false;
+			return new ArrayList<Prediction>();
 		}
 	}
 
@@ -271,7 +272,7 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		return elapseTime;
 	}
 
-	private boolean processHeartRateChanged(SensorEvent sensorEvent) {
+	private List<Prediction> processHeartRateChanged(SensorEvent sensorEvent) {
 
 		// Allways log the sensor event
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
@@ -309,10 +310,10 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 			}
 			lastUpdateTime = currentTime;
 			lastSensorEvent = sensorEvent;
-			return true;
+			return new ArrayList<Prediction>();
 		} else {
 			// Minimum time lapse has not occurred, don't process event
-			return false;
+			return new ArrayList<Prediction>();
 		}
 	}
 

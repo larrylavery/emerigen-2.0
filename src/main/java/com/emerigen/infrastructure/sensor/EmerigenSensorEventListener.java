@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.learning.PatternRecognizer;
+import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -108,9 +109,9 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 * @param currentSensorEvent
 	 * @return
 	 */
-	protected boolean processSensorChange(SensorEvent previousSensorEvent,
+	protected List<Prediction> processSensorChange(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent) {
-		return true;
+		return null;
 	}
 
 	/**
@@ -125,9 +126,9 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	}
 
 	@Override
-	public boolean onSensorChanged(SensorEvent sensorEvent) {
+	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 
-		boolean result = false;
+		List<Prediction> result = new ArrayList<Prediction>();
 
 		// Always log the new event
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
@@ -139,9 +140,6 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			// Data has significantly changed?
 			if (significantChangeHasOccurred(previousSensorEvent, sensorEvent)) {
 				// TODO let cycle-based pattern recognizers have all events so durations merged
-
-				// This sensor event will be processed
-				result = true;
 
 				// Return prediction list that culls individual PR predictions
 				List<SensorEvent> predictions = getPredictionsForCurrentSensorEvent(

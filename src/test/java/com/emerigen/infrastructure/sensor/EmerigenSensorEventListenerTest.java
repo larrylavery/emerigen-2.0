@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class EmerigenSensorEventListenerTest {
@@ -14,7 +15,19 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenValidTransitionPatternRecognizer_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
 			throws Exception {
-		fail("Not implemented yet");
+		SensorManager sensorManager = SensorManager.getInstance();
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		TransitionPatternRecognizer tpr = new TransitionPatternRecognizer();
+		Sensor hrSensor = sensorManager.getDefaultSensorForLocation(minDelayBetweenReadingsMillis,
+				minDelayBetweenReadingsMillis);
+
+		sensorManager.registerListenerForSensorWithFrequency(tpr, null,
+				minDelayBetweenReadingsMillis);
+		listener.onPause();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isFalse();
+
+		listener.onResume();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isTrue();
 	}
 
 	@Test
@@ -74,6 +87,22 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
+		SensorManager sensorManager = SensorManager.getInstance();
+		SensorEventListener listener = new EmerigenSensorEventListener();
+
+		listener.onPause();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isFalse();
+
+		listener.onResume();
+		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isTrue();
+
+	}
+
+	@Test
+	public void givenValidCyclePatternRecognizer_whenOnPauseThenOnResumeInvoked_thenCyclePatternRecognizersMatch()
+			throws Exception {
+		fail("not yet implemented");
+
 		SensorManager sensorManager = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
 

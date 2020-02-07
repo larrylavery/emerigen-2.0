@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorEventListener;
 
 /**
  * This class represents all pattern recognizers and predictors. Currently there
@@ -48,13 +49,14 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  * @author Larry
  *
  */
-public abstract class PatternRecognizer {
+public abstract class PatternRecognizer implements SensorEventListener {
 
 	private List<Prediction> currentPredictions = new ArrayList<Prediction>();
 
 	public PatternRecognizer() {
 	}
 
+	@Override
 	public abstract List<Prediction> onSensorChanged(SensorEvent sensorEvent);
 
 	public abstract List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent);
