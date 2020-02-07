@@ -8,6 +8,8 @@ import java.time.ZonedDateTime;
 
 import org.apache.log4j.Logger;
 
+import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * @author Larry
  * @param <T>
@@ -21,6 +23,10 @@ public class DailyCycle extends Cycle {
 	final private long milliSecondsPerSecond = 1000;
 	final private long nanoSecondsPerMillisecond = 1000000;
 	private static final Logger logger = Logger.getLogger(DailyCycle.class);
+
+	public DailyCycle() {
+		super("Daily");
+	}
 
 	public DailyCycle(int sensorType, int sensorLocation) {
 		super(sensorType, sensorLocation, "Daily");
@@ -52,6 +58,15 @@ public class DailyCycle extends Cycle {
 	@Override
 	public String toString() {
 		return "DailyCycle []";
+	}
+
+	/**
+	 * @return the key for this cycle
+	 */
+	@Override
+	@JsonIgnore
+	public String getKey() {
+		return "" + getSensorType() + getSensorLocation() + getCycleType();
 	}
 
 }

@@ -24,7 +24,11 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import com.emerigen.infrastructure.learning.Cycle;
+import com.emerigen.infrastructure.learning.DailyCycle;
+import com.emerigen.infrastructure.learning.MonthlyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
+import com.emerigen.infrastructure.learning.WeeklyCycle;
+import com.emerigen.infrastructure.learning.YearlyCycle;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -482,7 +486,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
-			repository.log(CYCLE, cycle.getKey(), jsonObject);
+			repository.logWithOverwrite(CYCLE, cycle.getKey(), jsonObject);
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
@@ -491,7 +495,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public Cycle getCycle(String cycleClassName, String cycleKey) {
+	public Cycle getCycle(String cycleTypeName, String cycleKey) {
 
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
@@ -499,11 +503,20 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		JsonDocument jsonDocument = repo.get(CYCLE, cycleKey);
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
-		Class cls = Class.forName(cycleClassName).getClass();
-		cls cycle;
+		Cycle cycle;
 
 		try {
-			cycle = (Cycle) mapper.readValue(jsonDocument.content().toString(), cls);
+			if ("Daily".equals(cycleTypeName))
+				cycle = mapper.readValue(jsonDocument.content().toString(), DailyCycle.class);
+			else if ("Weekly".equals(cycleTypeName))
+				cycle = mapper.readValue(jsonDocument.content().toString(), WeeklyCycle.class);
+			else if ("Monthly".equals(cycleTypeName))
+				cycle = mapper.readValue(jsonDocument.content().toString(), MonthlyCycle.class);
+			else if ("Yearly".equals(cycleTypeName))
+				cycle = mapper.readValue(jsonDocument.content().toString(), YearlyCycle.class);
+			else
+				throw new IllegalArgumentException(
+						"cycle type must be valid, but was (" + cycleTypeName + ")");
 			return cycle;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);

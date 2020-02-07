@@ -153,7 +153,7 @@ public abstract class AbstractKnowledgeRepository {
 
 	public abstract SensorEvent getSensorEvent(String sensorEventKey);
 
-	public abstract Cycle getCycle(String cycleKey);
+	public abstract Cycle getCycle(String cycleTypeName, String cycleKey);
 
 	public abstract Transition getTransition(String transitionKey);
 }

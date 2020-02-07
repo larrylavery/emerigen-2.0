@@ -2,8 +2,6 @@ package com.emerigen.infrastructure.sensor;
 
 import java.util.Arrays;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
  * This class represents an event from any hardware-based sensor. The major
  * difference in events involve the number of float entries and the meaning of
@@ -37,7 +35,7 @@ public class SensorEvent {
 	/**
 	 * The sensor that published this event
 	 */
-	@JsonIgnore
+	// @JsonIgnore
 	private Sensor sensor = null;
 
 	// The hash of all values

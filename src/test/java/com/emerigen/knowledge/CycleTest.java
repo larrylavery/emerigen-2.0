@@ -120,6 +120,23 @@ public class CycleTest {
 	}
 
 	@Test
+	public final void givenInvalidCycleTypeName_whenGetCycleInvoked_thenIllegalArgumentException() {
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given
+
+		// When
+		final Throwable throwable = catchThrowable(
+				() -> knowledgeRepository.getCycle("invalidCycleTypeName", "xxx"));
+
+		// Then
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for invalid cycle type name")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
 	public final void givenValidCycle_whenLogged_thenRetrievedOK() {
 //		"cycletype": "Daily",
 //		"cycleStartTimeNano" : 1,
@@ -163,7 +180,7 @@ public class CycleTest {
 		}
 
 		// Then try to retrieve it
-		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle(cycle.getKey());
+		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle("Daily", cycle.getKey());
 //
 //		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
 //				+ sensorEventKey + "\"";

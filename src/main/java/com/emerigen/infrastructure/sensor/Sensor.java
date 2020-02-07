@@ -1,5 +1,7 @@
 package com.emerigen.infrastructure.sensor;
 
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -27,7 +29,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
  * @author Larry
  *
  */
-public abstract class Sensor {
+public abstract class Sensor implements Serializable {
 
 	/**
 	 * Report events at a constant rate as defined by the sampling period

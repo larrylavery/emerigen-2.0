@@ -3,8 +3,11 @@
  */
 package com.emerigen.infrastructure.learning;
 
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
+import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.CircularList;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -13,7 +16,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
  * @author Larry
  *
  */
-public abstract class Cycle {
+public abstract class Cycle implements Serializable {
 
 	/**
 	 * This is the starting timestamp for the beginning of each cycle type. For
@@ -73,6 +76,14 @@ public abstract class Cycle {
 		this.sensorType = sensorType;
 		this.cycleType = cycleType;
 		this.sensorLocation = sensorLocation;
+		this.cycleStartTimeNano = calculateCycleStartTimeNano();
+		this.cycleDurationNano = calculateCycleDurationNano();
+	}
+
+	public Cycle(String cycleType) {
+		nodeList = new CircularList<>();
+//		this.sensorType = Sensor.TYPE_GPS; //TODO what is the default sensor type?
+		this.cycleType = cycleType;
 		this.cycleStartTimeNano = calculateCycleStartTimeNano();
 		this.cycleDurationNano = calculateCycleDurationNano();
 	}
@@ -269,6 +280,7 @@ public abstract class Cycle {
 	/**
 	 * @return the key for this cycle
 	 */
+	@JsonIgnore
 	public String getKey() {
 		return "" + sensorType + sensorLocation + cycleType;
 	}
@@ -286,6 +298,74 @@ public abstract class Cycle {
 	public void addCycleNode(CycleNode node) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (cycleDurationNano ^ (cycleDurationNano >>> 32));
+		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
+		result = prime * result + ((nodeList == null) ? 0 : nodeList.hashCode());
+		result = prime * result + sensorLocation;
+		result = prime * result + sensorType;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Cycle other = (Cycle) obj;
+		if (cycleDurationNano != other.cycleDurationNano)
+			return false;
+		if (cycleType == null) {
+			if (other.cycleType != null)
+				return false;
+		} else if (!cycleType.equals(other.cycleType))
+			return false;
+		if (nodeList == null) {
+			if (other.nodeList != null)
+				return false;
+		} else if (!nodeList.equals(other.nodeList))
+			return false;
+		if (sensorLocation != other.sensorLocation)
+			return false;
+		if (sensorType != other.sensorType)
+			return false;
+		return true;
+	}
+
+	/**
+	 * @return the cycleType
+	 */
+	public String getCycleType() {
+		return cycleType;
+	}
+
+	/**
+	 * @return the sensorLocation
+	 */
+	public int getSensorLocation() {
+		return sensorLocation;
+	}
+
+	/**
+	 * @return the sensorType
+	 */
+	public int getSensorType() {
+		return sensorType;
+	}
+
+	/**
+	 * @param nodeList the nodeList to set
+	 */
+	public void setNodeList(CircularList<CycleNode> nodeList) {
+		this.nodeList = nodeList;
 	}
 
 	// stream list and compare item n with n+1

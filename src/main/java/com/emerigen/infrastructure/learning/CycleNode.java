@@ -112,6 +112,9 @@ public class CycleNode {
 		this(myCycle, sensorEvent, defaultCycleNodeDurationNano);
 	}
 
+	public CycleNode() {
+	}
+
 	/**
 	 * Merge information from the given cycle node into this cycle node. Use my
 	 * start time offset as the new node's start time offset. Add the duration time
