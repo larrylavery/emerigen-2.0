@@ -162,8 +162,7 @@ public class CycleTest {
 			e.printStackTrace();
 		}
 
-		// Then the transition predictions should be retrieved and validated
-		// successfully
+		// Then try to retrieve it
 		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle(cycle.getKey());
 //
 //		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""

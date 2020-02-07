@@ -26,8 +26,8 @@ import com.emerigen.infrastructure.utils.Utils;
 public class CycleConstraintsTest {
 
 	int sensorType = 1;
-	Cycle myCycle = new WeeklyCycle(1);
-	Cycle myCycle2 = new MonthlyCycle(1);
+	Cycle myCycle = new WeeklyCycle(1, 1);
+	Cycle myCycle2 = new MonthlyCycle(1, 1);
 
 	@Test
 	public final void givenDifferentCycleTypes_whenCycleMerged_thenIllegalArgurmentException() {
@@ -45,9 +45,22 @@ public class CycleConstraintsTest {
 		SoftAssertions softly = new SoftAssertions();
 
 		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> new DailyCycle(-1));
+		final Throwable throwable = catchThrowable(() -> new DailyCycle(-1, 1));
 
 		then(throwable).as("A non positive sensorType throws an IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+
+		softly.assertAll();
+	}
+
+	@Test
+	public final void givenNonPositiveSensorLocation_whenCycleCreated_thenIllegalArgurmentException() {
+		SoftAssertions softly = new SoftAssertions();
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> new DailyCycle(1, -1));
+
+		then(throwable).as("A non positive sensorLocation throws an IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -81,7 +94,7 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenCycleStartTimeMustBe12am() {
-		DailyCycle dc = new DailyCycle(1);
+		DailyCycle dc = new DailyCycle(1, 1);
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
@@ -92,21 +105,21 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe24Hours() {
-		DailyCycle dc = new DailyCycle(1);
+		DailyCycle dc = new DailyCycle(1, 1);
 		long duration = 24 * 60 * 60 * 1000 * 1000000l;
 		assertThat(dc.getCycleDurationNano()).isEqualTo(duration);
 	}
 
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
-		WeeklyCycle dc = new WeeklyCycle(1);
+		WeeklyCycle dc = new WeeklyCycle(1, 1);
 		assertThat(dc.getCycleDurationNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenCycleStartTimeMustBe12amFirstDayOfMonth() {
 //		Utils.equals(time, yrCycle.getCycleDurationMillis());
-		MonthlyCycle mc = new MonthlyCycle(1);
+		MonthlyCycle mc = new MonthlyCycle(1, 1);
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		LocalDate today = LocalDate.now();
@@ -122,7 +135,7 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
-		MonthlyCycle dc = new MonthlyCycle(1);
+		MonthlyCycle dc = new MonthlyCycle(1, 1);
 		System.out.println("monthly duration is: " + dc.getCycleDurationNano());
 		assertThat(Utils.equals(dc.getCycleDurationNano(), 2629746000000000f, 10.0)).isTrue();
 	}
@@ -137,7 +150,7 @@ public class CycleConstraintsTest {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		long time = cal.getTimeInMillis();
-		YearlyCycle yrCycle = new YearlyCycle(1);
+		YearlyCycle yrCycle = new YearlyCycle(1, 1);
 		Utils.equals(time, yrCycle.getCycleDurationNano());
 
 	}

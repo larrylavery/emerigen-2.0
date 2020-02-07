@@ -491,7 +491,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public Cycle getCycle(String cycleKey) {
+	public Cycle getCycle(String cycleClassName, String cycleKey) {
 
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
@@ -499,10 +499,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		JsonDocument jsonDocument = repo.get(CYCLE, cycleKey);
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
-		Cycle cycle;
+		Class cls = Class.forName(cycleClassName).getClass();
+		cls cycle;
 
 		try {
-			cycle = mapper.readValue(jsonDocument.content().toString(), Cycle.class);
+			cycle = (Cycle) mapper.readValue(jsonDocument.content().toString(), cls);
 			return cycle;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);

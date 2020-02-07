@@ -31,7 +31,7 @@ public class CyclePredictionTest {
 
 	@Test
 	public final void givenNegativeProbability_whenCreated_thenIllegalArgumentException() {
-		Cycle cycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle cycle = new DailyCycle(Sensor.TYPE_GPS, 1);
 		CycleNode node = new CycleNode(cycle, new SensorEvent());
 
 		CyclePrediction prediction = new CyclePrediction(node);
