@@ -5,6 +5,7 @@ package com.emerigen.infrastructure.repository;
 
 import java.util.List;
 
+import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.knowledge.Entity;
 import com.emerigen.knowledge.Transition;
@@ -99,6 +100,9 @@ public abstract class AbstractKnowledgeRepository {
 	// Log a neww SensorEvent
 	public abstract void newSensorEvent(SensorEvent sensorEvent);
 
+	// Log a new Cycle
+	public abstract void newCycle(Cycle cycle);
+
 	// Log that a sensor event transition has been learned
 	public abstract void newTransition(SensorEvent firstSensorEvent,
 			SensorEvent predictedSensorEvent);
@@ -107,8 +111,7 @@ public abstract class AbstractKnowledgeRepository {
 	public List<SensorEvent> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
 		List<String> predictedSensorEventKeys = getPredictedSensorEventKeysForSensorEvent(
 				sensorEvent);
-		List<SensorEvent> predictedSensorEvents = getSensorEventsForKeys(
-				predictedSensorEventKeys);
+		List<SensorEvent> predictedSensorEvents = getSensorEventsForKeys(predictedSensorEventKeys);
 		return predictedSensorEvents;
 	}
 
@@ -117,8 +120,7 @@ public abstract class AbstractKnowledgeRepository {
 			SensorEvent sensorEvent);
 
 	// Get full Patterns for each supplied pattern key
-	protected abstract List<SensorEvent> getSensorEventsForKeys(
-			List<String> sensorEventKeys);
+	protected abstract List<SensorEvent> getSensorEventsForKeys(List<String> sensorEventKeys);
 
 	// Get the count of all inputs processed for a given sensor type and location
 	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType,
@@ -150,6 +152,8 @@ public abstract class AbstractKnowledgeRepository {
 	public abstract Entity getEntity(String entityKey);
 
 	public abstract SensorEvent getSensorEvent(String sensorEventKey);
+
+	public abstract Cycle getCycle(String cycleKey);
 
 	public abstract Transition getTransition(String transitionKey);
 }

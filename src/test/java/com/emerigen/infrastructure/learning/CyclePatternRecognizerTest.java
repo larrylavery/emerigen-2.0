@@ -86,7 +86,7 @@ public class CyclePatternRecognizerTest {
 	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastSeveralExistingEvents_thenAddedAfterMostRecentPriorEvent() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -111,11 +111,11 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event3);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(4);
-		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(gpsCycle.getCycle().get(1).getSensorEvent()).isEqualTo(event2);
-		assertThat(gpsCycle.getCycle().get(2).getSensorEvent()).isEqualTo(event3);
-		assertThat(gpsCycle.getCycle().get(3).getSensorEvent()).isEqualTo(event4);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(4);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event3);
+		assertThat(gpsCycle.getNodeList().get(3).getSensorEvent()).isEqualTo(event4);
 
 	}
 
@@ -123,7 +123,7 @@ public class CyclePatternRecognizerTest {
 	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -140,10 +140,10 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event3);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(3);
-		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(gpsCycle.getCycle().get(1).getSensorEvent()).isEqualTo(event2);
-		assertThat(gpsCycle.getCycle().get(2).getSensorEvent()).isEqualTo(event3);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(3);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event3);
 
 	}
 
@@ -151,7 +151,7 @@ public class CyclePatternRecognizerTest {
 	public final void givenNonEmptyCycle_whenNewEqualSensorEvent_thenMergedAndPreviousReplaced() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -166,15 +166,15 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event2);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
-		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
 	}
 
 	@Test
 	public final void givenEmptyCycle_whenNewSensorEvent_thenAddedAndTimeOffsetCorrect() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -185,8 +185,8 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event1);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
-		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
 	}
 
 	@Test
@@ -199,7 +199,7 @@ public class CyclePatternRecognizerTest {
 		float[] values = { 1.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(hrSensor, values);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event2));
 
@@ -212,7 +212,7 @@ public class CyclePatternRecognizerTest {
 	public final void givenNonEmptyCycleList_whenSignificantlyDifferentEventDataPointArrives_thenNewNodeAddedToEndOfCycle() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -227,16 +227,16 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event2);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(2);
-		assertThat(gpsCycle.getCycle().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(gpsCycle.getCycle().get(1).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
 	}
 
 	@Test
 	public final void givenNonEmptyCycleList_whenEqualNewNodeArrives_thenCycleContainsMergedNode() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -251,14 +251,14 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event2);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
 	}
 
 	@Test
 	public final void givenNonEmptyCycleList_whenEqualNewNodeArrives_thenMergedNodeDurationisAdditionOfPreviousAndNewNodes() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -274,15 +274,15 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event2);
 
 		// Then
-		assertThat(gpsCycle.getCycle().size()).isEqualTo(1);
-		assertThat(gpsCycle.getCycle().get(0).getDataPointDurationNano()).isGreaterThan(10000);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getDataPointDurationNano()).isGreaterThan(10000);
 	}
 
 	@Test
 	public final void givenEmptyCycleList_whenNewNodeArrives_thenNodeTimeOffsetMustBeDifferenceOfcycleStartAndEventTimestamp() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -294,13 +294,13 @@ public class CyclePatternRecognizerTest {
 
 		// Then
 		long timeOffset = event1.getTimestamp() - gpsCycle.getCycleStartTimeNano();
-		assertThat(gpsCycle.getCycle().get(0).getStartTimeOffsetNano()).isEqualTo(timeOffset);
+		assertThat(gpsCycle.getNodeList().get(0).getStartTimeOffsetNano()).isEqualTo(timeOffset);
 	}
 
 	@Test
 	public final void givenNonEmptyCycleList_whenNewEventArrivesWithTimestampBeforePreviousEvent_thenIllegalArgumentException() {
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
@@ -322,7 +322,7 @@ public class CyclePatternRecognizerTest {
 	@Test
 	public final void givenCycleList_whenNewEventArrivesPastCycleDuration_thenCycleStartTimeUpdatedToStartTimeOf_Closest_NextCycle() {
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);

@@ -23,6 +23,7 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -126,6 +127,8 @@ import com.emerigen.knowledge.Transition;
 
 public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
+	public static final String CYCLE = EmerigenProperties.getInstance()
+			.getValue("couchbase.bucket.cycle");
 	public static final String SENSOR_EVENT = EmerigenProperties.getInstance()
 			.getValue("couchbase.bucket.sensor.event");
 	public static final String TRANSITION = EmerigenProperties.getInstance()
@@ -454,6 +457,60 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public List<PatternRecognizer> getPatternRecognizersForSensorType(int sensorType) {
 		// TODO Retrieve all pattern recognizers for this sensor
 		return null;
+	}
+
+	@Override
+	public void newCycle(Cycle cycle) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+
+			// Convert the Java object to a JsonDocument
+			JsonObject jsonObject = JsonObject.fromJson(mapper.writeValueAsString(cycle));
+			logger.info(" jsonObject: " + jsonObject);
+
+			// Validate the JsonDocument against the Cycle Schema
+			InputStream sensorEventSchemaJsonFileReader = getClass().getClassLoader()
+					.getResourceAsStream("cycle.json");
+
+			JSONObject jsonSchema = new JSONObject(
+					new JSONTokener(sensorEventSchemaJsonFileReader));
+			JSONObject jsonSubject = new JSONObject(jsonObject.toString());
+
+			Schema schema = SchemaLoader.load(jsonSchema);
+
+			// Validate the JsonDocument against its' schema, ValidationException
+			schema.validate(jsonSubject);
+			logger.info(" JsonObject validated successfully");
+
+			repository.log(CYCLE, cycle.getKey(), jsonObject);
+
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+
+	}
+
+	@Override
+	public Cycle getCycle(String cycleKey) {
+
+		CouchbaseRepository repo = CouchbaseRepository.getInstance();
+		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
+				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+		JsonDocument jsonDocument = repo.get(CYCLE, cycleKey);
+		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
+		Cycle cycle;
+
+		try {
+			cycle = mapper.readValue(jsonDocument.content().toString(), Cycle.class);
+			return cycle;
+		} catch (JsonParseException e) {
+			throw new RepositoryException(e);
+		} catch (JsonMappingException e) {
+			throw new RepositoryException(e);
+		} catch (IOException e) {
+			throw new RepositoryException(e);
+		}
 	}
 
 }

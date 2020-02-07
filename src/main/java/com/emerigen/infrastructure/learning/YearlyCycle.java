@@ -19,8 +19,8 @@ public class YearlyCycle extends Cycle {
 	final private long milliSecondsPerSecond = 1000;
 	final private long nanosecondsPerMillisecond = 1000000;
 
-	public YearlyCycle(int sensorType) {
-		super(sensorType);
+	public YearlyCycle(int sensorType, int sensorLocation) {
+		super(sensorType, sensorLocation, "Yearly");
 	}
 
 	/**

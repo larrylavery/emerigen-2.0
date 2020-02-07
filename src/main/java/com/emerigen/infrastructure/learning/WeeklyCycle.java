@@ -23,8 +23,8 @@ public class WeeklyCycle extends Cycle {
 	final private long nanosecondsPerMilliSecond = 1000000;
 	final private long milliSecondsPerSecond = 1000;
 
-	public WeeklyCycle(int sensorType) {
-		super(sensorType);
+	public WeeklyCycle(int sensorType, int sensorLocation) {
+		super(sensorType, sensorLocation, "Weekly");
 	}
 
 	/**

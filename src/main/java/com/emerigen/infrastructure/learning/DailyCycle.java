@@ -22,8 +22,8 @@ public class DailyCycle extends Cycle {
 	final private long nanoSecondsPerMillisecond = 1000000;
 	private static final Logger logger = Logger.getLogger(DailyCycle.class);
 
-	public DailyCycle(int sensorType) {
-		super(sensorType);
+	public DailyCycle(int sensorType, int sensorLocation) {
+		super(sensorType, sensorLocation, "Daily");
 	}
 
 	/**

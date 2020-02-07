@@ -48,9 +48,11 @@ public abstract class Cycle {
 	 *       detours, stopping for gas, stopping by the grocery store on the way
 	 *       home, going to lunch at different places, ...
 	 */
-	protected CircularList<CycleNode> cycle;
+	protected CircularList<CycleNode> nodeList;
 
 	private int previousCycleNodeIndex = -1;
+	protected String cycleType;
+	private int sensorLocation;
 	private int sensorType;
 
 	private final double allowableStandardDeviationForEquality = Double
@@ -59,11 +61,18 @@ public abstract class Cycle {
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
-	public Cycle(int sensorType) {
+	public Cycle(int sensorType, int sensorLocation, String cycleType) {
 		if (sensorType <= 0)
 			throw new IllegalArgumentException("sensor type must be positive");
-		cycle = new CircularList<>();
+		if (sensorLocation <= 0)
+			throw new IllegalArgumentException("sensor location must be positive");
+		if (cycleType == null || cycleType.isEmpty())
+			throw new IllegalArgumentException("cycleType must not be null or empty");
+
+		nodeList = new CircularList<>();
 		this.sensorType = sensorType;
+		this.cycleType = cycleType;
+		this.sensorLocation = sensorLocation;
 		this.cycleStartTimeNano = calculateCycleStartTimeNano();
 		this.cycleDurationNano = calculateCycleDurationNano();
 	}
@@ -112,11 +121,11 @@ public abstract class Cycle {
 		} else {
 
 			// Locate the right position to insert the new cycle node
-			for (int i = 0; i < cycle.size(); i++) {
+			for (int i = 0; i < nodeList.size(); i++) {
 
 				// Previous and new sensor events are equal?
 				if (sensorEventsAreEqual(sensorEvent,
-						cycle.get(previousCycleNodeIndex).getSensorEvent())) {
+						nodeList.get(previousCycleNodeIndex).getSensorEvent())) {
 					return mergeAndReplacePreviousNode(newCycleNode);
 
 					// Have we passed the most recent previous cycle node?
@@ -133,17 +142,17 @@ public abstract class Cycle {
 			 * Non-empty list, no equals found, no prior closest found, add to the current
 			 * "end", which is really at the end of one circular cycle traversal.
 			 */
-			cycle.add(newCycleNode);
+			nodeList.add(newCycleNode);
 			return true;
 		}
 	}
 
 	public int wrapIndex(int index) {
-		return index % cycle.size();
+		return index % nodeList.size();
 	}
 
 	private boolean previousNodeTimeIsGreaterThanNewNodeTime(CycleNode newCycleNode) {
-		return cycle.get(previousCycleNodeIndex).getStartTimeOffsetNano() > newCycleNode
+		return nodeList.get(previousCycleNodeIndex).getStartTimeOffsetNano() > newCycleNode
 				.getStartTimeOffsetNano();
 	}
 
@@ -157,7 +166,7 @@ public abstract class Cycle {
 	 * the previous node and return
 	 */
 	private boolean insertBeforePreviousNode(CycleNode newCycleNode) {
-		cycle.add(previousCycleNodeIndex, newCycleNode);
+		nodeList.add(previousCycleNodeIndex, newCycleNode);
 		return true;
 	}
 
@@ -172,8 +181,8 @@ public abstract class Cycle {
 		long timestamp = newCycleNode.getSensorEvent().getTimestamp();
 		long duration = newCycleNode.getTimeOffset(timestamp);
 		newCycleNode.setDataPointDurationNano(duration);
-		cycle.add(newCycleNode);
-		previousCycleNodeIndex = cycle.indexOf(newCycleNode);
+		nodeList.add(newCycleNode);
+		previousCycleNodeIndex = nodeList.indexOf(newCycleNode);
 		logger.info("New cycle list, adding first node: " + newCycleNode.toString());
 	}
 
@@ -184,14 +193,14 @@ public abstract class Cycle {
 	 * time. Then replace the previous node with the merged node.
 	 */
 	private boolean mergeAndReplacePreviousNode(CycleNode newCycleNode) {
-		long mergedDuration = cycle.get(previousCycleNodeIndex).getDataPointDurationNano()
+		long mergedDuration = nodeList.get(previousCycleNodeIndex).getDataPointDurationNano()
 				+ newCycleNode.getDataPointDurationNano();
 		newCycleNode.setDataPointDurationNano(mergedDuration);
 
-		cycle.remove(previousCycleNodeIndex);
-		cycle.add(previousCycleNodeIndex, newCycleNode);
+		nodeList.remove(previousCycleNodeIndex);
+		nodeList.add(previousCycleNodeIndex, newCycleNode);
 		logger.info("New cycle Node merged with previous node, merged node: "
-				+ newCycleNode.toString() + ", cycle list: " + cycle.toString());
+				+ newCycleNode.toString() + ", cycle list: " + nodeList.toString());
 		return true;
 	}
 
@@ -218,7 +227,7 @@ public abstract class Cycle {
 
 		// If event occured prior to the previous event then out of order
 		if (previousCycleNodeIndex >= 0) {
-			long previousEventTimestamp = cycle.get(previousCycleNodeIndex).getSensorEvent()
+			long previousEventTimestamp = nodeList.get(previousCycleNodeIndex).getSensorEvent()
 					.getTimestamp();
 			if (sensorEvent.getTimestamp() < previousEventTimestamp)
 				return true;
@@ -253,17 +262,30 @@ public abstract class Cycle {
 	/**
 	 * @return the cycle
 	 */
-	public CircularList<CycleNode> getCycle() {
-		return cycle;
+	public CircularList<CycleNode> getNodeList() {
+		return nodeList;
+	}
+
+	/**
+	 * @return the key for this cycle
+	 */
+	public String getKey() {
+		return "" + sensorType + sensorLocation + cycleType;
 	}
 
 	@Override
 	public String toString() {
 		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationNano="
-				+ cycleDurationNano + ", cycle=" + cycle + ", previousCycleNodeIndex="
-				+ previousCycleNodeIndex + ", sensorType=" + sensorType
+				+ cycleDurationNano + ", cycle=" + nodeList + ", previousCycleNodeIndex="
+				+ previousCycleNodeIndex + ", cycleType=" + cycleType + ", sensorLocation="
+				+ sensorLocation + ", sensorType=" + sensorType
 				+ ", allowableStandardDeviationForEquality=" + allowableStandardDeviationForEquality
 				+ "]";
+	}
+
+	public void addCycleNode(CycleNode node) {
+		// TODO Auto-generated method stub
+
 	}
 
 	// stream list and compare item n with n+1

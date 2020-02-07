@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 
@@ -36,11 +38,6 @@ public class SensorManagerTest {
 		public void onResume() {
 		}
 
-	}
-
-	@Test
-	public final void givenPatternRecognizerRegistered_whenRegistrationChecked_thenIsRegisteredIsTrue() {
-		fail("not yet implemented");
 	}
 
 	@Test
@@ -71,7 +68,13 @@ public class SensorManagerTest {
 
 	@Test
 	public final void givenPatternRecognizerRegistrationsExist_whenNewCycleRegistered_thenIsRegisteredIsTrue() {
-		fail("not yet implemented");
+		SensorManager sensorManager = SensorManager.getInstance();
+		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+				Sensor.LOCATION_PHONE);
+
+		PatternRecognizer cpr = new CyclePatternRecognizer();
+		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor, Sensor.DELAY_NORMAL);
+		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
 	@Test

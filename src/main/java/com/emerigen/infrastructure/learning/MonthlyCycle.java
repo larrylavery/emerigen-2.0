@@ -19,8 +19,8 @@ public class MonthlyCycle extends Cycle {
 	final private long nanosecondsPerMillisecond = 1000000;
 	final private long milliSecondsPerSecond = 1000;
 
-	public MonthlyCycle(int sensorType) {
-		super(sensorType);
+	public MonthlyCycle(int sensorType, int sensorLocation) {
+		super(sensorType, sensorLocation, "Monthly");
 	}
 
 	/**

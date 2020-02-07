@@ -14,7 +14,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  * @author Larry
  *
  */
-public abstract class CyclePatternRecognizer extends PatternRecognizer {
+public class CyclePatternRecognizer extends PatternRecognizer {
 
 	public CyclePatternRecognizer() {
 	}
