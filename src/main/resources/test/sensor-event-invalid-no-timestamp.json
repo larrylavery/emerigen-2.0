@@ -1,5 +1,8 @@
 {	
+	"sensorType" : 1,
 	"sensorLocation": 1,
-	"sensorType" : 2,
-	"values" : [1.1, 2.2]
+	"values" : [1.1, 2.2],
+	"minimumDelayBetweenReadings": 1,
+	"reportingMode": 1,
+	"wakeUpSensor": false
 }

@@ -15,9 +15,11 @@ import org.json.JSONTokener;
 
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonParseException;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
+import com.couchbase.client.deps.com.fasterxml.jackson.core.Version;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonMappingException;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializationFeature;
+import com.couchbase.client.deps.com.fasterxml.jackson.databind.module.SimpleModule;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
@@ -30,6 +32,8 @@ import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.WeeklyCycle;
 import com.emerigen.infrastructure.learning.YearlyCycle;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
+import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
+import com.emerigen.infrastructure.sensor.CustomSensorEventSerializer;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.knowledge.Entity;
@@ -178,6 +182,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public void newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
 
 		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule module = new SimpleModule("CustomSensorEventSerializer",
+				new Version(1, 0, 0, null, null, null));
+		module.addSerializer(SensorEvent.class, new CustomSensorEventSerializer());
+		mapper.registerModule(module);
+
 		try {
 
 			// Convert the Java object to a SensorEvent JsonDocument
@@ -418,9 +427,16 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+//		ObjectMapper mapper = new ObjectMapper();
+		// Register custom deserializer
+		SimpleModule module = new SimpleModule("CustomSensorEventDeserializer",
+				new Version(1, 0, 0, null, null, null));
+		module.addDeserializer(SensorEvent.class, new CustomSensorEventDeserializer());
+		mapper.registerModule(module);
+		SensorEvent sensorEvent;
+
 		JsonDocument jsonDocument = repo.get(SENSOR_EVENT, sensorEventKey);
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
-		SensorEvent sensorEvent;
 
 		try {
 			sensorEvent = mapper.readValue(jsonDocument.content().toString(), SensorEvent.class);

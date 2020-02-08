@@ -7,6 +7,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import java.io.InputStream;
 import java.util.Random;
 
+import org.assertj.core.api.SoftAssertions;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -21,37 +22,57 @@ import org.junit.Test;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 
 public class SensorEventTest {
 
 	@Test
 	public final void givenValidSensorEvent_whenLogged_thenItshouldBeTheSameWhenRetrieved() {
-
+		SoftAssertions softly = new SoftAssertions();
 		// Given
 		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
-		long timestamp = System.nanoTime();
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		sensor.setMinimumDelayBetweenReadings(1000);
+		sensor.setReportingMode(Sensor.DELAY_NORMAL);
+		sensor.setWakeUpSensor(false);
 
+		// Create sensorEvent with these parms
+		long timestamp = System.currentTimeMillis() * 1000000;
 		Random rd = new Random(); // creating Random object
-
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event = new SensorEvent(sensor, values);
+		event.setTimestamp(timestamp);
 
 		JsonObject sensorEventJsonDoc = JsonObject.create()
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_PHONE).put("timestamp", "" + timestamp)
-				.put("values", JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
-						"" + rd.nextFloat()));
+				.put("sensorLocation", Sensor.LOCATION_WATCH).put("timestamp", "" + timestamp)
+				.put("values",
+						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
+								"" + rd.nextFloat()))
+				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
+				.put("wakeUpSensor", false);
 
 		// when
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("sensor-event", event.getKey(), sensorEventJsonDoc);
+		KnowledgeRepository.getInstance().newSensorEvent(event);
+//		CouchbaseRepository.getInstance().log("sensor-event", event.getKey(), sensorEventJsonDoc);
 
 		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance()
 				.getSensorEvent(event.getKey());
 		assertThat(retrievedSensorEvent).isNotNull();
 		assertThat(retrievedSensorEvent.getTimestamp()).isEqualTo(timestamp);
+		assertThat(retrievedSensorEvent.getSensorType()).isEqualTo(Sensor.TYPE_HEART_RATE);
+		assertThat(retrievedSensorEvent.getSensorLocation()).isEqualTo(Sensor.LOCATION_WATCH);
+		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(2);
+
+		assertThat(retrievedSensorEvent.getSensor()).isNotNull();
+		assertThat(retrievedSensorEvent.getSensor().getType()).isEqualTo(Sensor.TYPE_HEART_RATE);
+		assertThat(retrievedSensorEvent.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_WATCH);
+		assertThat(retrievedSensorEvent.getSensor().getMinimumDelayBetweenReadings())
+				.isEqualTo(1000);
+		assertThat(retrievedSensorEvent.getSensor().getReportingMode())
+				.isEqualTo(Sensor.DELAY_NORMAL);
+		assertThat(retrievedSensorEvent.getSensor().isWakeUpSensor()).isFalse();
+		softly.assertAll();
 	}
 
 	@Test

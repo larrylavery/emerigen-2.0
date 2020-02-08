@@ -2,6 +2,8 @@ package com.emerigen.infrastructure.sensor;
 
 import java.util.Arrays;
 
+import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * This class represents an event from any hardware-based sensor. The major
  * difference in events involve the number of float entries and the meaning of
@@ -36,15 +38,15 @@ public class SensorEvent {
 	 * The sensor that published this event
 	 */
 	// @JsonIgnore
+	// @JsonSerialize(as=MyInterface.class)
 	private Sensor sensor = null;
 
 	// The hash of all values
 
 	private int sensorType = 0;
 	private int sensorLocation = 0;
-	private String key = null;
-
 	private long timestamp = System.currentTimeMillis() * 1000000;
+//	private long timestamp = System.nanoTime();
 
 	/**
 	 * The length and meaning of these values is sensor specific. One in particular
@@ -69,6 +71,7 @@ public class SensorEvent {
 		this.values = values;
 	}
 
+	@JsonIgnore
 	public String getKey() {
 		return "" + sensor.getType() + sensor.getLocation() + getTimestamp() + values.hashCode();
 	}
@@ -155,5 +158,33 @@ public class SensorEvent {
 	 */
 	public int getSensorLocation() {
 		return sensor.getLocation();
+	}
+
+	/**
+	 * @param sensor the sensor to set
+	 */
+	public void setSensor(Sensor sensor) {
+		this.sensor = sensor;
+	}
+
+	/**
+	 * @param sensorType the sensorType to set
+	 */
+	public void setSensorType(int sensorType) {
+		this.sensorType = sensorType;
+	}
+
+	/**
+	 * @param sensorLocation the sensorLocation to set
+	 */
+	public void setSensorLocation(int sensorLocation) {
+		this.sensorLocation = sensorLocation;
+	}
+
+	/**
+	 * @param values the values to set
+	 */
+	public void setValues(float[] values) {
+		this.values = values;
 	}
 }

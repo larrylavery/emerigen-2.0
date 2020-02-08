@@ -267,4 +267,32 @@ public abstract class Sensor implements Serializable {
 	}
 
 	public abstract boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent);
+
+	/**
+	 * @param minimumDelayBetweenReadings the minimumDelayBetweenReadings to set
+	 */
+	public void setMinimumDelayBetweenReadings(int minimumDelayBetweenReadings) {
+		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
+	}
+
+	/**
+	 * @param reportingMode the reportingMode to set
+	 */
+	public void setReportingMode(int reportingMode) {
+		this.reportingMode = reportingMode;
+	}
+
+	/**
+	 * @param wakeUpSensor the wakeUpSensor to set
+	 */
+	public void setWakeUpSensor(boolean wakeUpSensor) {
+		this.wakeUpSensor = wakeUpSensor;
+	}
+
+	/**
+	 * @param locationName the locationName to set
+	 */
+	public void setLocationName(String locationName) {
+		this.locationName = locationName;
+	}
 }

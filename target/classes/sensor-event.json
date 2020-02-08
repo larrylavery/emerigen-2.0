@@ -1,77 +1,50 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "Sensor Event",
-	"description": "A schema representing an event published by a sensor",
-	"type": "object",
-	"required": [
-		"sensorType",
-		"sensorLocation",
-		"sensor",
-		"timestamp",
-		"values"
-	],
-	"properties": {
-		"sensorType": {
-			"description": "he type ID for this pattern",
-			"type": "number"
-		},
-		"sensorLocation": {
-			"description": "The location this sensor resides on",
-			"type": "number"
-		},
-		"timestamp": {
-			"description": "The time this pattern was logged",
-			"type": "number"
-		},
-		"values": {
-			"description": "The sensor-specific measurements",
-			"type": "array",
-			"minItems": 1,
-			"items": {
-				"type": "number"
-			}
-		},
-		"sensor": {
-			"type": "object",
-			"required": [
-				"sensorType",
-				"sensorLocation",
-				"typeName",
-				"locationName",
-				"minimumDelayBetweenReadings",
-				"reportingMode",
-				"wakeUpSensor"
-			],
-			"properties": {
-				"sensorType": {
-					"description": "The sensor type",
-					"type": "number"
-				},
-				"sensorLocation": {
-					"description": "The sensor location",
-					"type": "number"
-				},
-				"typeName": {
-					"description": "The sensor type name",
-					"type": "string"
-				},
-				"locationName": {
-					"description": "The sensor location name",
-					"type": "string"
-				},
-				"minimumDelayBetweenReadings": {
-					"description": "All readings must be this far apart in time",
-					"type": "number"
-				},
-				"reportingMode": {
-					"description": "Read continuously or on change only",
-					"type": "number"
-				},
-				"wakeUpSensor": {
-					"description": "Does this sensor have the ability to wake up the device",
-					"type": "boolean"
-				}
-			}
-		}
-	}
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Sensor Event",
+  "description": "A schema representing an event published by a sensor",
+  "type": "object",
+  "required": [
+    "sensorType",
+    "sensorLocation",
+    "timestamp",
+    "values",
+    "minimumDelayBetweenReadings",
+    "reportingMode",
+    "wakeUpSensor"
+  ],
+  "properties": {
+    "sensorType": {
+      "description": "he type ID for this pattern",
+      "type": "number"
+    },
+    "sensorLocation": {
+      "description": "The location this sensor resides on",
+      "type": "number"
+    },
+    "timestamp": {
+      "description": "The time this pattern was logged",
+      "type": "number"
+    },
+    "values": {
+      "description": "The sensor-specific measurements",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "number"
+      }
+    },
+    "minimumDelayBetweenReadings": {
+      "description": "All readings must be this far apart in time",
+      "type": "number"
+    },
+    "reportingMode": {
+      "description": "Read continuously or on change only",
+      "type": "number"
+    },
+    "wakeUpSensor": {
+      "description": "Does this sensor have the ability to wake up the device",
+      "type": "boolean"
+    }
+  }
+}
 }
