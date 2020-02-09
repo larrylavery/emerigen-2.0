@@ -235,114 +235,39 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 					"firstSensorEvent and predictedSensorEvent sensor locations must be the same");
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-		try {
+		// Create the keys and then the transitionJsonObject
+		JsonObject transitionJsonObject = JsonObject.create()
+				.put("firstSensorEventKey", firstSensorEvent.getKey())
+				.put("predictedSensorEventKey", predictedSensorEvent.getKey());
 
-			// Convert the firstSensorEvent Java object to a JsonDocument and validate it
-			JsonObject firstSensorEventJsonObject = JsonObject
-					.fromJson(mapper.writeValueAsString(firstSensorEvent));
-			logger.info(" firstSensorEventJsonObject: " + firstSensorEventJsonObject);
-
-			// Validate the JsonDocument against the transition Schema
-			InputStream firstSensorEventSchemaJsonFileReader = getClass().getClassLoader()
-					.getResourceAsStream("sensor-event.json");
-
-			JSONObject firstSensorEventJsonSchema = new JSONObject(
-					new JSONTokener(firstSensorEventSchemaJsonFileReader));
-			JSONObject firstSensorEventJsonSubject = new JSONObject(
-					firstSensorEventJsonObject.toString());
-
-			Schema schema = SchemaLoader.load(firstSensorEventJsonSchema);
-
-			// Validate the JsonDocument against its' schema, ValidationException
-			schema.validate(firstSensorEventJsonSubject);
-			logger.info(" firstSensorEvent validated successfully");
-
-			// Convert the predictedSensorEvent Java object to a JsonDocument and validate
-			// it
-			JsonObject predictedSensorEventJsonObject = JsonObject
-					.fromJson(mapper.writeValueAsString(firstSensorEvent));
-			logger.info(" firstSensorEventJsonObject: " + predictedSensorEventJsonObject);
-
-			// Validate the JsonDocument against the transition Schema
-			InputStream predictedSensorEventSchemaJsonFileReader = getClass()
-					.getClassLoader().getResourceAsStream("sensor-event.json");
-
-			JSONObject predictedSensorEventJsonSchema = new JSONObject(
-					new JSONTokener(predictedSensorEventSchemaJsonFileReader));
-			JSONObject predictedSensorEventJsonSubject = new JSONObject(
-					firstSensorEventJsonObject.toString());
-
-			schema = SchemaLoader.load(predictedSensorEventJsonSchema);
-
-			// Validate the JsonDocument against its' schema, ValidationException
-			schema.validate(predictedSensorEventJsonSubject);
-			logger.info(
-					"newTransition() predictedSensorEventJsonObject validated successfully");
-
-			// Create the keys and then the transitionJsonObject
-			String firstSensorEventKey = firstSensorEvent.getKey();
-			String predictedSensorEventKey = predictedSensorEvent.getKey();
-
-			JsonObject transitionJsonObject = JsonObject.create()
-					.put("firstSensorEventKey", firstSensorEventKey)
-					.put("predictedSensorEventKey", predictedSensorEventKey);
-
-			// Log the transition object
-			repository.log(TRANSITION, firstSensorEventKey + predictedSensorEventKey,
-					transitionJsonObject);
-
-		} catch (JsonProcessingException e) {
-			throw new RepositoryException(e);
-		}
+		// Log the transition object
+		repository.log(TRANSITION,
+				firstSensorEvent.getKey() + predictedSensorEvent.getKey(),
+				transitionJsonObject);
 	}
 
 	@Override
 	public List<String> getPredictedSensorEventKeysForSensorEvent(
 			SensorEvent sensorEvent) {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must no be null");
 
-			// Convert the Java object to a JsonDocument
-			JsonObject jsonObject = JsonObject
-					.fromJson(mapper.writeValueAsString(sensorEvent));
-			logger.info(" jsonObject: " + jsonObject);
-
-			// Validate the JsonDocument against the sensorEvent Schema
-			InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
-					.getResourceAsStream("sensor-event.json");
-
-			JSONObject jsonSchema = new JSONObject(
-					new JSONTokener(transitionSchemaJsonFileReader));
-			JSONObject jsonSubject = new JSONObject(jsonObject.toString());
-
-			Schema schema = SchemaLoader.load(jsonSchema);
-
-			// Validate the JsonDocument against its' schema, ValidationException
-			schema.validate(jsonSubject);
-			logger.info(" JsonObject validated successfully");
-
-			// Query all transitions where the firstSensorEvent sensor type equals the
-			// supplied
-			// sensorEvent
-
-			String sensorEventKey = sensorEvent.getKey();
-			String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
-					+ sensorEventKey + "\"";
-			N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-					N1qlQuery.simple(statement));
-			List<String> predictedSensorEventKeys = new ArrayList<String>();
-			for (N1qlQueryRow row : result) {
-				logger.debug("Adding key to predicted sensorEvents: "
-						+ row.value().toString());
-				predictedSensorEventKeys.add(row.value().toString());
-			}
-
-			return predictedSensorEventKeys;
-
-		} catch (JsonProcessingException e) {
-			throw new RepositoryException(e);
+		/**
+		 * Retrieve predicted event keys from transitions where the firstSensorEvent is
+		 * equal to the supplied event
+		 */
+		String sensorEventKey = sensorEvent.getKey();
+		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
+				+ sensorEventKey + "\"";
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
+				N1qlQuery.simple(statement));
+		List<String> predictedSensorEventKeys = new ArrayList<String>();
+		for (N1qlQueryRow row : result) {
+			logger.debug(
+					"Adding key to predicted sensorEvents: " + row.value().toString());
+			predictedSensorEventKeys.add(row.value().toString());
 		}
+		return predictedSensorEventKeys;
 	}
 
 	@Override

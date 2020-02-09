@@ -111,7 +111,8 @@ public abstract class AbstractKnowledgeRepository {
 	public List<SensorEvent> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
 		List<String> predictedSensorEventKeys = getPredictedSensorEventKeysForSensorEvent(
 				sensorEvent);
-		List<SensorEvent> predictedSensorEvents = getSensorEventsForKeys(predictedSensorEventKeys);
+		List<SensorEvent> predictedSensorEvents = getSensorEventsForKeys(
+				predictedSensorEventKeys);
 		return predictedSensorEvents;
 	}
 
@@ -120,7 +121,8 @@ public abstract class AbstractKnowledgeRepository {
 			SensorEvent sensorEvent);
 
 	// Get full Patterns for each supplied pattern key
-	protected abstract List<SensorEvent> getSensorEventsForKeys(List<String> sensorEventKeys);
+	protected abstract List<SensorEvent> getSensorEventsForKeys(
+			List<String> sensorEventKeys);
 
 	// Get the count of all inputs processed for a given sensor type and location
 	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType,

@@ -71,6 +71,7 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 
 				// First, extract the sensor event
 				sensorEvent = extractSensorEvent(cycleNodeJsonNode);
+				cycleNode.setSensorEvent(sensorEvent);
 				cycleNode.setStartTimeOffsetNano(
 						cycleNodeJsonNode.get("cycleStartTimeOffsetNano").asLong());
 				cycleNode.setDataPointDurationNano(
