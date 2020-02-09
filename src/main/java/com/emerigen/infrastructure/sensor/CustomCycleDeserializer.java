@@ -53,14 +53,16 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 			// Create the cycle with basic information
 			String cycleType = node.get("cycleType").asText();
 			cycle = createCycle(cycleType);
-			cycle.setCycleStartTimeNano(node.get("cycleStartTimeNano").asLong());
-			cycle.setCycleDurationTimeNano(node.get("cycleDurationTimeNano").asLong());
+			long startTime = node.get("cycleStartTimeNano").asLong();
+			cycle.setCycleStartTimeNano(startTime);
+			long durationTime = node.get("cycleDurationTimeNano").asLong();
+			cycle.setCycleDurationTimeNano(durationTime);
 			cycle.setAllowableStandardDeviationForEquality(
 					node.get("allowableStandardDeviationForEquality").asDouble());
 			cycle.setPreviousCycleNodeIndex(0);
 
 			// Next add all the Cycle Nodes
-			JsonNode cycleNodes = node.get("cycleNodes");
+			JsonNode cycleNodes = node.get("nodeList");
 			CycleNode cycleNode = new CycleNode();
 
 			Iterator<JsonNode> cycleJsonNodes = cycleNodes.elements();
@@ -70,9 +72,9 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 				// First, extract the sensor event
 				sensorEvent = extractSensorEvent(cycleNodeJsonNode);
 				cycleNode.setStartTimeOffsetNano(
-						cycleNodeJsonNode.get("cycleStartTimeNano").asLong());
+						cycleNodeJsonNode.get("cycleStartTimeOffsetNano").asLong());
 				cycleNode.setDataPointDurationNano(
-						cycleNodeJsonNode.get("dataPointDurationTimeNano").asLong());
+						cycleNodeJsonNode.get("dataPointDurationNano").asLong());
 				cycleNode.setProbability(cycleNodeJsonNode.get("probability").asDouble());
 				cycleNode.setMyCycle(cycle);
 				cycle.addCycleNode(cycleNode);
@@ -113,7 +115,8 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 		sensor.setWakeUpSensor(wakeUpSensor);
 		sensor.setReportingMode(reportingMode);
 		sensorEvent.setSensor(sensor);
-		logger.info("Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
+		logger.info(
+				"Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
 		return sensorEvent;
 	}
 
@@ -145,6 +148,7 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 		else if ("Yearly".equals(cycleType))
 			return new YearlyCycle();
 		else
-			throw new IllegalArgumentException("Cycle type of (" + cycleType + ") is not valid.");
+			throw new IllegalArgumentException(
+					"Cycle type of (" + cycleType + ") is not valid.");
 	}
 }

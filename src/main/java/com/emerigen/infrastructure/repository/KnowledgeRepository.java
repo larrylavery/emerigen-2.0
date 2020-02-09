@@ -26,12 +26,10 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.DailyCycle;
-import com.emerigen.infrastructure.learning.MonthlyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
-import com.emerigen.infrastructure.learning.WeeklyCycle;
-import com.emerigen.infrastructure.learning.YearlyCycle;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
+import com.emerigen.infrastructure.sensor.CustomCycleDeserializer;
+import com.emerigen.infrastructure.sensor.CustomCycleSerializer;
 import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
 import com.emerigen.infrastructure.sensor.CustomSensorEventSerializer;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -165,14 +163,15 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	@Override
 	public List<SensorEvent> getSensorEventsForKeys(List<String> sensorEventKeys) {
 		if (sensorEventKeys == null) {
-			throw new IllegalArgumentException("sensorEventKeys must not be null or empty");
+			throw new IllegalArgumentException(
+					"sensorEventKeys must not be null or empty");
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 
-		List<SensorEvent> sensorEvents = sensorEventKeys
-				.stream().map(sensorEventKey -> mapper
-						.convertValue(repo.get(SENSOR_EVENT, sensorEventKey), SensorEvent.class))
+		List<SensorEvent> sensorEvents = sensorEventKeys.stream()
+				.map(sensorEventKey -> mapper.convertValue(
+						repo.get(SENSOR_EVENT, sensorEventKey), SensorEvent.class))
 				.collect(Collectors.toList());
 
 		return sensorEvents;
@@ -190,7 +189,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		try {
 
 			// Convert the Java object to a SensorEvent JsonDocument
-			JsonObject jsonObject = JsonObject.fromJson(mapper.writeValueAsString(sensorEvent));
+			JsonObject jsonObject = JsonObject
+					.fromJson(mapper.writeValueAsString(sensorEvent));
 			logger.info(" jsonObject: " + jsonObject);
 
 			// Validate the JsonDocument against the SensorEvent Schema
@@ -217,7 +217,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public void newTransition(SensorEvent firstSensorEvent, SensorEvent predictedSensorEvent) {
+	public void newTransition(SensorEvent firstSensorEvent,
+			SensorEvent predictedSensorEvent) {
 		if (firstSensorEvent == null || predictedSensorEvent == null) {
 			throw new IllegalArgumentException(
 					"firstSensorEvent and predictedSensorEvent must not be null");
@@ -228,7 +229,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 					"firstSensorEvent and predictedSensorEvent sensor locations  must be the same");
 		}
 
-		if (!(firstSensorEvent.getSensorLocation() == predictedSensorEvent.getSensorLocation())) {
+		if (!(firstSensorEvent.getSensorLocation() == predictedSensorEvent
+				.getSensorLocation())) {
 			throw new IllegalArgumentException(
 					"firstSensorEvent and predictedSensorEvent sensor locations must be the same");
 		}
@@ -263,8 +265,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			logger.info(" firstSensorEventJsonObject: " + predictedSensorEventJsonObject);
 
 			// Validate the JsonDocument against the transition Schema
-			InputStream predictedSensorEventSchemaJsonFileReader = getClass().getClassLoader()
-					.getResourceAsStream("sensor-event.json");
+			InputStream predictedSensorEventSchemaJsonFileReader = getClass()
+					.getClassLoader().getResourceAsStream("sensor-event.json");
 
 			JSONObject predictedSensorEventJsonSchema = new JSONObject(
 					new JSONTokener(predictedSensorEventSchemaJsonFileReader));
@@ -275,7 +277,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 			// Validate the JsonDocument against its' schema, ValidationException
 			schema.validate(predictedSensorEventJsonSubject);
-			logger.info("newTransition() predictedSensorEventJsonObject validated successfully");
+			logger.info(
+					"newTransition() predictedSensorEventJsonObject validated successfully");
 
 			// Create the keys and then the transitionJsonObject
 			String firstSensorEventKey = firstSensorEvent.getKey();
@@ -295,19 +298,22 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public List<String> getPredictedSensorEventKeysForSensorEvent(SensorEvent sensorEvent) {
+	public List<String> getPredictedSensorEventKeysForSensorEvent(
+			SensorEvent sensorEvent) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 
 			// Convert the Java object to a JsonDocument
-			JsonObject jsonObject = JsonObject.fromJson(mapper.writeValueAsString(sensorEvent));
+			JsonObject jsonObject = JsonObject
+					.fromJson(mapper.writeValueAsString(sensorEvent));
 			logger.info(" jsonObject: " + jsonObject);
 
 			// Validate the JsonDocument against the sensorEvent Schema
 			InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
 					.getResourceAsStream("sensor-event.json");
 
-			JSONObject jsonSchema = new JSONObject(new JSONTokener(transitionSchemaJsonFileReader));
+			JSONObject jsonSchema = new JSONObject(
+					new JSONTokener(transitionSchemaJsonFileReader));
 			JSONObject jsonSubject = new JSONObject(jsonObject.toString());
 
 			Schema schema = SchemaLoader.load(jsonSchema);
@@ -327,7 +333,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 					N1qlQuery.simple(statement));
 			List<String> predictedSensorEventKeys = new ArrayList<String>();
 			for (N1qlQueryRow row : result) {
-				logger.debug("Adding key to predicted sensorEvents: " + row.value().toString());
+				logger.debug("Adding key to predicted sensorEvents: "
+						+ row.value().toString());
 				predictedSensorEventKeys.add(row.value().toString());
 			}
 
@@ -339,10 +346,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public int getSensorEventCountForSensorTypeAndLocation(int sensorType, int sensorLocation) {
+	public int getSensorEventCountForSensorTypeAndLocation(int sensorType,
+			int sensorLocation) {
 
-		String queryString = "SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = " + sensorType
-				+ " AND sensorLocation = " + sensorLocation;
+		String queryString = "SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = "
+				+ sensorType + " AND sensorLocation = " + sensorLocation;
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
 				N1qlQuery.simple(queryString));
 
@@ -353,10 +361,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public int getPredictionCountForSensorTypeAndLocation(int sensorType, int sensorLocation) {
+	public int getPredictionCountForSensorTypeAndLocation(int sensorType,
+			int sensorLocation) {
 
-		String queryString = "SELECT COUNT(*) FROM `transition` WHERE sensorType = " + sensorType
-				+ " AND sensorLocation = " + sensorLocation;
+		String queryString = "SELECT COUNT(*) FROM `transition` WHERE sensorType = "
+				+ sensorType + " AND sensorLocation = " + sensorLocation;
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
 				N1qlQuery.simple(queryString));
 
@@ -372,7 +381,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		try {
 
 			// Convert the Java object to a JsonDocument
-			JsonObject jsonObject = JsonObject.fromJson(mapper.writeValueAsString(entity));
+			JsonObject jsonObject = JsonObject
+					.fromJson(mapper.writeValueAsString(entity));
 			logger.info(" jsonObject: " + jsonObject);
 
 			// Validate the JsonDocument against the SensorEvent Schema
@@ -439,7 +449,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 
 		try {
-			sensorEvent = mapper.readValue(jsonDocument.content().toString(), SensorEvent.class);
+			sensorEvent = mapper.readValue(jsonDocument.content().toString(),
+					SensorEvent.class);
 			return sensorEvent;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);
@@ -463,7 +474,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		Transition transition;
 
 		try {
-			transition = mapper.readValue(jsonDocument.content().toString(), Transition.class);
+			transition = mapper.readValue(jsonDocument.content().toString(),
+					Transition.class);
 			return transition;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);
@@ -482,6 +494,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	@Override
 	public void newCycle(Cycle cycle) {
 		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule module = new SimpleModule("CustomCycleSerializer",
+				new Version(1, 0, 0, null, null, null));
+		module.addSerializer(Cycle.class, new CustomCycleSerializer());
+		mapper.registerModule(module);
+
 		try {
 
 			// Convert the Java object to a JsonDocument
@@ -511,28 +528,29 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public Cycle getCycle(String cycleTypeName, String cycleKey) {
+	public Cycle getCycle(String cycleType, String cycleKey) {
+
+		if (invalidCycleType(cycleType))
+			throw new IllegalArgumentException(
+					"CycleTypeName must be valid, but was (" + cycleType + ")");
 
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+		// Register custom deserializer
+		SimpleModule module = new SimpleModule("CustomCycleDeserializer",
+				new Version(1, 0, 0, null, null, null));
+		module.addDeserializer(Cycle.class, new CustomCycleDeserializer());
+		mapper.registerModule(module);
+
 		JsonDocument jsonDocument = repo.get(CYCLE, cycleKey);
+
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 		Cycle cycle;
 
 		try {
-			if ("Daily".equals(cycleTypeName))
-				cycle = mapper.readValue(jsonDocument.content().toString(), DailyCycle.class);
-			else if ("Weekly".equals(cycleTypeName))
-				cycle = mapper.readValue(jsonDocument.content().toString(), WeeklyCycle.class);
-			else if ("Monthly".equals(cycleTypeName))
-				cycle = mapper.readValue(jsonDocument.content().toString(), MonthlyCycle.class);
-			else if ("Yearly".equals(cycleTypeName))
-				cycle = mapper.readValue(jsonDocument.content().toString(), YearlyCycle.class);
-			else
-				throw new IllegalArgumentException(
-						"cycle type must be valid, but was (" + cycleTypeName + ")");
+			cycle = mapper.readValue(jsonDocument.content().toString(), Cycle.class);
 			return cycle;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);
@@ -541,6 +559,15 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		} catch (IOException e) {
 			throw new RepositoryException(e);
 		}
+	}
+
+	private boolean invalidCycleType(String cycleType) {
+
+		if ("Daily".contentEquals(cycleType) || "Weekly".equals(cycleType)
+				|| "Monthly".equals(cycleType) || "Yearly".equals(cycleType))
+			return false;
+		else
+			return true;
 	}
 
 }

@@ -4,6 +4,6 @@
   "cycleDurationTimeNano": 4,
   "allowableStandardDeviationForEquality": 1.1,
   "previousCycleNodeIndex": 0,
-  "cycleNodes": [
+  "nodeList": [
   ]
 }

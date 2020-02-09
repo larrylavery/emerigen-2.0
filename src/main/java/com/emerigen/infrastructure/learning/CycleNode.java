@@ -83,8 +83,8 @@ public class CycleNode {
 			.parseDouble(EmerigenProperties.getInstance()
 					.getValue("cycle.allowable.std.deviation.for.equality"));
 
-	private static long defaultCycleNodeDurationNano = Long.parseLong(
-			EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
+	private static long defaultCycleNodeDurationNano = Long.parseLong(EmerigenProperties
+			.getInstance().getValue("cycle.default.data.point.duration.nano"));
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
@@ -129,7 +129,8 @@ public class CycleNode {
 		if (nodeToMergeWith == null)
 			throw new IllegalArgumentException("nodeToMergeWith must not be null");
 		if (nodeToMergeWith.myCycle != myCycle)
-			throw new IllegalArgumentException("Both nodes must be part of the same cycle");
+			throw new IllegalArgumentException(
+					"Both nodes must be part of the same cycle");
 
 		CycleNode newCycleNode = new CycleNode(myCycle, nodeToMergeWith.getSensorEvent(),
 				this.dataPointDurationNano + nodeToMergeWith.dataPointDurationNano);
@@ -162,9 +163,10 @@ public class CycleNode {
 			return false;
 		CycleNode other = (CycleNode) obj;
 
-		double difference = sensorEvent.getSensor().getDifferenceBetweenReadings(sensorEvent,
-				other.sensorEvent);
-		if (Utils.getStandardDeviation(difference) > allowableStandardDeviationForEquality) {
+		double difference = sensorEvent.getSensor()
+				.getDifferenceBetweenReadings(sensorEvent, other.sensorEvent);
+		if (Utils.getStandardDeviation(
+				difference) > allowableStandardDeviationForEquality) {
 			logger.info(
 					"this cycleNode IS NOT equal to the next cycleNode [ in terms of data point difference]");
 			return false;
@@ -201,8 +203,8 @@ public class CycleNode {
 	@Override
 	public String toString() {
 		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationNano="
-				+ dataPointDurationNano + ", myCycle=" + myCycle + ", startTimeOffsetNano="
-				+ startTimeOffsetNano + "]";
+				+ dataPointDurationNano + ", myCycle=" + myCycle
+				+ ", startTimeOffsetNano=" + startTimeOffsetNano + "]";
 	}
 
 	/**
@@ -253,7 +255,8 @@ public class CycleNode {
 	/**
 	 * @param defaultCycleNodeDurationNano the defaultCycleNodeDurationNano to set
 	 */
-	public static void setDefaultCycleNodeDurationNano(long defaultCycleNodeDurationNano) {
+	public static void setDefaultCycleNodeDurationNano(
+			long defaultCycleNodeDurationNano) {
 		CycleNode.defaultCycleNodeDurationNano = defaultCycleNodeDurationNano;
 	}
 
@@ -283,6 +286,10 @@ public class CycleNode {
 	 */
 	public void setProbability(double probability) {
 		this.probability = probability;
+	}
+
+	public void setallowableStandardDeviationForEquality(double d) {
+		this.allowableStandardDeviationForEquality = d;
 	}
 
 }

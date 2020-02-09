@@ -4,7 +4,7 @@
   "cycleDurationTimeNano": 4,
   "allowableStandardDeviationForEquality": 1.1,
   "previousCycleNodeIndex": 0,
-  "cycleNodes": [
+  "nodeList": [
     {
       "sensorType": 1,
       "sensorLocation": 1,

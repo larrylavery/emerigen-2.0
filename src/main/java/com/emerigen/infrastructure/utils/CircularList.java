@@ -14,8 +14,12 @@ public class CircularList<T> extends ArrayList<T> {
 
 	@Override
 	public T get(int index) {
+
 		if (index < 0)
 			throw new IllegalArgumentException("Index must be zero or greater");
+
+		if (size() == 0)
+			return super.get(0);
 
 		if (index < size())
 			return super.get(index);

@@ -1,5 +1,7 @@
 package com.emerigen.infrastructure.repository.couchbase;
 
+import java.util.Random;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,52 +29,47 @@ public class CouchbaseCycleRepositoryTest {
 
 		// Sensor
 		long timestamp = System.currentTimeMillis();
+		Random rd = new Random(); // creating Random object
+
 		float[] values = { 1.1f, 2.1f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH, Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
 				false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
-		// SensorEvent
-		JsonObject sensorEventJsonDoc = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE).put("timestamp", "" + timestamp)
-				.put("values", JsonArray.from("4.1", "4.2", "4.3"));
+		JsonObject cycleNodeJsonDoc = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
+				.put("timestamp", "" + timestamp)
+				.put("values",
+						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
+								"" + rd.nextFloat()))
+				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
+				.put("wakeUpSensor", false).put("dataPointDuration", 500)
+				.put("probability", 0.3);
 
-		// CycleNode
-//	 	"timestamp": 123,
-//		"startTimeOffsetNano": 2,
-//		"dataPointDuration": 1,
-//		"probability": 0.4
-		JsonObject cycleNodeJsonDoc = JsonObject.create().put("timestamp", 123)
-				.put("startTimeOffsetNano", 24).put("dataPointDurationNano", 1)
-				.put("probability", 0.3).put("sensorEvent", sensorEventJsonDoc);
-
-		// Cycle json doc
-//		"cycletype": "Daily",
-//		"cycleStartTimeNano" : 1,
-//		"cycleDurationTimeNano": 4,
-//		"allowableStandardDeviationForEquality": 1.1,
-//		"cycleNodes" : [
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
-				.put("cycleTimeNano", 24).put("cycleDurationTimeNano", 1)
-				.put("allowableStandardDeviationForEquality", 1.1)
+				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
+				.put("allowableStandardDeviationForEquality", 0.8)
+				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().logWithOverwrite("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_PHONE, cycleJsonDoc);
+				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH, cycleJsonDoc);
 		CouchbaseRepository.getInstance().logWithOverwrite("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_PHONE, cycleJsonDoc);
+				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH, cycleJsonDoc);
 
 		// Perform a N1QL Query
-		JsonObject placeholderValues = JsonObject.create().put("sensorType", sensor.getType())
+		JsonObject placeholderValues = JsonObject.create()
+				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance()
-				.query("sensor-event",
-						N1qlQuery.parameterized(
-								"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
-										+ " AND sensorLocation = $sensorLocation",
-								placeholderValues));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
+				N1qlQuery.parameterized(
+						"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
+								+ " AND sensorLocation = $sensorLocation",
+						placeholderValues));
 
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);
@@ -82,74 +79,74 @@ public class CouchbaseCycleRepositoryTest {
 
 	@Test
 	public final void givenOneCycleLogged_WhenCountQueriedByKey_ThenCountShouldBe1() {
-//		"cycletype": "Daily",
-//		"cycleStartTimeNano" : 1,
-//		"cycleDurationTimeNano": 4,
-//		"allowableStandardDeviationForEquality": 1.1,
-//		"cycleNodes" : [
-//			 {
-//			 "sensorEvent" : {
-//			 	"timestamp": 123,
-//			 	"sensorType": 1,
-//			 	"sensorLocation": 1,
-//			 	"values": [1.1,2.2]
-//			 },
-//			 	"timestamp": 123,
-//				"startTimeOffsetNano": 2,
-//				"dataPointDuration": 1,
-//				"probability": 0.4
-//			}	
-//		]
+//		  "cycleType": "Daily",
+//		  "cycleStartTimeNano": 1,
+//		  "cycleDurationTimeNano": 4,
+//		  "allowableStandardDeviationForEquality": 1.1,
+//		  "previousCycleNodeIndex": 0,
+//		  "cycleNodes": [
+//		    {
+//		      "sensorType": 1,
+//		      "sensorLocation": 1,
+//		      "timestamp": 1,
+//		      "values": [
+//		        1.1,
+//		        2.2
+//		      ],
+//		      "minimumDelayBetweenReadings": 1,
+//		      "reportingMode": 1,
+//		      "wakeUpSensor": false,
+//		      "startTimeOffsetNano": 2,
+//		      "dataPointDurationNano": 1,
+//		      "probability": 0.4
+//		    }
+//		  ]
 
 		// Given
 		SoftAssertions softly = new SoftAssertions();
 
 		// Sensor
+		Random rd = new Random(); // creating Random object
+
 		long timestamp = System.currentTimeMillis();
 		float[] values = { 1.1f, 2.1f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
+				Sensor.DELAY_NORMAL, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		// SensorEvent
-		JsonObject sensorEventJsonDoc = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE).put("timestamp", "" + timestamp)
-				.put("values", JsonArray.from("4.1", "4.2", "4.3"));
 
-		// CycleNode
-//	 	"timestamp": 123,
-//		"startTimeOffsetNano": 2,
-//		"dataPointDuration": 1,
-//		"probability": 0.4
-		JsonObject cycleNodeJsonDoc = JsonObject.create().put("timestamp", 123)
-				.put("startTimeOffsetNano", 24).put("dataPointDurationNano", 1)
-				.put("probability", 0.3).put("sensorEvent", sensorEventJsonDoc);
+		JsonObject cycleNodeJsonDoc = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
+				.put("timestamp", "" + timestamp)
+				.put("values",
+						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
+								"" + rd.nextFloat()))
+				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
+				.put("wakeUpSensor", false).put("dataPointDuration", 500)
+				.put("probability", 0.3);
 
-		// Cycle json doc
-//		"cycletype": "Daily",
-//		"cycleStartTimeNano" : 1,
-//		"cycleDurationTimeNano": 4,
-//		"allowableStandardDeviationForEquality": 1.1,
-//		"cycleNodes" : [
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
-				.put("cycleTimeNano", 24).put("cycleDurationTimeNano", 1)
-				.put("allowableStandardDeviationForEquality", 1.1)
+				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
+				.put("allowableStandardDeviationForEquality", 0.8)
+				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().logWithOverwrite("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_PHONE, cycleJsonDoc);
+				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH, cycleJsonDoc);
 
 		// Perform a N1QL Query
-		JsonObject placeholderValues = JsonObject.create().put("sensorType", sensor.getType())
+		JsonObject placeholderValues = JsonObject.create()
+				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance()
-				.query("sensor-event",
-						N1qlQuery.parameterized(
-								"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
-										+ " AND sensorLocation = $sensorLocation",
-								placeholderValues));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
+				N1qlQuery.parameterized(
+						"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
+								+ " AND sensorLocation = $sensorLocation",
+						placeholderValues));
 
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);

@@ -58,8 +58,9 @@ public abstract class Cycle implements Serializable {
 	private int sensorLocation;
 	private int sensorType;
 
-	private double allowableStandardDeviationForEquality = Double.parseDouble(EmerigenProperties
-			.getInstance().getValue("cycle.allowable.std.deviation.for.equality"));
+	private double allowableStandardDeviationForEquality = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("cycle.allowable.std.deviation.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
@@ -111,8 +112,9 @@ public abstract class Cycle implements Serializable {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("sensorEvent must not be null");
 		if (!(sensorType == sensorEvent.getSensorType()))
-			throw new IllegalArgumentException("given sensor type (" + sensorEvent.getSensorType()
-					+ "), does not match cycle sensor type (" + sensorType + ")");
+			throw new IllegalArgumentException(
+					"given sensor type (" + sensorEvent.getSensorType()
+							+ "), does not match cycle sensor type (" + sensorType + ")");
 
 		if (eventIsOutOfOrder(sensorEvent))
 			throw new IllegalArgumentException("sensorEvent out of order received.");
@@ -162,8 +164,8 @@ public abstract class Cycle implements Serializable {
 	}
 
 	private boolean previousNodeTimeIsGreaterThanNewNodeTime(CycleNode newCycleNode) {
-		return nodeList.get(previousCycleNodeIndex).getStartTimeOffsetNano() > newCycleNode
-				.getStartTimeOffsetNano();
+		return nodeList.get(previousCycleNodeIndex)
+				.getStartTimeOffsetNano() > newCycleNode.getStartTimeOffsetNano();
 	}
 
 	private boolean sensorEventsAreEqual(SensorEvent firstSensorEvent,
@@ -203,8 +205,8 @@ public abstract class Cycle implements Serializable {
 	 * time. Then replace the previous node with the merged node.
 	 */
 	private boolean mergeAndReplacePreviousNode(CycleNode newCycleNode) {
-		long mergedDuration = nodeList.get(previousCycleNodeIndex).getDataPointDurationNano()
-				+ newCycleNode.getDataPointDurationNano();
+		long mergedDuration = nodeList.get(previousCycleNodeIndex)
+				.getDataPointDurationNano() + newCycleNode.getDataPointDurationNano();
 		newCycleNode.setDataPointDurationNano(mergedDuration);
 
 		nodeList.remove(previousCycleNodeIndex);
@@ -215,7 +217,8 @@ public abstract class Cycle implements Serializable {
 	}
 
 	private void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
-		if ((sensorEvent.getTimestamp() - getCycleStartTimeNano()) > getCycleDurationTimeNano()) {
+		if ((sensorEvent.getTimestamp()
+				- getCycleStartTimeNano()) > getCycleDurationTimeNano()) {
 
 			// Calculate closest enclosing cycle
 			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeNano())
@@ -225,7 +228,8 @@ public abstract class Cycle implements Serializable {
 			if (cyclesToSkip > 0)
 				previousCycleNodeIndex = 0;
 
-			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * getCycleDurationTimeNano());
+			cycleStartTimeNano = cycleStartTimeNano
+					+ (cyclesToSkip * getCycleDurationTimeNano());
 			logger.info(
 					"Incoming event was past our current cycle duration so the new cycleStartTime ("
 							+ cycleStartTimeNano + "), sensor event timestamp ("
@@ -237,8 +241,8 @@ public abstract class Cycle implements Serializable {
 
 		// If event occured prior to the previous event then out of order
 		if (previousCycleNodeIndex >= 0) {
-			long previousEventTimestamp = nodeList.get(previousCycleNodeIndex).getSensorEvent()
-					.getTimestamp();
+			long previousEventTimestamp = nodeList.get(previousCycleNodeIndex)
+					.getSensorEvent().getTimestamp();
 			if (sensorEvent.getTimestamp() < previousEventTimestamp)
 				return true;
 		}
@@ -286,24 +290,25 @@ public abstract class Cycle implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationTimeNano="
-				+ cycleDurationTimeNano + ", cycle=" + nodeList + ", previousCycleNodeIndex="
-				+ previousCycleNodeIndex + ", cycleType=" + cycleType + ", sensorLocation="
-				+ sensorLocation + ", sensorType=" + sensorType
-				+ ", allowableStandardDeviationForEquality=" + allowableStandardDeviationForEquality
-				+ "]";
+		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano
+				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", cycle="
+				+ nodeList + ", previousCycleNodeIndex=" + previousCycleNodeIndex
+				+ ", cycleType=" + cycleType + ", sensorLocation=" + sensorLocation
+				+ ", sensorType=" + sensorType
+				+ ", allowableStandardDeviationForEquality="
+				+ allowableStandardDeviationForEquality + "]";
 	}
 
 	public void addCycleNode(CycleNode node) {
-		// TODO Auto-generated method stub
-
+		this.nodeList.add(node);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
+		result = prime * result
+				+ (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
 		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
 		result = prime * result + ((nodeList == null) ? 0 : nodeList.hashCode());
 		result = prime * result + sensorLocation;
