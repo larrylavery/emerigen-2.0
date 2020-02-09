@@ -107,13 +107,13 @@ public class CycleConstraintsTest {
 	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe24Hours() {
 		DailyCycle dc = new DailyCycle(1, 1);
 		long duration = 24 * 60 * 60 * 1000 * 1000000l;
-		assertThat(dc.getCycleDurationNano()).isEqualTo(duration);
+		assertThat(dc.getCycleDurationTimeNano()).isEqualTo(duration);
 	}
 
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
 		WeeklyCycle dc = new WeeklyCycle(1, 1);
-		assertThat(dc.getCycleDurationNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
+		assertThat(dc.getCycleDurationTimeNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
 	}
 
 	@Test
@@ -136,8 +136,8 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
 		MonthlyCycle dc = new MonthlyCycle(1, 1);
-		System.out.println("monthly duration is: " + dc.getCycleDurationNano());
-		assertThat(Utils.equals(dc.getCycleDurationNano(), 2629746000000000f, 10.0)).isTrue();
+		System.out.println("monthly duration is: " + dc.getCycleDurationTimeNano());
+		assertThat(Utils.equals(dc.getCycleDurationTimeNano(), 2629746000000000f, 10.0)).isTrue();
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class CycleConstraintsTest {
 		cal.set(Calendar.SECOND, 0);
 		long time = cal.getTimeInMillis();
 		YearlyCycle yrCycle = new YearlyCycle(1, 1);
-		Utils.equals(time, yrCycle.getCycleDurationNano());
+		Utils.equals(time, yrCycle.getCycleDurationTimeNano());
 
 	}
 

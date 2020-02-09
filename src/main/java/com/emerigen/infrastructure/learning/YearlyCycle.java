@@ -23,6 +23,10 @@ public class YearlyCycle extends Cycle {
 		super(sensorType, sensorLocation, "Yearly");
 	}
 
+	public YearlyCycle() {
+		super("Yearly");
+	}
+
 	/**
 	 * Calculate the start time of my cycle as Jan 1, 12am of the current year
 	 */

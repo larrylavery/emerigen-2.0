@@ -88,6 +88,8 @@ public class CycleNode {
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
+	protected double probability;
+
 	/**
 	 * 
 	 * @param myCycle
@@ -208,6 +210,79 @@ public class CycleNode {
 	 */
 	public long getStartTimeOffsetNano() {
 		return startTimeOffsetNano;
+	}
+
+	/**
+	 * @return the myCycle
+	 */
+	public Cycle getMyCycle() {
+		return myCycle;
+	}
+
+	/**
+	 * @param myCycle the myCycle to set
+	 */
+	public void setMyCycle(Cycle myCycle) {
+		this.myCycle = myCycle;
+	}
+
+	/**
+	 * @return the allowableStandardDeviationForEquality
+	 */
+	public static double getAllowableStandardDeviationForEquality() {
+		return allowableStandardDeviationForEquality;
+	}
+
+	/**
+	 * @param allowableStandardDeviationForEquality the
+	 *                                              allowableStandardDeviationForEquality
+	 *                                              to set
+	 */
+	public static void setAllowableStandardDeviationForEquality(
+			double allowableStandardDeviationForEquality) {
+		CycleNode.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+	}
+
+	/**
+	 * @return the defaultCycleNodeDurationNano
+	 */
+	public static long getDefaultCycleNodeDurationNano() {
+		return defaultCycleNodeDurationNano;
+	}
+
+	/**
+	 * @param defaultCycleNodeDurationNano the defaultCycleNodeDurationNano to set
+	 */
+	public static void setDefaultCycleNodeDurationNano(long defaultCycleNodeDurationNano) {
+		CycleNode.defaultCycleNodeDurationNano = defaultCycleNodeDurationNano;
+	}
+
+	/**
+	 * @param sensorEvent the sensorEvent to set
+	 */
+	public void setSensorEvent(SensorEvent sensorEvent) {
+		this.sensorEvent = sensorEvent;
+	}
+
+	/**
+	 * @param startTimeOffsetNano the startTimeOffsetNano to set
+	 */
+	public void setStartTimeOffsetNano(long startTimeOffsetNano) {
+		this.startTimeOffsetNano = startTimeOffsetNano;
+	}
+
+	/**
+	 * @return the probability
+	 */
+	public double getProbability() {
+		return probability;
+	}
+
+	/**
+	 * @param probability the probability to set
+	 */
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 
 }

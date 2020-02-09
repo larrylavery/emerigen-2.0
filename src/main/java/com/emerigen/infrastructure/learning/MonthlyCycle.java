@@ -23,6 +23,10 @@ public class MonthlyCycle extends Cycle {
 		super(sensorType, sensorLocation, "Monthly");
 	}
 
+	public MonthlyCycle() {
+		super("Monthly");
+	}
+
 	/**
 	 * Calculate the start time of my cycle as day 1, 12am of the current month
 	 */

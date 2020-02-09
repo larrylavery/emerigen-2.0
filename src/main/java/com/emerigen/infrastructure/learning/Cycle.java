@@ -37,7 +37,7 @@ public abstract class Cycle implements Serializable {
 	 * taken into account. Generally, this will be 168 hours for a weekly cycle, 24
 	 * hours for a daily cycle, etc.; all converted to nanoseconds.
 	 */
-	protected final long cycleDurationNano;
+	protected long cycleDurationTimeNano;
 
 	/**
 	 * @IDEA - enable cycle data point fuzzines using equality based on std
@@ -58,9 +58,8 @@ public abstract class Cycle implements Serializable {
 	private int sensorLocation;
 	private int sensorType;
 
-	private final double allowableStandardDeviationForEquality = Double
-			.parseDouble(EmerigenProperties.getInstance()
-					.getValue("cycle.allowable.std.deviation.for.equality"));
+	private double allowableStandardDeviationForEquality = Double.parseDouble(EmerigenProperties
+			.getInstance().getValue("cycle.allowable.std.deviation.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
@@ -77,7 +76,7 @@ public abstract class Cycle implements Serializable {
 		this.cycleType = cycleType;
 		this.sensorLocation = sensorLocation;
 		this.cycleStartTimeNano = calculateCycleStartTimeNano();
-		this.cycleDurationNano = calculateCycleDurationNano();
+		this.cycleDurationTimeNano = calculateCycleDurationNano();
 	}
 
 	public Cycle(String cycleType) {
@@ -85,7 +84,7 @@ public abstract class Cycle implements Serializable {
 //		this.sensorType = Sensor.TYPE_GPS; //TODO what is the default sensor type?
 		this.cycleType = cycleType;
 		this.cycleStartTimeNano = calculateCycleStartTimeNano();
-		this.cycleDurationNano = calculateCycleDurationNano();
+		this.cycleDurationTimeNano = calculateCycleDurationNano();
 	}
 
 	/**
@@ -216,17 +215,17 @@ public abstract class Cycle implements Serializable {
 	}
 
 	private void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
-		if ((sensorEvent.getTimestamp() - getCycleStartTimeNano()) > getCycleDurationNano()) {
+		if ((sensorEvent.getTimestamp() - getCycleStartTimeNano()) > getCycleDurationTimeNano()) {
 
 			// Calculate closest enclosing cycle
 			long cyclesToSkip = (sensorEvent.getTimestamp() - getCycleStartTimeNano())
-					/ getCycleDurationNano();
+					/ getCycleDurationTimeNano();
 
 			// Reset previous node pointer to first object of the new cycle
 			if (cyclesToSkip > 0)
 				previousCycleNodeIndex = 0;
 
-			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * getCycleDurationNano());
+			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * getCycleDurationTimeNano());
 			logger.info(
 					"Incoming event was past our current cycle duration so the new cycleStartTime ("
 							+ cycleStartTimeNano + "), sensor event timestamp ("
@@ -252,7 +251,7 @@ public abstract class Cycle implements Serializable {
 	public abstract long calculateCycleStartTimeNano();
 
 	/**
-	 * @return the cycleDurationNano
+	 * @return the cycleDurationTimeNano
 	 */
 	public abstract long calculateCycleDurationNano();
 
@@ -264,10 +263,10 @@ public abstract class Cycle implements Serializable {
 	}
 
 	/**
-	 * @return the cycleDurationNano
+	 * @return the cycleDurationTimeNano
 	 */
-	public long getCycleDurationNano() {
-		return cycleDurationNano;
+	public long getCycleDurationTimeNano() {
+		return cycleDurationTimeNano;
 	}
 
 	/**
@@ -287,8 +286,8 @@ public abstract class Cycle implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationNano="
-				+ cycleDurationNano + ", cycle=" + nodeList + ", previousCycleNodeIndex="
+		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationTimeNano="
+				+ cycleDurationTimeNano + ", cycle=" + nodeList + ", previousCycleNodeIndex="
 				+ previousCycleNodeIndex + ", cycleType=" + cycleType + ", sensorLocation="
 				+ sensorLocation + ", sensorType=" + sensorType
 				+ ", allowableStandardDeviationForEquality=" + allowableStandardDeviationForEquality
@@ -304,7 +303,7 @@ public abstract class Cycle implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (cycleDurationNano ^ (cycleDurationNano >>> 32));
+		result = prime * result + (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
 		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
 		result = prime * result + ((nodeList == null) ? 0 : nodeList.hashCode());
 		result = prime * result + sensorLocation;
@@ -321,7 +320,7 @@ public abstract class Cycle implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Cycle other = (Cycle) obj;
-		if (cycleDurationNano != other.cycleDurationNano)
+		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
 			return false;
 		if (cycleType == null) {
 			if (other.cycleType != null)
@@ -368,13 +367,63 @@ public abstract class Cycle implements Serializable {
 		this.nodeList = nodeList;
 	}
 
-	// stream list and compare item n with n+1
-//    integerList.stream()
-//            .reduce((integer1, integer2) -> {
-//                assert integer1 < integer2 : "ordering must be ascending";
-//                // return second value (which will be processed as "integer1" in the next iteration
-//                return integer2;
-//            });
-//
+	/**
+	 * @param cycleStartTimeNano the cycleStartTimeNano to set
+	 */
+	public void setCycleStartTimeNano(long cycleStartTimeNano) {
+		this.cycleStartTimeNano = cycleStartTimeNano;
+	}
+
+	/**
+	 * @param previousCycleNodeIndex the previousCycleNodeIndex to set
+	 */
+	public void setPreviousCycleNodeIndex(int previousCycleNodeIndex) {
+		this.previousCycleNodeIndex = previousCycleNodeIndex;
+	}
+
+	/**
+	 * @param cycleType the cycleType to set
+	 */
+	public void setCycleType(String cycleType) {
+		this.cycleType = cycleType;
+	}
+
+	/**
+	 * @param sensorLocation the sensorLocation to set
+	 */
+	public void setSensorLocation(int sensorLocation) {
+		this.sensorLocation = sensorLocation;
+	}
+
+	/**
+	 * @param sensorType the sensorType to set
+	 */
+	public void setSensorType(int sensorType) {
+		this.sensorType = sensorType;
+	}
+
+	public void setCycleDurationTimeNano(long cycleDurationNano) {
+		this.cycleDurationTimeNano = cycleDurationNano;
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * @param allowableStandardDeviationForEquality the
+	 *                                              allowableStandardDeviationForEquality
+	 *                                              to set
+	 */
+	public void setAllowableStandardDeviationForEquality(
+			double allowableStandardDeviationForEquality) {
+		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+	}
+
+	public double getAllowableStandardDeviationForEquality() {
+		return allowableStandardDeviationForEquality;
+	}
+
+	public int getPreviousCycleNodeIndex() {
+		return previousCycleNodeIndex;
+	}
 
 }

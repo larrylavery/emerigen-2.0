@@ -35,6 +35,7 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 			logger.info("Current json before values parsed: " + jsonGenerator.toString());
 
 			jsonGenerator.writeArrayFieldStart("values");
+
 			for (int i = 0; i < sensorEvent.getValues().length; i++) {
 				jsonGenerator.writeNumber(sensorEvent.getValues()[i]);
 				logger.info("next values, float value: " + sensorEvent.getValues()[i]);

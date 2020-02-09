@@ -5,13 +5,17 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.InputStream;
+import java.util.Random;
 
+import org.assertj.core.api.SoftAssertions;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
+import com.couchbase.client.java.document.json.JsonArray;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.DailyCycle;
@@ -23,6 +27,77 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class CycleTest {
+
+	@Test
+	public final void givenValidCycle_whenLogged_thenItshouldBeTheSameWhenRetrieved() {
+		SoftAssertions softly = new SoftAssertions();
+		// Given
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		sensor.setMinimumDelayBetweenReadings(1000);
+		sensor.setReportingMode(Sensor.DELAY_NORMAL);
+		sensor.setWakeUpSensor(false);
+
+		// Create sensorEvent with these parms
+		long timestamp = System.currentTimeMillis() * 1000000;
+		Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event = new SensorEvent(sensor, values);
+		event.setTimestamp(timestamp);
+
+		// Create the cycle with these fields
+		Cycle cycle = new DailyCycle();
+		cycle.setCycleStartTimeNano(20);
+		cycle.setCycleDurationTimeNano(1500);
+		cycle.setAllowableStandardDeviationForEquality(0.8);
+		cycle.setPreviousCycleNodeIndex(0);
+
+		CycleNode cycleNode = new CycleNode();
+
+		sensor.setMinimumDelayBetweenReadings(1000);
+		sensor.setReportingMode(1);
+		sensor.setWakeUpSensor(false);
+		cycleNode.setSensorEvent(event);
+
+		JsonObject cycleNodeJsonDoc = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH).put("timestamp", "" + timestamp)
+				.put("values",
+						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
+								"" + rd.nextFloat()))
+				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
+				.put("wakeUpSensor", false).put("dataPointDuration", 500).put("probability", 0.3);
+
+		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
+				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
+				.put("allowableStandardDeviationForEquality", 0.8).put("previousCycleNodeIndex", 0)
+				.put("previousCycleNodeIndex", 0)
+				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
+
+		// when
+		// Log using our repository under test
+		KnowledgeRepository.getInstance().newCycle(cycle);
+//		CouchbaseRepository.getInstance().log("sensor-event", event.getKey(), sensorEventJsonDoc);
+
+		Cycle retrievedCycle = KnowledgeRepository.getInstance().getCycle("Daily", cycle.getKey());
+		assertThat(retrievedCycle).isNotNull();
+		CycleNode newCycleNode = retrievedCycle.getNodeList().get(0);
+
+		SensorEvent se = newCycleNode.getSensorEvent();
+		assertThat(se.getTimestamp()).isEqualTo(timestamp);
+		assertThat(se.getTimestamp()).isEqualTo(timestamp);
+
+		assertThat(se.getSensorType()).isEqualTo(Sensor.TYPE_HEART_RATE);
+		assertThat(se.getSensorLocation()).isEqualTo(Sensor.LOCATION_WATCH);
+		assertThat(se.getValues().length).isEqualTo(2);
+
+		assertThat(se.getSensor()).isNotNull();
+		assertThat(se.getSensor().getType()).isEqualTo(Sensor.TYPE_HEART_RATE);
+		assertThat(se.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_WATCH);
+		assertThat(se.getSensor().getMinimumDelayBetweenReadings()).isEqualTo(1000);
+		assertThat(se.getSensor().getReportingMode()).isEqualTo(Sensor.DELAY_NORMAL);
+		assertThat(se.getSensor().isWakeUpSensor()).isFalse();
+		softly.assertAll();
+	}
 
 	@Test
 	public void givenValidJsonCycleWithTwoCycleNodes_whenValidating_thenItShouldValidateSuccessfully() {

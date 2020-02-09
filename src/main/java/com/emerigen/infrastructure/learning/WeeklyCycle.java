@@ -27,6 +27,10 @@ public class WeeklyCycle extends Cycle {
 		super(sensorType, sensorLocation, "Weekly");
 	}
 
+	public WeeklyCycle() {
+		super("Weekly");
+	}
+
 	/**
 	 * Calculate the start time of my cycle as Sunday 12am of this week
 	 */

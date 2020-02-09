@@ -1,13 +1,17 @@
 { 
-	"cycletype": "Daily",
-	"cycleStartTimeNano" : 1,
-	"cycleDurationTimeNano": 4,
-	"allowableStandardDeviationForEquality": 1.1,
-	"cycleNodes" : [
-		 {
-			"startTimeOffsetNano": 2,
-			"dataPointDuration": 1,
-			"probability": 0.4,
-		}	
-	]
+  "cycleType": "Daily",
+  "cycleStartTimeNano": 1,
+  "cycleDurationTimeNano": 4,
+  "allowableStandardDeviationForEquality": 1.1,
+  "previousCycleNodeIndex": 0,
+  "cycleNodes": [
+    {
+      "minimumDelayBetweenReadings": 1,
+      "reportingMode": 1,
+      "wakeUpSensor": false,
+      "startTimeOffsetNano": 2,
+      "dataPointDurationNano": 1,
+      "probability": 0.4
+    }
+  ]
 }

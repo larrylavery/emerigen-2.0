@@ -102,7 +102,7 @@ public class CyclePatternRecognizerTest {
 		// this event will go between event2 and event4 after cycle rolled over 1 period
 		// (24 hours in this case)
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationNano);
+		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
 		event4.setTimestamp(event3.getTimestamp() + 100);
 		gpsCycle.onSensorChanged(event1);
@@ -333,14 +333,14 @@ public class CyclePatternRecognizerTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
-		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationNano);
+		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 
 		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
 		gpsCycle.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(gpsCycle.cycleDurationNano);
+				.isEqualTo(gpsCycle.cycleDurationTimeNano);
 	}
 
 	@BeforeClass

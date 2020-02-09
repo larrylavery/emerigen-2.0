@@ -1,6 +1,9 @@
 { 
-	"cycletype": "Daily",
-	"cycleStartTimeNano" : 1,
-	"cycleDurationTimeNano": 4,
-	"allowableStandardDeviationForEquality": 1.1,
+  "cycleType": "Daily",
+  "cycleStartTimeNano": 1,
+  "cycleDurationTimeNano": 4,
+  "allowableStandardDeviationForEquality": 1.1,
+  "previousCycleNodeIndex": 0,
+  "cycleNodes": [
+  ]
 }
