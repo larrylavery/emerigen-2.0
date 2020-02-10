@@ -444,19 +444,22 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		// For now call the DB once for each type to reuse code
 		List<Cycle> cycles = new ArrayList<Cycle>();
 
-		cycle = getCycle("Daily", "" + sensor.getType() + sensor.getLocation());
+		cycle = getCycle("Daily", "" + sensor.getType() + sensor.getLocation() + "Daily");
 		if (cycle != null)
 			cycles.add(cycle);
 
-		cycle = getCycle("Weekly", "" + sensor.getType() + sensor.getLocation());
+		cycle = getCycle("Weekly",
+				"" + sensor.getType() + sensor.getLocation() + "Weekly");
 		if (cycle != null)
 			cycles.add(cycle);
 
-		cycle = getCycle("Monthly", "" + sensor.getType() + sensor.getLocation());
+		cycle = getCycle("Monthly",
+				"" + sensor.getType() + sensor.getLocation() + "Monthly");
 		if (cycle != null)
 			cycles.add(cycle);
 
-		cycle = getCycle("Yearly", "" + sensor.getType() + sensor.getLocation());
+		cycle = getCycle("Yearly",
+				"" + sensor.getType() + sensor.getLocation() + "Yearly");
 		if (cycle != null)
 			cycles.add(cycle);
 		return cycles;
@@ -520,6 +523,9 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 		Cycle cycle;
 
+		if (jsonDocument == null)
+			return null;
+
 		try {
 			cycle = mapper.readValue(jsonDocument.content().toString(), Cycle.class);
 			return cycle;
@@ -530,6 +536,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		} catch (IOException e) {
 			throw new RepositoryException(e);
 		}
+
 	}
 
 	private boolean invalidCycleType(String cycleType) {

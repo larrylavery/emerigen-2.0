@@ -119,11 +119,11 @@ public class SensorManager {
 		List<PatternRecognizer> patternRecognizers = KnowledgeRepository.getInstance()
 				.getPatternRecognizersForSensorType(sensor);
 
-		if (patternRecognizers == null) {
+		if (patternRecognizers == null || patternRecognizers.isEmpty()) {
 
 			// There are no pattern recognizers to register
 			return true;
-		} else if (patternRecognizers != null) {
+		} else if (!patternRecognizers.isEmpty()) {
 			/**
 			 * This will overwrite existing registered pattern recognizers
 			 */
@@ -317,6 +317,7 @@ public class SensorManager {
 			sensor = new HeartRateSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Created new Heart Rate sensor");
 			return sensor;
 
@@ -324,6 +325,7 @@ public class SensorManager {
 			sensor = new AccelerometerSensor(sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Creating Accelerometer sensor");
 			return sensor;
 
@@ -331,6 +333,7 @@ public class SensorManager {
 			sensor = new SleepSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Creating Sleep monitoring sensor");
 			return sensor;
 
@@ -338,6 +341,7 @@ public class SensorManager {
 			sensor = new BloodPressureSensor(sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Creating blood pressure monitoring sensor");
 			return sensor;
 
@@ -345,6 +349,7 @@ public class SensorManager {
 			sensor = new GlucoseSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Creating glucose monitoring sensor");
 			return sensor;
 
@@ -352,6 +357,7 @@ public class SensorManager {
 			sensor = new TemperatureSensor(sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Creating Temperature sensor");
 			return sensor;
 
@@ -359,6 +365,7 @@ public class SensorManager {
 			sensor = new GpsSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
+			registerPatternRecognizersForSensorWithFrequency(sensor, SENSOR_DELAY_NORMAL);
 			logger.info("Creating GPS sensor");
 			return sensor;
 		default:

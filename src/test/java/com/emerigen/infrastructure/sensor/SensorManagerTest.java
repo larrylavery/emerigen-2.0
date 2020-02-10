@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
@@ -84,7 +85,13 @@ public class SensorManagerTest {
 
 	@Test
 	public final void givenNoPatternRecognizersInRepository_whenAppStartup_thenIsRegisteredIsFalse() {
-		fail("not yet implemented");
+		SensorManager sensorManager = SensorManager.getInstance();
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
+
+		SensorEventListener listener = new TransitionPatternRecognizer();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
+				.isFalse();
 	}
 
 	@Test
@@ -94,7 +101,16 @@ public class SensorManagerTest {
 
 	@Test
 	public final void givenOnePatternRecognizerInRepository_whenUnregistered_thenNoRegistrationsInRepository() {
-		fail("not yet implemented");
+		SensorManager sm = SensorManager.getInstance();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
+
+		Cycle cycle = new DailyCycle();
+		PatternRecognizer listener = new CyclePatternRecognizer(cycle);
+		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
+
+		sm.unregisterPatternRecognizerFromSensor(listener, sensor);
+		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
 	}
 
 	@Test
