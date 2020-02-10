@@ -26,12 +26,14 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import com.emerigen.infrastructure.learning.Cycle;
+import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.CustomCycleDeserializer;
 import com.emerigen.infrastructure.sensor.CustomCycleSerializer;
 import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
 import com.emerigen.infrastructure.sensor.CustomSensorEventSerializer;
+import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.knowledge.Entity;
@@ -411,9 +413,53 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		}
 	}
 
-	public List<PatternRecognizer> getPatternRecognizersForSensorType(int sensorType) {
-		// TODO Retrieve all pattern recognizers for this sensor
-		return null;
+	/**
+	 * Retrieve all cycles for this sensor and create PatternRecognizers
+	 * 
+	 * @param sensor
+	 * @return
+	 */
+	public List<PatternRecognizer> getPatternRecognizersForSensorType(Sensor sensor) {
+
+		// Load all cycle types for the supplied sensorType
+		List<Cycle> cycles = getCycles(sensor);
+		List<PatternRecognizer> PRs = cycles.stream()
+				.map(cycle -> new CyclePatternRecognizer(cycle))
+				.collect(Collectors.toList());
+		return PRs;
+	}
+
+	/**
+	 * Return a list of all cycles that apply for this sensor type
+	 * 
+	 * @param sensorType
+	 * @return
+	 */
+	private List<Cycle> getCycles(Sensor sensor) {
+
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		Cycle cycle;
+
+		// For now call the DB once for each type to reuse code
+		List<Cycle> cycles = new ArrayList<Cycle>();
+
+		cycle = getCycle("Daily", "" + sensor.getType() + sensor.getLocation());
+		if (cycle != null)
+			cycles.add(cycle);
+
+		cycle = getCycle("Weekly", "" + sensor.getType() + sensor.getLocation());
+		if (cycle != null)
+			cycles.add(cycle);
+
+		cycle = getCycle("Monthly", "" + sensor.getType() + sensor.getLocation());
+		if (cycle != null)
+			cycles.add(cycle);
+
+		cycle = getCycle("Yearly", "" + sensor.getType() + sensor.getLocation());
+		if (cycle != null)
+			cycles.add(cycle);
+		return cycles;
 	}
 
 	@Override

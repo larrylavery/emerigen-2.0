@@ -15,8 +15,10 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  *
  */
 public class CyclePatternRecognizer extends PatternRecognizer {
+	private Cycle cycle;
 
-	public CyclePatternRecognizer() {
+	public CyclePatternRecognizer(Cycle cycle) {
+		this.cycle = cycle;
 	}
 
 	@Override
@@ -35,6 +37,20 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		// TODO return cycle-based predictions based on the given event
 		setCurrentPredictions(predictions);
 		return predictions;
+	}
+
+	/**
+	 * @return the cycle
+	 */
+	public Cycle getCycle() {
+		return cycle;
+	}
+
+	/**
+	 * @param cycle the cycle to set
+	 */
+	public void setCycle(Cycle cycle) {
+		this.cycle = cycle;
 	}
 
 }

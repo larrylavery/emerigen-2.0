@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
@@ -43,37 +44,41 @@ public class SensorManagerTest {
 	@Test
 	public final void givenNoPatternRecognizerRegistered_whenRegistrationChecked_thenIsRegisteredIsFalse() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new TransitionPatternRecognizer();
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
+				.isFalse();
 
 	}
 
 	@Test
 	public final void givenPatternRecognizerRegistrationsExist_whenUnregistered_thenIsRegisteredIsFalse() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new TransitionPatternRecognizer();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
+				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
 		sensorManager.unregisterListenerFromSensor(listener, sensor);
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
+				.isFalse();
 
 	}
 
 	@Test
 	public final void givenPatternRecognizerRegistrationsExist_whenNewCycleRegistered_thenIsRegisteredIsTrue() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor accSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		PatternRecognizer cpr = new CyclePatternRecognizer();
-		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor, Sensor.DELAY_NORMAL);
+		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle());
+		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor,
+				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
@@ -110,22 +115,24 @@ public class SensorManagerTest {
 	@Test
 	public final void givenUnRegisteredPatternRecognizer_whenRegistered_thenIsRegisteredIsTrue() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new TransitionPatternRecognizer();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
+				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 	}
 
 	@Test
 	public final void givenRegisteredEventListener_whenUnregistered_thenIsRegisteredIsFalse() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
+				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
 		// simulate the h/w sensor publishing an event by invoking the onSensorChanged
@@ -134,19 +141,21 @@ public class SensorManagerTest {
 		SensorEvent event = new SensorEvent(sensor, values);
 
 		sensorManager.unregisterListenerFromSensor(listener, sensor);
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
+				.isFalse();
 	}
 
 	@Test
 	public final void givenNullSensor_whenRegistered_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
 
-		final Throwable throwable = catchThrowable(() -> sensorManager
-				.registerListenerForSensorWithFrequency(listener, null, Sensor.DELAY_NORMAL));
+		final Throwable throwable = catchThrowable(
+				() -> sensorManager.registerListenerForSensorWithFrequency(listener, null,
+						Sensor.DELAY_NORMAL));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -154,13 +163,13 @@ public class SensorManagerTest {
 	@Test
 	public final void givenNonPositiveMinDelay_whenRegistered_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
 
-		final Throwable throwable = catchThrowable(
-				() -> sensorManager.registerListenerForSensorWithFrequency(listener, sensor, -1));
+		final Throwable throwable = catchThrowable(() -> sensorManager
+				.registerListenerForSensorWithFrequency(listener, sensor, -1));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -168,13 +177,14 @@ public class SensorManagerTest {
 	@Test
 	public final void givenNullEventListener_whenRegistered_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
 
-		final Throwable throwable = catchThrowable(() -> sensorManager
-				.registerListenerForSensorWithFrequency(null, sensor, Sensor.DELAY_NORMAL));
+		final Throwable throwable = catchThrowable(
+				() -> sensorManager.registerListenerForSensorWithFrequency(null, sensor,
+						Sensor.DELAY_NORMAL));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -182,11 +192,12 @@ public class SensorManagerTest {
 	@Test
 	public final void givenEventListener_whenRegistered_thenIsRegisteredIsTrue() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor, Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
+				Sensor.DELAY_NORMAL);
 
 		// simulate the h/w sensor publishing an event by invoking the onSensorChanged
 		// with an event
@@ -216,8 +227,8 @@ public class SensorManagerTest {
 	public final void givenTwoSensors_whenGetAllSensors_thenBothAreReturned() {
 		// given
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 		sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_TEMPERATURE,
 				Sensor.LOCATION_PHONE);
 
@@ -231,8 +242,8 @@ public class SensorManagerTest {
 	public final void givenOneSensor_whenGetAllSensors_thenOneIsReturned() {
 		// given
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		// when
 		List<Sensor> allSensors = sensorManager.getAllSensors();
@@ -243,8 +254,8 @@ public class SensorManagerTest {
 	@Test
 	public final void givenTheSecondValidSensorType_whenCreated_thenReturned() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		then(sensor).isInstanceOf(AccelerometerSensor.class);
 	}
@@ -263,8 +274,8 @@ public class SensorManagerTest {
 	public final void givenInvalidNumberForDefaultSensorParm_whenRequested_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
 
-		final Throwable throwable = catchThrowable(
-				() -> sensorManager.getDefaultSensorForLocation(100, Sensor.LOCATION_PHONE));
+		final Throwable throwable = catchThrowable(() -> sensorManager
+				.getDefaultSensorForLocation(100, Sensor.LOCATION_PHONE));
 
 		then(throwable).as("A 100 sensor type throws a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -275,8 +286,8 @@ public class SensorManagerTest {
 	public final void givenInvalidNegativeDefaultSensorParm_whenRequested_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
 
-		final Throwable throwable = catchThrowable(
-				() -> sensorManager.getDefaultSensorForLocation(-1, Sensor.LOCATION_PHONE));
+		final Throwable throwable = catchThrowable(() -> sensorManager
+				.getDefaultSensorForLocation(-1, Sensor.LOCATION_PHONE));
 
 		then(throwable).as("A -1 sensor type throws a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -287,8 +298,8 @@ public class SensorManagerTest {
 	public final void givenNullDefaultSensorParm_whenRequested_thenIllegalArgumentException() {
 		SensorManager sensorManager = SensorManager.getInstance();
 
-		final Throwable throwable = catchThrowable(
-				() -> sensorManager.getDefaultSensorForLocation(0, Sensor.LOCATION_PHONE));
+		final Throwable throwable = catchThrowable(() -> sensorManager
+				.getDefaultSensorForLocation(0, Sensor.LOCATION_PHONE));
 
 		then(throwable).as("A 0 sensor type throws a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);

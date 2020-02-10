@@ -68,7 +68,8 @@ public class SensorManager {
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 		if (samplingFrequencyMillis < 0)
-			throw new IllegalArgumentException("samplingFrequencyMillis must be zero or more");
+			throw new IllegalArgumentException(
+					"samplingFrequencyMillis must be zero or more");
 
 		List<Sensor> sensors = registeredSensorsPerListener.get(listener);
 
@@ -111,11 +112,12 @@ public class SensorManager {
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 		if (samplingFrequencyMillis < 0)
-			throw new IllegalArgumentException("samplingFrequencyMillis must be zero or more");
+			throw new IllegalArgumentException(
+					"samplingFrequencyMillis must be zero or more");
 
 		// Retrieve all pattern recognizers for this sensor type
 		List<PatternRecognizer> patternRecognizers = KnowledgeRepository.getInstance()
-				.getPatternRecognizersForSensorType(sensor.getType());
+				.getPatternRecognizersForSensorType(sensor);
 
 		if (patternRecognizers == null) {
 
@@ -148,13 +150,15 @@ public class SensorManager {
 	 *         false
 	 */
 	public boolean registerPatternRecognizerForSensorWithFrequency(
-			PatternRecognizer patternRecognizer, Sensor sensor, int samplingFrequencyMillis) {
+			PatternRecognizer patternRecognizer, Sensor sensor,
+			int samplingFrequencyMillis) {
 		if (patternRecognizer == null)
 			throw new IllegalArgumentException("patternRecognizer must not be null");
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 		if (samplingFrequencyMillis < 0)
-			throw new IllegalArgumentException("samplingFrequencyMillis must be zero or more");
+			throw new IllegalArgumentException(
+					"samplingFrequencyMillis must be zero or more");
 
 		List<PatternRecognizer> patternRecognizers = registeredPatternRecognizersPerSensor
 				.get(sensor);
@@ -187,7 +191,8 @@ public class SensorManager {
 	 * @param sensorClassName the sensor type to unregister from
 	 * @return true if the unregister was successful, otherwise false
 	 */
-	public boolean unregisterListenerFromSensor(SensorEventListener listener, Sensor sensor) {
+	public boolean unregisterListenerFromSensor(SensorEventListener listener,
+			Sensor sensor) {
 		List<Sensor> sensors = registeredSensorsPerListener.get(listener);
 		if (!sensors.contains(sensor)) {
 
@@ -210,8 +215,8 @@ public class SensorManager {
 	 * @param sensor
 	 * @return
 	 */
-	public boolean unregisterPatternRecognizerFromSensor(PatternRecognizer patternRecognizer,
-			Sensor sensor) {
+	public boolean unregisterPatternRecognizerFromSensor(
+			PatternRecognizer patternRecognizer, Sensor sensor) {
 		List<PatternRecognizer> patternRecognizers = registeredPatternRecognizersPerSensor
 				.get(patternRecognizer);
 		if (!patternRecognizers.contains(patternRecognizer)) {
@@ -255,7 +260,8 @@ public class SensorManager {
 
 	}
 
-	public boolean listenerIsRegisteredToSensor(SensorEventListener listener, Sensor sensor) {
+	public boolean listenerIsRegisteredToSensor(SensorEventListener listener,
+			Sensor sensor) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener must not be null");
 		if (sensor == null)
@@ -295,8 +301,8 @@ public class SensorManager {
 			throw new IllegalArgumentException("sensorLocataion must be positive");
 
 		// Retrieve existing sensors matching type and location
-		List<Sensor> sensors = allSensors.stream()
-				.filter((s) -> (s.getType() == sensorType) && (s.getLocation() == sensorLocation))
+		List<Sensor> sensors = allSensors.stream().filter(
+				(s) -> (s.getType() == sensorType) && (s.getLocation() == sensorLocation))
 				.collect(Collectors.toList());
 
 		// Return the first located sensor
@@ -315,8 +321,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_ACCELEROMETER:
-			sensor = new AccelerometerSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+			sensor = new AccelerometerSensor(sensorLocation,
+					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			logger.info("Creating Accelerometer sensor");
 			return sensor;
@@ -329,8 +335,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_BLOOD_PRESSURE:
-			sensor = new BloodPressureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+			sensor = new BloodPressureSensor(sensorLocation,
+					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			logger.info("Creating blood pressure monitoring sensor");
 			return sensor;
@@ -343,8 +349,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_TEMPERATURE:
-			sensor = new TemperatureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+			sensor = new TemperatureSensor(sensorLocation,
+					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			logger.info("Creating Temperature sensor");
 			return sensor;

@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -26,8 +27,9 @@ public class EmerigenSensorEventListenerTest {
 
 	}
 
-	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
-			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private final int minDelayBetweenReadingsMillis = Integer
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	@Test
 	public void givenValidTransitionPatternRecognizer_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
@@ -62,12 +64,14 @@ public class EmerigenSensorEventListenerTest {
 	public void givenCycleWithInvalidSensorType_whenRegistered_thenIllegalArgumentException()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor accSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		PatternRecognizer cpr = new CyclePatternRecognizer();
+		PatternRecognizer cpr = new CyclePatternRecognizer(
+				new DailyCycle(accSensor.getType(), accSensor.getLocation()));
 
-		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor, Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor,
+				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
