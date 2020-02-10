@@ -78,10 +78,6 @@ public class CyclePatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAndTransitionPRsAreRegistered() {
-	}
-
-	@Test
 	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAreRegistered() {
 		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH,
 				1);
@@ -94,7 +90,6 @@ public class CyclePatternRecognizerTest {
 				Sensor.LOCATION_WATCH);
 
 		assertThat(sm.listenerIsRegisteredToSensor(PR, sensor)).isTrue();
-
 	}
 
 	@Test

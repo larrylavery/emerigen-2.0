@@ -48,7 +48,7 @@ public class SensorManagerTest {
 		Sensor sensor = sensorManager.getDefaultSensorForLocation(
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		SensorEventListener listener = new TransitionPatternRecognizer();
+		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
 				.isFalse();
 
@@ -60,7 +60,7 @@ public class SensorManagerTest {
 		Sensor sensor = sensorManager.getDefaultSensorForLocation(
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		SensorEventListener listener = new TransitionPatternRecognizer();
+		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
 		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
 				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
@@ -89,7 +89,7 @@ public class SensorManagerTest {
 		Sensor sensor = sensorManager.getDefaultSensorForLocation(
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		SensorEventListener listener = new TransitionPatternRecognizer();
+		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
 				.isFalse();
 	}
@@ -134,7 +134,7 @@ public class SensorManagerTest {
 		Sensor sensor = sensorManager.getDefaultSensorForLocation(
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		SensorEventListener listener = new TransitionPatternRecognizer();
+		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
 		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
 				Sensor.DELAY_NORMAL);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();

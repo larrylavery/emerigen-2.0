@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.learning.PatternRecognizer;
+import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 
 public class SensorManager {
@@ -115,9 +116,12 @@ public class SensorManager {
 			throw new IllegalArgumentException(
 					"samplingFrequencyMillis must be zero or more");
 
-		// Retrieve all pattern recognizers for this sensor type
+		// Retrieve all cycle pattern recognizers for this sensor type
 		List<PatternRecognizer> patternRecognizers = KnowledgeRepository.getInstance()
 				.getPatternRecognizersForSensorType(sensor);
+
+		// Add a Transition pattern recognizer to the list for this sensor
+		patternRecognizers.add(new TransitionPatternRecognizer(sensor));
 
 		if (patternRecognizers == null || patternRecognizers.isEmpty()) {
 

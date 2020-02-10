@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
+import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 
 /**
@@ -21,12 +22,18 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  */
 public class TransitionPatternRecognizer extends PatternRecognizer {
 
-	private SensorEvent sensorEvent;
+	private Sensor sensor;
 
-	private SensorEvent previousSensorEvent = null;
-	private static final Logger logger = Logger.getLogger(TransitionPatternRecognizer.class);
+	private List<Prediction> currentPredictions = new ArrayList<Prediction>();
 
-	public TransitionPatternRecognizer() {
+	private SensorEvent previousSensorEvent;
+	private static final Logger logger = Logger
+			.getLogger(TransitionPatternRecognizer.class);
+
+	public TransitionPatternRecognizer(Sensor sensor) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		this.sensor = sensor;
 	}
 
 	/**
@@ -46,8 +53,9 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 
 			// Create new Transition from previous event, unless no previous event
 			if (null != previousSensorEvent) {
-				logger.info("Creating new transition from sensorEvent: " + previousSensorEvent
-						+ ", to sensorEvent: " + currentSensorEvent);
+				logger.info(
+						"Creating new transition from sensorEvent: " + previousSensorEvent
+								+ ", to sensorEvent: " + currentSensorEvent);
 				KnowledgeRepository.getInstance().newTransition(previousSensorEvent,
 						currentSensorEvent);
 			}
@@ -89,7 +97,8 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 
 		// Convert them to Predictions and calculate their probability
 		int predictionsSize = predictionEvents.size();
-		predictions = predictionEvents.stream().map(event -> new TransitionPrediction(event))
+		predictions = predictionEvents.stream()
+				.map(event -> new TransitionPrediction(event))
 				.collect(Collectors.toList());
 
 		// Calculate the probability for each
@@ -120,8 +129,34 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	 */
 	private boolean isNewEvent(SensorEvent sensorEvent) {
 
-		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());
+		SensorEvent event = KnowledgeRepository.getInstance()
+				.getSensorEvent(sensorEvent.getKey());
 		return null == event;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((sensor == null) ? 0 : sensor.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TransitionPatternRecognizer other = (TransitionPatternRecognizer) obj;
+		if (sensor == null) {
+			if (other.sensor != null)
+				return false;
+		} else if (!sensor.equals(other.sensor))
+			return false;
+		return true;
 	}
 
 }

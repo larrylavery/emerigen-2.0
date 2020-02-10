@@ -375,6 +375,9 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		JsonDocument jsonDocument = repo.get(SENSOR_EVENT, sensorEventKey);
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 
+		if (jsonDocument == null)
+			return null;
+
 		try {
 			sensorEvent = mapper.readValue(jsonDocument.content().toString(),
 					SensorEvent.class);

@@ -8,7 +8,7 @@ public class Transition {
 
 	private long timestamp = System.nanoTime();
 
-	String firstPatternKey = null, predictedPatternKey = null;
+	String firstSensorEventKey = null, predictedSensorEventKey = null;
 
 	private static Logger logger = Logger.getLogger(Transition.class);
 
@@ -17,9 +17,9 @@ public class Transition {
 
 	public Transition(final SensorEvent firstSensorEvent, final SensorEvent predictedSensorEvent) {
 
-		firstPatternKey = "" + firstSensorEvent.getSensorType() + firstSensorEvent.getTimestamp();
+		firstSensorEventKey = "" + firstSensorEvent.getSensorType() + firstSensorEvent.getTimestamp();
 
-		predictedPatternKey = "" + predictedSensorEvent.getSensorType()
+		predictedSensorEventKey = "" + predictedSensorEvent.getSensorType()
 				+ predictedSensorEvent.getTimestamp();
 
 		if (firstSensorEvent.getSensorType() != predictedSensorEvent.getSensorType()) {
@@ -40,9 +40,9 @@ public class Transition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((firstPatternKey == null) ? 0 : firstPatternKey.hashCode());
+		result = prime * result + ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
 		result = prime * result
-				+ ((predictedPatternKey == null) ? 0 : predictedPatternKey.hashCode());
+				+ ((predictedSensorEventKey == null) ? 0 : predictedSensorEventKey.hashCode());
 		return result;
 	}
 
@@ -55,37 +55,44 @@ public class Transition {
 		if (getClass() != obj.getClass())
 			return false;
 		Transition other = (Transition) obj;
-		if (firstPatternKey == null) {
-			if (other.firstPatternKey != null)
+		if (firstSensorEventKey == null) {
+			if (other.firstSensorEventKey != null)
 				return false;
-		} else if (!firstPatternKey.equals(other.firstPatternKey))
+		} else if (!firstSensorEventKey.equals(other.firstSensorEventKey))
 			return false;
-		if (predictedPatternKey == null) {
-			if (other.predictedPatternKey != null)
+		if (predictedSensorEventKey == null) {
+			if (other.predictedSensorEventKey != null)
 				return false;
-		} else if (!predictedPatternKey.equals(other.predictedPatternKey))
+		} else if (!predictedSensorEventKey.equals(other.predictedSensorEventKey))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Transition [timestamp=" + timestamp + ", firstPatternKey=" + firstPatternKey
-				+ ", predictedPatternKey=" + predictedPatternKey + "]";
+		return "Transition [timestamp=" + timestamp + ", firstSensorEventKey=" + firstSensorEventKey
+				+ ", predictedSensorEventKey=" + predictedSensorEventKey + "]";
 	}
 
 	/**
 	 * @return the firstPatternKey
 	 */
 	public String getFirstPatternKey() {
-		return firstPatternKey;
+		return getFirstSensorEventKey();
 	}
 
 	/**
-	 * @return the predictedPatternKey
+	 * @return the firstSensorEventKey
 	 */
-	public String getPredictedPatternKey() {
-		return predictedPatternKey;
+	public String getFirstSensorEventKey() {
+		return firstSensorEventKey;
+	}
+
+	/**
+	 * @return the predictedSensorEventKey
+	 */
+	public String getPredictedSensorEventKey() {
+		return predictedSensorEventKey;
 	}
 
 	/**
@@ -96,16 +103,16 @@ public class Transition {
 	}
 
 	/**
-	 * @param firstPatternKey the firstPatternKey to set
+	 * @param firstSensorEventKey the firstSensorEventKey to set
 	 */
 	void setFirstPatternKey(String firstPatternKey) {
-		this.firstPatternKey = firstPatternKey;
+		this.firstSensorEventKey = firstPatternKey;
 	}
 
 	/**
-	 * @param predictedPatternKey the predictedPatternKey to set
+	 * @param predictedSensorEventKey the predictedSensorEventKey to set
 	 */
 	void setPredictedPatternKey(String predictedPatternKey) {
-		this.predictedPatternKey = predictedPatternKey;
+		this.predictedSensorEventKey = predictedPatternKey;
 	}
 }
