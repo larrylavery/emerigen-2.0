@@ -53,4 +53,29 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		this.cycle = cycle;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((cycle == null) ? 0 : cycle.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CyclePatternRecognizer other = (CyclePatternRecognizer) obj;
+		if (cycle == null) {
+			if (other.cycle != null)
+				return false;
+		} else if (!cycle.equals(other.cycle))
+			return false;
+		return true;
+	}
+
 }

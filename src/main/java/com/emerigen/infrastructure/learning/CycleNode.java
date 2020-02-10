@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * @IDEA Cycles/Nodes/Fields with standard deviation-based equality. Allows each
@@ -145,14 +144,18 @@ public class CycleNode {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result
+				+ (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
+//		result = prime * result + ((myCycle == null) ? 0 : myCycle.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(probability);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((sensorEvent == null) ? 0 : sensorEvent.hashCode());
+		result = prime * result
+				+ (int) (startTimeOffsetNano ^ (startTimeOffsetNano >>> 32));
 		return result;
 	}
 
-	/**
-	 * Return true if their data point measurements are statistically equal (ie
-	 * equal within a specified standard deviation).
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -162,19 +165,24 @@ public class CycleNode {
 		if (getClass() != obj.getClass())
 			return false;
 		CycleNode other = (CycleNode) obj;
-
-		double difference = sensorEvent.getSensor()
-				.getDifferenceBetweenReadings(sensorEvent, other.sensorEvent);
-		if (Utils.getStandardDeviation(
-				difference) > allowableStandardDeviationForEquality) {
-			logger.info(
-					"this cycleNode IS NOT equal to the next cycleNode [ in terms of data point difference]");
+		if (dataPointDurationNano != other.dataPointDurationNano)
 			return false;
-		} else {
-			logger.info(
-					"this cycleNode IS equal to the next cycleNode [ in terms of data point difference]");
-			return true;
-		}
+		if (myCycle == null) {
+			if (other.myCycle != null)
+				return false;
+		} else if (!myCycle.equals(other.myCycle))
+			return false;
+		if (Double.doubleToLongBits(probability) != Double
+				.doubleToLongBits(other.probability))
+			return false;
+		if (sensorEvent == null) {
+			if (other.sensorEvent != null)
+				return false;
+		} else if (!sensorEvent.equals(other.sensorEvent))
+			return false;
+		if (startTimeOffsetNano != other.startTimeOffsetNano)
+			return false;
+		return true;
 	}
 
 	/**

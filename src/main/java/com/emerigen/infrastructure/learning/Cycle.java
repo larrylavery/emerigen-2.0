@@ -307,6 +307,9 @@ public abstract class Cycle implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(allowableStandardDeviationForEquality);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result
 				+ (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
 		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
@@ -325,6 +328,9 @@ public abstract class Cycle implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Cycle other = (Cycle) obj;
+//		if (Double.doubleToLongBits(allowableStandardDeviationForEquality) != Double
+//				.doubleToLongBits(other.allowableStandardDeviationForEquality))
+//			return false;
 		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
 			return false;
 		if (cycleType == null) {

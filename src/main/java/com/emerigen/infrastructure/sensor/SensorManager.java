@@ -127,7 +127,10 @@ public class SensorManager {
 			/**
 			 * This will overwrite existing registered pattern recognizers
 			 */
-			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
+			for (PatternRecognizer patternRecognizer : patternRecognizers) {
+				registerPatternRecognizerForSensorWithFrequency(patternRecognizer, sensor,
+						samplingFrequencyMillis);
+			}
 			return true;
 		} else {
 
@@ -160,21 +163,20 @@ public class SensorManager {
 			throw new IllegalArgumentException(
 					"samplingFrequencyMillis must be zero or more");
 
-		List<PatternRecognizer> patternRecognizers = registeredPatternRecognizersPerSensor
-				.get(sensor);
+		List<Sensor> sensors = registeredSensorsPerListener.get(patternRecognizer);
 
-		if (patternRecognizers == null) {
+		if (sensors == null) {
 
 			// pattern recognizer is not registered to the sensor type. Initialize data
-			patternRecognizers = new ArrayList<PatternRecognizer>();
-			patternRecognizers.add(patternRecognizer);
-			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
+			List<Sensor> newSensors = new ArrayList<Sensor>();
+			newSensors.add(sensor);
+			registeredSensorsPerListener.put(patternRecognizer, newSensors);
 			return true;
-		} else if (!patternRecognizers.contains(patternRecognizer)) {
+		} else if (!sensors.contains(sensor)) {
 
-			// Sensor has pattern recognizers but not this patternRecognizer. Add it
-			patternRecognizers.add(patternRecognizer);
-			registeredPatternRecognizersPerSensor.put(sensor, patternRecognizers);
+			// Pattern recognizer is not registered for this sensor. Add it
+			sensors.add(sensor);
+			registeredSensorsPerListener.put(patternRecognizer, sensors);
 			return true;
 		} else {
 
@@ -308,6 +310,8 @@ public class SensorManager {
 		// Return the first located sensor
 		if (!sensors.isEmpty()) {
 			logger.info("Returning existing sensor: " + sensors.get(0));
+//			registerPatternRecognizersForSensorWithFrequency(sensors.get(0),
+//					SENSOR_DELAY_NORMAL);
 			return sensors.get(0);
 		}
 

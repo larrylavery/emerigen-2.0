@@ -35,8 +35,8 @@ public abstract class Sensor implements Serializable {
 	 * Report events at a constant rate as defined by the sampling period
 	 */
 	// Sensor Modes
-	final static int REPORTING_MODE_CONTINUOUS = 1;
-	final static int REPORTING_MODE_ON_CHANGE = 2;
+	final public static int REPORTING_MODE_CONTINUOUS = 1;
+	public final static int REPORTING_MODE_ON_CHANGE = 2;
 
 	// Sensor Types
 	public static final int TYPE_ACCELEROMETER = 1;
@@ -56,8 +56,9 @@ public abstract class Sensor implements Serializable {
 
 	public static final int DELAY_NORMAL = 1;
 
-	private int minimumDelayBetweenReadings = Integer.parseInt(EmerigenProperties.getInstance()
-			.getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private int minimumDelayBetweenReadings = Integer
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	private int reportingMode;
 	private boolean wakeUpSensor;
@@ -84,7 +85,8 @@ public abstract class Sensor implements Serializable {
 			throw new IllegalArgumentException(
 					"Reporting mode (" + reportingMode + ") is not valid");
 		if (minimumDelayBetweenReadings < 0)
-			throw new IllegalArgumentException("MinimumDelayBetweenReadings must not be negative");
+			throw new IllegalArgumentException(
+					"MinimumDelayBetweenReadings must not be negative");
 
 		this.type = sensorType;
 		this.location = sensorLocation;
@@ -98,10 +100,11 @@ public abstract class Sensor implements Serializable {
 		activate();
 	}
 
-	public Sensor(int sensorType, int sensorLocation, int reportingMode, boolean isWakeUpSensor) {
+	public Sensor(int sensorType, int sensorLocation, int reportingMode,
+			boolean isWakeUpSensor) {
 		this(sensorType, sensorLocation, reportingMode,
-				Integer.parseInt(EmerigenProperties.getInstance()
-						.getValue("sensor.default.minimum.delay.between.readings.millis")),
+				Integer.parseInt(EmerigenProperties.getInstance().getValue(
+						"sensor.default.minimum.delay.between.readings.millis")),
 				isWakeUpSensor);
 	}
 
@@ -266,7 +269,8 @@ public abstract class Sensor implements Serializable {
 				+ ", locationName=" + locationName + ", typeName=" + typeName + "]";
 	}
 
-	public abstract boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent);
+	public abstract boolean equals(SensorEvent firstSensorEvent,
+			SensorEvent secondSensorEvent);
 
 	/**
 	 * @param minimumDelayBetweenReadings the minimumDelayBetweenReadings to set
