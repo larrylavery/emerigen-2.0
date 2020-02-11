@@ -32,12 +32,12 @@ public class CouchbaseRepositoryQueryTest {
 		// Load 4 different sensorEvents
 		SoftAssertions softly = new SoftAssertions();
 		long timestamp = System.currentTimeMillis() * 1000000;
-		float[] values = { 4.1f, 4.2f, 4.3f };
-		float[] values2 = { 4.11f, 4.21f, 4.31f };
-		float[] values3 = { 4.111f, 4.211f, 4.311f };
-		float[] values4 = { 4.1111f, 4.2111f, 4.3111f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
-				false);
+		float[] values = { 14.1f, 4.2f, 4.3f };
+		float[] values2 = { 24.11f, 4.21f, 4.31f };
+		float[] values3 = { 34.111f, 4.211f, 4.311f };
+		float[] values4 = { 44.1111f, 4.2111f, 4.3111f };
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
+				Sensor.DELAY_NORMAL, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		SensorEvent event3 = new SensorEvent(sensor, values3);
@@ -45,29 +45,36 @@ public class CouchbaseRepositoryQueryTest {
 
 		JsonObject sensorEventJsonDoc = JsonObject.create()
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", sensor.getLocation()).put("timestamp", "" + timestamp)
-				.put("values", JsonArray.from(4.1, 4.2, 4.3));
+				.put("sensorLocation", sensor.getLocation())
+				.put("timestamp", "" + event1.getTimestamp())
+				.put("values", JsonArray.from(14.1, 4.2, 4.3));
 
 		JsonObject sensorEventJsonDoc2 = JsonObject.create()
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", sensor.getLocation()).put("timestamp", "" + timestamp + 1)
-				.put("values", JsonArray.from(4.11, 4.21, 4.31));
+				.put("sensorLocation", sensor.getLocation())
+				.put("timestamp", "" + event2.getTimestamp())
+				.put("values", JsonArray.from(24.11, 4.21, 4.31));
 
 		JsonObject sensorEventJsonDoc3 = JsonObject.create()
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", sensor.getLocation()).put("timestamp", "" + timestamp + 2)
-				.put("values", JsonArray.from(4.111, 4.211, 4.311));
+				.put("sensorLocation", sensor.getLocation())
+				.put("timestamp", "" + event3.getTimestamp())
+				.put("values", JsonArray.from(34.111, 4.211, 4.311));
 
 		JsonObject sensorEventJsonDoc4 = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE).put("timestamp", "" + timestamp + 1)
-				.put("timestamp", "" + timestamp + "3")
-				.put("values", JsonArray.from(4.1111, 4.2111, 4.3111));
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("timestamp", "" + event4.getTimestamp())
+				.put("values", JsonArray.from(44.1111, 4.2111, 4.3111));
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("sensor-event", event1.getKey(), sensorEventJsonDoc);
-		CouchbaseRepository.getInstance().log("sensor-event", event2.getKey(), sensorEventJsonDoc2);
-		CouchbaseRepository.getInstance().log("sensor-event", event3.getKey(), sensorEventJsonDoc3);
-		CouchbaseRepository.getInstance().log("sensor-event", event4.getKey(), sensorEventJsonDoc4);
+		CouchbaseRepository.getInstance().log("sensor-event", event1.getKey(),
+				sensorEventJsonDoc);
+		CouchbaseRepository.getInstance().log("sensor-event", event2.getKey(),
+				sensorEventJsonDoc2);
+		CouchbaseRepository.getInstance().log("sensor-event", event3.getKey(),
+				sensorEventJsonDoc3);
+		CouchbaseRepository.getInstance().log("sensor-event", event4.getKey(),
+				sensorEventJsonDoc4);
 
 		// And Given
 		// Load 2 different transitions related to the sensorEvents logged
@@ -81,11 +88,11 @@ public class CouchbaseRepositoryQueryTest {
 				.put("predictedSensorEventKey", event4.getKey());
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("transition", event1.getKey() + event2.getKey(),
-				transitionJsonDoc);
+		CouchbaseRepository.getInstance().log("transition",
+				event1.getKey() + event2.getKey(), transitionJsonDoc);
 
-		CouchbaseRepository.getInstance().log("transition", event1.getKey() + event4.getKey(),
-				transitionJsonDoc2);
+		CouchbaseRepository.getInstance().log("transition",
+				event1.getKey() + event4.getKey(), transitionJsonDoc2);
 		try {
 			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.logging.catchup.timer")));
@@ -106,12 +113,18 @@ public class CouchbaseRepositoryQueryTest {
 		assertThat(result).isNotNull().isNotEmpty();
 		assertThat(result.info().resultCount() == 2);
 		// result.forEach(System.out::println);
-		softly.assertThat(result.allRows().get(0).value().getString("predictedSensorEventKey"))
-				.isEqualTo(event2.getKey());
+
+		String predictedKey = result.allRows().get(0).value()
+				.getString("predictedSensorEventKey");
+		assertThat(event2.getKey().contentEquals(predictedKey)
+				|| event4.getKey().equals(predictedKey)).isTrue();
+//		softly.assertThat(
+//				result.allRows().get(0).value().getString("predictedSensorEventKey"))
+//				.isEqualTo(event2.getKey() );
 
 		// And When their related sensorEvents are retrieved
-		JsonDocument jsonSensorEvent = CouchbaseRepository.getInstance().get("sensor-event",
-				event1.getKey());
+		JsonDocument jsonSensorEvent = CouchbaseRepository.getInstance()
+				.get("sensor-event", event1.getKey());
 		assertThat(jsonSensorEvent.content()).isNotNull();
 		softly.assertAll();
 
@@ -129,8 +142,8 @@ public class CouchbaseRepositoryQueryTest {
 		float[] values2 = { 4.11f, 4.21f, 4.31f };
 		float[] values3 = { 4.111f, 4.211f, 4.311f };
 		float[] values4 = { 4.1111f, 4.2111f, 4.3111f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
+				Sensor.DELAY_NORMAL, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		SensorEvent event3 = new SensorEvent(sensor, values3);
@@ -146,11 +159,11 @@ public class CouchbaseRepositoryQueryTest {
 				.put("predictedSensorEventKey", event4.getKey());
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("transition", event1.getKey() + event2.getKey(),
-				transitionJsonDoc);
+		CouchbaseRepository.getInstance().log("transition",
+				event1.getKey() + event2.getKey(), transitionJsonDoc);
 
-		CouchbaseRepository.getInstance().log("transition", event1.getKey() + event4.getKey(),
-				transitionJsonDoc2);
+		CouchbaseRepository.getInstance().log("transition",
+				event1.getKey() + event4.getKey(), transitionJsonDoc2);
 		try {
 			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.logging.catchup.timer")));
@@ -184,8 +197,8 @@ public class CouchbaseRepositoryQueryTest {
 		float[] values2 = { 4.11f, 4.21f, 4.31f };
 		float[] values3 = { 4.111f, 4.211f, 4.311f };
 		float[] values4 = { 4.1111f, 4.2111f, 4.3111f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
+				Sensor.DELAY_NORMAL, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		SensorEvent event3 = new SensorEvent(sensor, values3);
@@ -201,11 +214,11 @@ public class CouchbaseRepositoryQueryTest {
 				.put("predictedSensorEventKey", event4.getKey());
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("transition", event1.getKey() + event2.getKey(),
-				transitionJsonDoc);
+		CouchbaseRepository.getInstance().log("transition",
+				event1.getKey() + event2.getKey(), transitionJsonDoc);
 
-		CouchbaseRepository.getInstance().log("transition", event1.getKey() + event4.getKey(),
-				transitionJsonDoc2);
+		CouchbaseRepository.getInstance().log("transition",
+				event1.getKey() + event4.getKey(), transitionJsonDoc2);
 		try {
 			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
 					.getValue("couchbase.server.logging.catchup.timer")));
@@ -215,8 +228,9 @@ public class CouchbaseRepositoryQueryTest {
 		}
 
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple("SELECT COUNT(*) FROM `transition` WHERE firstSensorEventKey = \""
-						+ event1.getKey() + "\""));
+				N1qlQuery.simple(
+						"SELECT COUNT(*) FROM `transition` WHERE firstSensorEventKey = \""
+								+ event1.getKey() + "\""));
 
 		assertThat(result).isNotNull().isNotEmpty();
 		assertThat(result.info().resultCount() == 2);
@@ -234,8 +248,8 @@ public class CouchbaseRepositoryQueryTest {
 		// Create two transition JSON Documents
 		float[] values = { 4.1f, 4.2f, 4.3f };
 
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE, Sensor.DELAY_NORMAL,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
+				Sensor.DELAY_NORMAL, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		JsonObject sensorEventJsonDoc = JsonObject.create()
@@ -244,7 +258,8 @@ public class CouchbaseRepositoryQueryTest {
 				.put("values", JsonArray.from(2.1, 2.2));
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("sensor-event", event1.getKey(), sensorEventJsonDoc);
+		CouchbaseRepository.getInstance().log("sensor-event", event1.getKey(),
+				sensorEventJsonDoc);
 
 		try {
 			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
@@ -254,7 +269,8 @@ public class CouchbaseRepositoryQueryTest {
 			e.printStackTrace();
 		}
 
-		JsonDocument doc = CouchbaseRepository.getInstance().get("sensor-event", event1.getKey());
+		JsonDocument doc = CouchbaseRepository.getInstance().get("sensor-event",
+				event1.getKey());
 
 		assertThat(doc).isNotNull();
 

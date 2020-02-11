@@ -2,7 +2,6 @@ package com.emerigen.infrastructure.sensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.List;
@@ -151,24 +150,45 @@ public class SensorManagerTest {
 		SensorManager sm = SensorManager.getInstance();
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
 				Sensor.LOCATION_WATCH);
-//		public Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
 
-		Cycle cycle = createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
-		PatternRecognizer listener = new CyclePatternRecognizer(cycle);
-		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
+		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners).isNotNull();
+		assertThat(listeners.size()).isEqualTo(2);
+		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
 
-		sm.unregisterListenerFromSensor(listener, sensor);
-		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners).isNotNull();
+		assertThat(listeners.size()).isEqualTo(1);
 	}
 
 	@Test
-	public final void givenMultiplePatternRecognizersInRepository_whenSomeUnregistered_thenNoRegistrationsInRepositoryForThose() {
-		fail("not yet implemented");
+	public final void givenMultiplePatternRecognizersInRepository_whenAllUnregistered_thenNoRegistrationsInRepositoryForThose() {
+		SensorManager sm = SensorManager.getInstance();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
+
+		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners).isNotNull();
+		assertThat(listeners.size()).isEqualTo(2);
+		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
+
+		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(sensor);
+		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
+		listeners2 = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners2).isNotNull();
+		assertThat(listeners2.size()).isEqualTo(0);
 	}
 
 	@Test
-	public final void givenMultiplePatternRecognizersInRepository_whenUnregisterAll_thenNoRegistrationsInRepositoryForThose() {
-		fail("not yet implemented");
+	public final void givenMultiplePatternRecognizersInRepository_whenUnregistered_thenNoRegistration() {
+		SensorManager sm = SensorManager.getInstance();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
+
+		sm.unregisterListenerFromSensor(null, sensor);
+		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners).isNotNull();
+		assertThat(listeners.size()).isEqualTo(2);
 	}
 
 	@Test
@@ -177,12 +197,11 @@ public class SensorManagerTest {
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
 				Sensor.LOCATION_WATCH);
 
-		Cycle cycle = createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
-		PatternRecognizer listener = new CyclePatternRecognizer(cycle);
-
+		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
+		sm.unregisterListenerFromSensor(listener, sensor);
 		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
 		assertThat(listeners).isNotNull();
-		assertThat(listeners.size()).isEqualTo(2);
+		assertThat(listeners.size()).isEqualTo(1);
 	}
 
 	@Test
