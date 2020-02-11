@@ -14,15 +14,78 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.Cycle;
+import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.DailyCycle;
+import com.emerigen.infrastructure.learning.MonthlyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
+import com.emerigen.infrastructure.learning.WeeklyCycle;
+import com.emerigen.infrastructure.learning.YearlyCycle;
 
 public class SensorManagerTest {
 
 	public static int eventListenerOnSensorChanged = 0;
+
+	public Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
+			int numberOfNodes) {
+		Cycle cycle;
+
+		if ("Daily".equals(cycleType))
+			cycle = new DailyCycle(sensorType, sensorLocation);
+		else if ("Weekly".equals(cycleType))
+			cycle = new WeeklyCycle(sensorType, sensorLocation);
+		else if ("Monthly".equals(cycleType))
+			cycle = new MonthlyCycle(sensorType, sensorLocation);
+		else if ("Yearly".equals(cycleType))
+			cycle = new YearlyCycle(sensorType, sensorLocation);
+		else
+			throw new IllegalArgumentException(
+					"cycle type must be valid, but was (" + cycleType + ")");
+
+		// Set attributes
+		cycle.setPreviousCycleNodeIndex(0);
+		CycleNode cycleNode;
+
+		for (int i = 0; i < numberOfNodes; i++) {
+			cycleNode = new CycleNode();
+			int minimumDelayBetweenReadings;
+			int reportingMode;
+			boolean wakeUpSensor;
+			SensorEvent sensorEvent = new SensorEvent();
+			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
+			Sensor sensor;
+
+			// Create SensorEvent
+			sensorEvent.setSensorType(sensorType);
+			sensorEvent.setSensorLocation(sensorLocation);
+
+			// Set sensor event values
+			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
+			sensorEvent.setValues(values);
+
+			// create and set event sensor
+			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
+			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
+			wakeUpSensor = false;
+			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType,
+					sensorLocation);
+			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
+			sensor.setWakeUpSensor(wakeUpSensor);
+			sensor.setReportingMode(reportingMode);
+			sensorEvent.setSensor(sensor);
+
+			// Set up the rest of the CycleNode fields
+			cycleNode.setSensorEvent(sensorEvent);
+			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
+			cycleNode.setDataPointDurationNano(1000 * (i + 1));
+			cycleNode.setProbability(0.3);
+			cycleNode.setMyCycle(cycle);
+			cycle.addCycleNode(cycleNode);
+		}
+		return cycle;
+	}
 
 	public class EventListener implements SensorEventListener {
 
@@ -39,18 +102,6 @@ public class SensorManagerTest {
 		@Override
 		public void onResume() {
 		}
-
-	}
-
-	@Test
-	public final void givenNoPatternRecognizerRegistered_whenRegistrationChecked_thenIsRegisteredIsFalse() {
-		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(
-				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
-
-		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
-				.isFalse();
 
 	}
 
@@ -84,19 +135,15 @@ public class SensorManagerTest {
 	}
 
 	@Test
-	public final void givenNoPatternRecognizersInRepository_whenAppStartup_thenIsRegisteredIsFalse() {
+	public final void givenMultiplePatternRecognizersInRepository_whenAppStartup_thenIsRegisteredIsTrueForEach() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+		Sensor accSensor = sensorManager.getDefaultSensorForLocation(
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
-				.isFalse();
-	}
-
-	@Test
-	public final void givenMultiplePatternRecognizersInRepository_whenAppStartup_thenIsRegisteredIsTrueForEach() {
-		fail("not yet implemented");
+		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle());
+		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor,
+				Sensor.DELAY_NORMAL);
+		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
 	@Test
@@ -104,8 +151,9 @@ public class SensorManagerTest {
 		SensorManager sm = SensorManager.getInstance();
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
 				Sensor.LOCATION_WATCH);
+//		public Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
 
-		Cycle cycle = new DailyCycle();
+		Cycle cycle = createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
 		PatternRecognizer listener = new CyclePatternRecognizer(cycle);
 		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
@@ -125,7 +173,16 @@ public class SensorManagerTest {
 
 	@Test
 	public final void givenOnePatternRecognizerInRepository_whenAppStartup_thenIsRegisteredIsTrue() {
-		fail("not yet implemented");
+		SensorManager sm = SensorManager.getInstance();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
+
+		Cycle cycle = createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
+		PatternRecognizer listener = new CyclePatternRecognizer(cycle);
+
+		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners).isNotNull();
+		assertThat(listeners.size()).isEqualTo(2);
 	}
 
 	@Test

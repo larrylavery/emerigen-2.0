@@ -49,6 +49,8 @@ public class CycleTest {
 		// Add these fields to the cycle
 		Cycle cycle = new DailyCycle();
 		cycle.setCycleStartTimeNano(20);
+		cycle.setSensorType(sensor.getType());
+		cycle.setSensorLocation(sensor.getLocation());
 		cycle.setCycleDurationTimeNano(1500);
 		cycle.setAllowableStandardDeviationForEquality(0.8);
 		cycle.setPreviousCycleNodeIndex(0);
@@ -57,8 +59,8 @@ public class CycleTest {
 		cycleNode.setSensorEvent(event);
 
 		JsonObject cycleNodeJsonDoc = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH)
+//				.put("sensorType", Sensor.TYPE_HEART_RATE)
+//				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("timestamp", "" + timestamp)
 				.put("values",
 						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
@@ -68,6 +70,8 @@ public class CycleTest {
 				.put("probability", 0.3);
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
 				.put("allowableStandardDeviationForEquality", 0.8)
 				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)

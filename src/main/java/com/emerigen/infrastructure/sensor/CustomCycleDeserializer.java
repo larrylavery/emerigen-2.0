@@ -53,6 +53,10 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 			// Create the cycle with basic information
 			String cycleType = node.get("cycleType").asText();
 			cycle = createCycle(cycleType);
+			int sensorType = node.get("sensorType").asInt();
+			cycle.setSensorType(sensorType);
+			int sensorLocation = node.get("sensorLocation").asInt();
+			cycle.setSensorLocation(sensorLocation);
 			long startTime = node.get("cycleStartTimeNano").asLong();
 			cycle.setCycleStartTimeNano(startTime);
 			long durationTime = node.get("cycleDurationTimeNano").asLong();

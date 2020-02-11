@@ -52,20 +52,24 @@ public class CouchbaseCycleRepositoryTest {
 				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
 				.put("allowableStandardDeviationForEquality", 0.8)
 				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().logWithOverwrite("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH, cycleJsonDoc);
+				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
+				cycleJsonDoc);
 		CouchbaseRepository.getInstance().logWithOverwrite("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH, cycleJsonDoc);
+				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
+				cycleJsonDoc);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
 				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("cycle",
 				N1qlQuery.parameterized(
 						"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
 								+ " AND sensorLocation = $sensorLocation",
@@ -79,28 +83,6 @@ public class CouchbaseCycleRepositoryTest {
 
 	@Test
 	public final void givenOneCycleLogged_WhenCountQueriedByKey_ThenCountShouldBe1() {
-//		  "cycleType": "Daily",
-//		  "cycleStartTimeNano": 1,
-//		  "cycleDurationTimeNano": 4,
-//		  "allowableStandardDeviationForEquality": 1.1,
-//		  "previousCycleNodeIndex": 0,
-//		  "cycleNodes": [
-//		    {
-//		      "sensorType": 1,
-//		      "sensorLocation": 1,
-//		      "timestamp": 1,
-//		      "values": [
-//		        1.1,
-//		        2.2
-//		      ],
-//		      "minimumDelayBetweenReadings": 1,
-//		      "reportingMode": 1,
-//		      "wakeUpSensor": false,
-//		      "startTimeOffsetNano": 2,
-//		      "dataPointDurationNano": 1,
-//		      "probability": 0.4
-//		    }
-//		  ]
 
 		// Given
 		SoftAssertions softly = new SoftAssertions();
@@ -129,20 +111,23 @@ public class CouchbaseCycleRepositoryTest {
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
 				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("allowableStandardDeviationForEquality", 0.8)
 				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().logWithOverwrite("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH, cycleJsonDoc);
+				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
+				cycleJsonDoc);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
 				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("cycle",
 				N1qlQuery.parameterized(
 						"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
 								+ " AND sensorLocation = $sensorLocation",

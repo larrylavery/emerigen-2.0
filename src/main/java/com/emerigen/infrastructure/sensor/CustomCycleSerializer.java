@@ -31,6 +31,8 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 			// create cycle-specific fields
 			jsonGenerator.writeStartObject();
 			jsonGenerator.writeStringField("cycleType", cycle.getCycleType());
+			jsonGenerator.writeNumberField("sensorType", cycle.getSensorType());
+			jsonGenerator.writeNumberField("sensorLocation", cycle.getSensorLocation());
 			jsonGenerator.writeNumberField("cycleStartTimeNano",
 					cycle.getCycleStartTimeNano());
 			jsonGenerator.writeNumberField("cycleDurationTimeNano",

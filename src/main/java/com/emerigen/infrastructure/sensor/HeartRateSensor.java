@@ -11,11 +11,12 @@ public class HeartRateSensor extends Sensor {
 
 	public HeartRateSensor(int sensorLocation, int reportingMode, int minimumDelay,
 			boolean isWakeUpSensor) {
-		super(Sensor.TYPE_HEART_RATE, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_HEART_RATE, sensorLocation, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
-	public HeartRateSensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelay,
-			boolean isWakeUpSensor) {
+	public HeartRateSensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelay, boolean isWakeUpSensor) {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 
@@ -56,7 +57,8 @@ public class HeartRateSensor extends Sensor {
 		if (secondSensorEvent == null)
 			throw new IllegalArgumentException("second heartrate must not be null.");
 
-		if (Utils.equals(firstSensorEvent.getValues()[0], secondSensorEvent.getValues()[0])) {
+		if (Utils.equals(firstSensorEvent.getValues()[0],
+				secondSensorEvent.getValues()[0])) {
 			return true;
 		} else {
 			return false;

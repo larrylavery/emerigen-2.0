@@ -1,5 +1,7 @@
 {
   "cycleType": "Daily",
+      "sensorType": 1,
+      "sensorLocation": 1,
   "cycleStartTimeNano": 1,
   "cycleDurationTimeNano": 4,
   "allowableStandardDeviationForEquality": 1.1,
