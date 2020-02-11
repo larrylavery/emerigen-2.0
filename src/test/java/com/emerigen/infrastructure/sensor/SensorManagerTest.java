@@ -109,7 +109,7 @@ public class SensorManagerTest {
 		PatternRecognizer listener = new CyclePatternRecognizer(cycle);
 		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
-		sm.unregisterPatternRecognizerFromSensor(listener, sensor);
+		sm.unregisterListenerFromSensor(listener, sensor);
 		assertThat(sm.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
 	}
 

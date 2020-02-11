@@ -167,11 +167,11 @@ public class CycleNode {
 		CycleNode other = (CycleNode) obj;
 		if (dataPointDurationNano != other.dataPointDurationNano)
 			return false;
-		if (myCycle == null) {
-			if (other.myCycle != null)
-				return false;
-		} else if (!myCycle.equals(other.myCycle))
-			return false;
+//		if (myCycle == null) {
+//			if (other.myCycle != null)
+//				return false;
+//		} else if (!myCycle.equals(other.myCycle))
+//			return false;
 		if (Double.doubleToLongBits(probability) != Double
 				.doubleToLongBits(other.probability))
 			return false;

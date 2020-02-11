@@ -27,7 +27,6 @@ import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.CustomCycleDeserializer;
 import com.emerigen.infrastructure.sensor.CustomCycleSerializer;
@@ -35,6 +34,7 @@ import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
 import com.emerigen.infrastructure.sensor.CustomSensorEventSerializer;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.knowledge.Entity;
 import com.emerigen.knowledge.Transition;
@@ -422,11 +422,11 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	 * @param sensor
 	 * @return
 	 */
-	public List<PatternRecognizer> getPatternRecognizersForSensorType(Sensor sensor) {
+	public List<SensorEventListener> getPatternRecognizersForSensor(Sensor sensor) {
 
 		// Load all cycle types for the supplied sensorType
 		List<Cycle> cycles = getCycles(sensor);
-		List<PatternRecognizer> PRs = cycles.stream()
+		List<SensorEventListener> PRs = cycles.stream()
 				.map(cycle -> new CyclePatternRecognizer(cycle))
 				.collect(Collectors.toList());
 		return PRs;

@@ -34,13 +34,16 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 	private List<SensorEvent> predictions = new ArrayList<SensorEvent>();
 
-	private static final double GPS_DISTANCE_THRESHOLD = Double.parseDouble(
-			EmerigenProperties.getInstance().getValue("sensor.gps.distance.threshold.meters"));
+	private static final double GPS_DISTANCE_THRESHOLD = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("sensor.gps.distance.threshold.meters"));
 
-	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListener.class);
+	private static final Logger logger = Logger
+			.getLogger(EmerigenSensorEventListener.class);
 
-	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties
-			.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private final int minDelayBetweenReadingsMillis = Integer
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
@@ -54,16 +57,16 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	}
 
 	private void CreateAllSensors() {
-		bloodPressureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_BLOOD_PRESSURE,
-				Sensor.LOCATION_MACHINE);
+		bloodPressureSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_BLOOD_PRESSURE, Sensor.LOCATION_MACHINE);
 		glucoseSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GLUCOSE,
 				Sensor.LOCATION_MACHINE);
-		heartRateSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_PHONE);
-		accelerometerSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
-		temperatureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_TEMPERATURE,
-				Sensor.LOCATION_PHONE);
+		heartRateSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		accelerometerSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
+		temperatureSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_TEMPERATURE, Sensor.LOCATION_PHONE);
 		gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		sleepSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_SLEEP,
@@ -120,7 +123,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 * @param previousSensorEvent
 	 * @param currentSensorEvent
 	 */
-	protected void updateCycles(SensorEvent previousSensorEvent, SensorEvent currentSensorEvent) {
+	protected void updateCycles(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent) {
 		// TODO implement cycle detection code soon
 		return;
 	}
@@ -139,7 +143,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 			// Data has significantly changed?
 			if (significantChangeHasOccurred(previousSensorEvent, sensorEvent)) {
-				// TODO let cycle-based pattern recognizers have all events so durations merged
+				// TODO let cycle-based pattern recognizers have all events so durations
+				// merged
 
 				// Return prediction list that culls individual PR predictions
 				List<SensorEvent> predictions = getPredictionsForCurrentSensorEvent(
@@ -163,8 +168,9 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 * @param minDelayBetweenReadingsMillis
 	 * @return true if elapse time between events exceeds the required minimum
 	 */
-	protected boolean minimumDelayBetweenReadingsIsSatisfied(SensorEvent previousSensorEvent,
-			SensorEvent currentSensorEvent, int minDelayBetweenReadingsMillis) {
+	protected boolean minimumDelayBetweenReadingsIsSatisfied(
+			SensorEvent previousSensorEvent, SensorEvent currentSensorEvent,
+			int minDelayBetweenReadingsMillis) {
 		if (previousSensorEvent != null) {
 
 			long currentTime = currentSensorEvent.getTimestamp();
@@ -182,8 +188,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 * @param previousSensorEvent
 	 * @param currentSensorEvent
 	 */
-	protected List<SensorEvent> getPredictionsForCurrentSensorEvent(SensorEvent previousSensorEvent,
-			SensorEvent currentSensorEvent) {
+	protected List<SensorEvent> getPredictionsForCurrentSensorEvent(
+			SensorEvent previousSensorEvent, SensorEvent currentSensorEvent) {
 
 		List<SensorEvent> predictions = new ArrayList<SensorEvent>();
 
@@ -192,8 +198,9 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 			// Create new Transition from previous event, unless no previous event
 			if (null != previousSensorEvent) {
-				logger.info("Creating new transition from sensorEvent: " + previousSensorEvent
-						+ ", to sensorEvent: " + currentSensorEvent);
+				logger.info(
+						"Creating new transition from sensorEvent: " + previousSensorEvent
+								+ ", to sensorEvent: " + currentSensorEvent);
 				KnowledgeRepository.getInstance().newTransition(previousSensorEvent,
 						currentSensorEvent);
 			}
@@ -238,15 +245,16 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 */
 	private boolean isNewEvent(SensorEvent sensorEvent) {
 
-		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());
+		SensorEvent event = KnowledgeRepository.getInstance()
+				.getSensorEvent(sensorEvent.getKey());
 		return null == event;
 	}
 
 	@Override
 	public void onPause() {
 
-		// Unregister from all sensors during a pause
-		sensorManager.unregisterListenerFromAllSensors(this);
+		// TODO Unregister from all sensors during a pause
+		// sensorManager.unregisterListenerFromAllSensors(this);
 	}
 
 	@Override
