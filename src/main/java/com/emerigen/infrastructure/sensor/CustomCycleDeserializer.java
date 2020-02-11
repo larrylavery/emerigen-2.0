@@ -65,8 +65,11 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 					node.get("allowableStandardDeviationForEquality").asDouble());
 			cycle.setPreviousCycleNodeIndex(0);
 
-			// Next add all the Cycle Nodes
+			// Cycle nodes exist? build, otherwise return current cycle
 			JsonNode cycleNodes = node.get("nodeList");
+			if (cycleNodes == null)
+				return cycle;
+
 			CycleNode cycleNode = new CycleNode();
 
 			Iterator<JsonNode> cycleJsonNodes = cycleNodes.elements();

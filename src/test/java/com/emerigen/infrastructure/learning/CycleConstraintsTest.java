@@ -36,7 +36,8 @@ public class CycleConstraintsTest {
 
 		final Throwable throwable = catchThrowable(() -> node.merge(node2));
 
-		then(throwable).as("Cannot merge different cycle-based nodes gets IllegalArgumentException")
+		then(throwable).as(
+				"Cannot merge different cycle-based nodes gets IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -60,7 +61,8 @@ public class CycleConstraintsTest {
 		// When the instance is validated
 		final Throwable throwable = catchThrowable(() -> new DailyCycle(1, -1));
 
-		then(throwable).as("A non positive sensorLocation throws an IllegalArgumentException")
+		then(throwable)
+				.as("A non positive sensorLocation throws an IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -71,7 +73,8 @@ public class CycleConstraintsTest {
 		SoftAssertions softly = new SoftAssertions();
 
 		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> new CycleNode(null, new SensorEvent(), 0));
+		final Throwable throwable = catchThrowable(
+				() -> new CycleNode(null, new SensorEvent(), 0));
 
 		then(throwable).as("A null cycle throws a CycleNode  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -86,7 +89,8 @@ public class CycleConstraintsTest {
 		// When the instance is validated
 		final Throwable throwable = catchThrowable(() -> new CycleNode(myCycle, null, 0));
 
-		then(throwable).as("A null sensorEvent throws a CycleNode  IllegalArgumentException")
+		then(throwable)
+				.as("A null sensorEvent throws a CycleNode  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -97,7 +101,8 @@ public class CycleConstraintsTest {
 		DailyCycle dc = new DailyCycle(1, 1);
 
 		ZoneId zoneId = ZoneId.systemDefault();
-		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
+		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate()
+				.atStartOfDay(zoneId);
 
 		assertThat(dc.getCycleStartTimeNano())
 				.isEqualTo(todayStart.toEpochSecond() * 1000 * 1000000l);
@@ -113,7 +118,8 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
 		WeeklyCycle dc = new WeeklyCycle(1, 1);
-		assertThat(dc.getCycleDurationTimeNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
+		assertThat(dc.getCycleDurationTimeNano())
+				.isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
 	}
 
 	@Test
@@ -123,13 +129,13 @@ public class CycleConstraintsTest {
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		LocalDate today = LocalDate.now();
-		LocalDate firstDayOfCurrentMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+		LocalDate firstDayOfCurrentMonth = today
+				.with(TemporalAdjusters.firstDayOfMonth());
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		assertThat(
-				(firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == mc.getCycleStartTimeNano())
-						.isTrue();
+		assertThat((firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == mc
+				.getCycleStartTimeNano()).isTrue();
 
 	}
 
@@ -137,7 +143,8 @@ public class CycleConstraintsTest {
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
 		MonthlyCycle dc = new MonthlyCycle(1, 1);
 		System.out.println("monthly duration is: " + dc.getCycleDurationTimeNano());
-		assertThat(Utils.equals(dc.getCycleDurationTimeNano(), 2629746000000000f, 10.0)).isTrue();
+		assertThat(Utils.equals(dc.getCycleDurationTimeNano(), 2629746000000000f, 10.0))
+				.isTrue();
 	}
 
 	@Test
@@ -161,7 +168,8 @@ public class CycleConstraintsTest {
 		final Throwable throwable = catchThrowable(
 				() -> new CycleNode(myCycle, new SensorEvent(), -1));
 
-		then(throwable).as("A non positive data point duration throws a  IllegalArgumentException")
+		then(throwable).as(
+				"A non positive data point duration throws a  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -191,21 +199,21 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenNodesWithinStandardDeviationForEquality_whenCheckedForEquality_thenTrue() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };
-		float[] values2 = { 1.11f, 2.21f };
+		float[] values2 = { 1.1f, 2.2f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		CycleNode node1 = new CycleNode(myCycle, event1, 1);
-		CycleNode node2 = new CycleNode(myCycle2, event2, 1);
+		CycleNode node2 = new CycleNode(myCycle, event2, 1);
 		assertThat(node1.equals(node2)).isTrue();
 	}
 
 	@Test
 	public final void givenNodesNotWithinStandardDeviationForEquality_whenCheckedForEquality_thenFalse() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };
 		float[] values2 = { 11.11f, 12.21f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
@@ -238,7 +246,8 @@ public class CycleConstraintsTest {
 
 		final Throwable throwable = catchThrowable(() -> node.merge(null));
 
-		then(throwable).as("A null Cycle node during merge throws IllegalArgumentException")
+		then(throwable)
+				.as("A null Cycle node during merge throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		// public CycleNode merge(CycleNode nodeToMergeWith) {

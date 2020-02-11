@@ -28,24 +28,35 @@ public class Utils {
 	}
 
 	public static final boolean equals(double firstValue, double secondValue) {
-		return Utils.equals(firstValue, secondValue, allowableStandardDeviationForEquality);
+		return Utils.equals(firstValue, secondValue,
+				allowableStandardDeviationForEquality);
 	}
 
 	public static final boolean equals(float firstValue, float secondValue,
 			double allowableDeviation) {
-		return Utils.equals((double) firstValue, (double) secondValue, allowableDeviation);
+		return Utils.equals((double) firstValue, (double) secondValue,
+				allowableDeviation);
 	}
 
 	public static final boolean equals(float firstValue, float secondValue) {
-		return Utils.equals(firstValue, secondValue, allowableStandardDeviationForEquality);
+		return Utils.equals(firstValue, secondValue,
+				allowableStandardDeviationForEquality);
 	}
 
-	public static final boolean equals(int firstValue, int secondValue, double allowableDeviation) {
-		return Utils.equals((double) firstValue, (double) secondValue, allowableDeviation);
+	public static final boolean equals(int firstValue, int secondValue,
+			double allowableDeviation) {
+		return Utils.equals((double) firstValue, (double) secondValue,
+				allowableDeviation);
 	}
 
 	public static final boolean equals(int firstValue, int secondValue) {
-		return Utils.equals(firstValue, secondValue, allowableStandardDeviationForEquality);
+		return Utils.equals(firstValue, secondValue,
+				allowableStandardDeviationForEquality);
+	}
+
+	public static final boolean equals(long firstValue, long secondValue) {
+		return Utils.equals((double) firstValue, (double) secondValue,
+				allowableStandardDeviationForEquality);
 	}
 
 	/**

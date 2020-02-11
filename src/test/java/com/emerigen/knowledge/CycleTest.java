@@ -18,6 +18,7 @@ import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CycleNode;
+import com.emerigen.infrastructure.learning.CyclePatternRecognizerTest;
 import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
@@ -42,48 +43,35 @@ public class CycleTest {
 		// Create sensorEvent with these parms
 		long timestamp = System.currentTimeMillis() * 1000000;
 		Random rd = new Random(); // creating Random object
-		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values = new float[] { 24.6f, 300.0f };
 		SensorEvent event = new SensorEvent(sensor, values);
 		event.setTimestamp(timestamp);
 
-		// Add these fields to the cycle
-		Cycle cycle = new DailyCycle();
-		cycle.setCycleStartTimeNano(20);
-		cycle.setSensorType(sensor.getType());
-		cycle.setSensorLocation(sensor.getLocation());
-		cycle.setCycleDurationTimeNano(1500);
-		cycle.setAllowableStandardDeviationForEquality(0.8);
-		cycle.setPreviousCycleNodeIndex(0);
-
-		CycleNode cycleNode = new CycleNode();
-		cycleNode.setSensorEvent(event);
-
+		// Create new cycle
+		Cycle cycle = CyclePatternRecognizerTest.createCycle("Daily", sensor.getType(),
+				sensor.getLocation(), 1);
+		CycleNode node = cycle.getNodeList().get(0);
 		JsonObject cycleNodeJsonDoc = JsonObject.create()
-//				.put("sensorType", Sensor.TYPE_HEART_RATE)
-//				.put("sensorLocation", Sensor.LOCATION_WATCH)
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("timestamp", "" + timestamp)
-				.put("values",
-						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
-								"" + rd.nextFloat()))
-				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
-				.put("wakeUpSensor", false).put("dataPointDuration", 500)
-				.put("probability", 0.3);
+				.put("values", JsonArray.from(24.6, 300.0))
+				.put("minimumDelayBetweenReadings",
+						sensor.getMinimumDelayBetweenReadings())
+				.put("reportingMode", sensor.getReportingMode())
+				.put("wakeUpSensor", sensor.isWakeUpSensor())
+				.put("dataPointDurationNano", node.getDataPointDurationNano())
+				.put("probability", node.getProbability());
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
 				.put("sensorLocation", Sensor.LOCATION_WATCH)
-				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
-				.put("allowableStandardDeviationForEquality", 0.8)
+				.put("cycleStartTimeNano", cycle.getCycleStartTimeNano())
+				.put("cycleDurationTimeNano", cycle.getCycleDurationTimeNano())
+				.put("allowableStandardDeviationForEquality",
+						cycle.getAllowableStandardDeviationForEquality())
 				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("nodeList", JsonArray.from(cycleNodeJsonDoc));
-
-		cycleNode.setDataPointDurationNano(500);
-		cycleNode.setallowableStandardDeviationForEquality(0.8);
-		cycleNode.setProbability(0.3);
-		cycleNode.setDataPointDurationNano(500);
-		cycleNode.setSensorEvent(event);
-		cycleNode.setMyCycle(cycle);
-		cycle.addCycleNode(cycleNode);
 
 		// when logged then retrieved ok
 		KnowledgeRepository.getInstance().newCycle(cycle);
@@ -93,19 +81,23 @@ public class CycleTest {
 
 		// Verify cycle
 		assertThat(retrievedCycle).isNotNull();
-		assertThat(retrievedCycle.getCycleStartTimeNano()).isEqualTo(20);
-		assertThat(retrievedCycle.getCycleDurationTimeNano()).isEqualTo(1500);
+		assertThat(retrievedCycle.getCycleStartTimeNano())
+				.isEqualTo(cycle.getCycleStartTimeNano());
+		assertThat(retrievedCycle.getCycleDurationTimeNano())
+				.isEqualTo(cycle.getCycleDurationTimeNano());
 		assertThat(retrievedCycle.getAllowableStandardDeviationForEquality())
-				.isEqualTo(0.8);
-		assertThat(retrievedCycle.getPreviousCycleNodeIndex()).isEqualTo(0);
+				.isEqualTo(cycle.getAllowableStandardDeviationForEquality());
+		assertThat(retrievedCycle.getPreviousCycleNodeIndex())
+				.isEqualTo(cycle.getPreviousCycleNodeIndex());
 
 		// Verify cycle node
 		CircularList<CycleNode> newCycleNodes = retrievedCycle.getNodeList();
 		assertThat(newCycleNodes).isNotNull().isNotEmpty();
 		CycleNode newCycleNode = newCycleNodes.get(0);
 		assertThat(newCycleNode).isNotNull();
-		assertThat(newCycleNode.getDataPointDurationNano()).isEqualTo(500);
-		assertThat(newCycleNode.getProbability()).isEqualTo(0.3);
+		assertThat(newCycleNode.getDataPointDurationNano())
+				.isEqualTo(node.getDataPointDurationNano());
+		assertThat(newCycleNode.getProbability()).isEqualTo(node.getProbability());
 
 		SensorEvent se = newCycleNode.getSensorEvent();
 //		assertThat(se.getTimestamp()).isEqualTo(timestamp);
@@ -118,9 +110,11 @@ public class CycleTest {
 		assertThat(se.getSensor()).isNotNull();
 		assertThat(se.getSensor().getType()).isEqualTo(Sensor.TYPE_HEART_RATE);
 		assertThat(se.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_WATCH);
-		assertThat(se.getSensor().getMinimumDelayBetweenReadings()).isEqualTo(1000);
-		assertThat(se.getSensor().getReportingMode()).isEqualTo(Sensor.DELAY_NORMAL);
-		assertThat(se.getSensor().isWakeUpSensor()).isFalse();
+		assertThat(se.getSensor().getMinimumDelayBetweenReadings())
+				.isEqualTo(sensor.getMinimumDelayBetweenReadings());
+		assertThat(se.getSensor().getReportingMode())
+				.isEqualTo(sensor.getReportingMode());
+		assertThat(se.getSensor().isWakeUpSensor()).isEqualTo(sensor.isWakeUpSensor());
 		softly.assertAll();
 	}
 

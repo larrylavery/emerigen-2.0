@@ -3,6 +3,7 @@ package com.emerigen.infrastructure.sensor;
 import java.util.Arrays;
 
 import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * This class represents an event from any hardware-based sensor. The major
@@ -73,7 +74,8 @@ public class SensorEvent {
 
 	@JsonIgnore
 	public String getKey() {
-		return "" + sensor.getType() + sensor.getLocation() + getTimestamp() + values.hashCode();
+		return "" + sensor.getType() + sensor.getLocation() + getTimestamp()
+				+ values.hashCode();
 	}
 
 	public float[] getValues() {
@@ -86,9 +88,9 @@ public class SensorEvent {
 
 	@Override
 	public String toString() {
-		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType + ", sensorLocation="
-				+ sensorLocation + ", timestamp=" + timestamp + ", values="
-				+ Arrays.toString(values) + "]";
+		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType
+				+ ", sensorLocation=" + sensorLocation + ", timestamp=" + timestamp
+				+ ", values=" + Arrays.toString(values) + "]";
 	}
 
 	/**
@@ -141,7 +143,8 @@ public class SensorEvent {
 			return false;
 		if (sensorType != other.sensorType)
 			return false;
-		if (!Arrays.equals(values, other.values))
+		if (!Utils.equals(getValuesHashCode(), other.getValuesHashCode()))
+//			if (!Arrays.equals(values, other.values))
 			return false;
 		return true;
 	}

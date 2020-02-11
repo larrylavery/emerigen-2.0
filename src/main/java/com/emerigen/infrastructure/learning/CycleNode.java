@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * @IDEA Cycles/Nodes/Fields with standard deviation-based equality. Allows each
@@ -165,13 +166,8 @@ public class CycleNode {
 		if (getClass() != obj.getClass())
 			return false;
 		CycleNode other = (CycleNode) obj;
-		if (dataPointDurationNano != other.dataPointDurationNano)
+		if (!Utils.equals(dataPointDurationNano, other.dataPointDurationNano))
 			return false;
-//		if (myCycle == null) {
-//			if (other.myCycle != null)
-//				return false;
-//		} else if (!myCycle.equals(other.myCycle))
-//			return false;
 		if (Double.doubleToLongBits(probability) != Double
 				.doubleToLongBits(other.probability))
 			return false;

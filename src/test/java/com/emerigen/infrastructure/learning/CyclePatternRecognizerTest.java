@@ -18,7 +18,7 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 
 public class CyclePatternRecognizerTest {
 
-	public Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
+	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
 			int numberOfNodes) {
 		Cycle cycle;
 
