@@ -337,32 +337,33 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	}
 
 	private void processHeartRateEvent(SensorEvent sensorEvent) {
-
-		if (isNewEvent(sensorEvent)) {
-			logger.info("sensorEvent IS new");
-
-			// Create new Transition from previous event, unless no previous event
-			if (null != lastSensorEvent) {
-				logger.info("Creating new transition from sensorEvent: " + lastSensorEvent
-						+ ", to sensorEvent: " + sensorEvent);
-				KnowledgeRepository.getInstance().newTransition(lastSensorEvent,
-						sensorEvent);
-			}
-
-			// Not predicting now
-			predictions = new ArrayList<SensorEvent>();
-
-		} else if (eventHasPredictions(sensorEvent)
-				|| predictions.contains(sensorEvent)) {
-			logger.info("sensorEvent has predictions");
-
-			// Save the current predictions
-			predictions = KnowledgeRepository.getInstance()
-					.getPredictionsForSensorEvent(sensorEvent);
-			logger.info("Predictions from current sensorEvent: " + predictions);
-
-			// TODO make predictions to whom??
-		}
+// TODO all this code lives in TransitionPatternRecognizer
+//
+//		if (isNewEvent(sensorEvent)) {
+//			logger.info("sensorEvent IS new");
+//
+//			// Create new Transition from previous event, unless no previous event
+//			if (null != lastSensorEvent) {
+//				logger.info("Creating new transition from sensorEvent: " + lastSensorEvent
+//						+ ", to sensorEvent: " + sensorEvent);
+//				KnowledgeRepository.getInstance().newTransition(lastSensorEvent,
+//						sensorEvent);
+//			}
+//
+//			// Not predicting now
+//			predictions = new ArrayList<SensorEvent>();
+//
+//		} else if (eventHasPredictions(sensorEvent)
+//				|| predictions.contains(sensorEvent)) {
+//			logger.info("sensorEvent has predictions");
+//
+//			// Save the current predictions
+//			predictions = KnowledgeRepository.getInstance()
+//					.getPredictionsForSensorEvent(sensorEvent);
+//			logger.info("Predictions from current sensorEvent: " + predictions);
+//
+//			// TODO make predictions to whom??
+//		}
 	}
 
 	/**

@@ -63,23 +63,16 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 			// Not predicting now
 			predictions = new ArrayList<Prediction>();
 
-		} else if (eventHasPredictions(currentSensorEvent)
-				|| predictions.contains(currentSensorEvent)) {
-			logger.info("sensorEvent has predictions");
+		} else {
 
-			// Save the predicted sensor events
-			List<SensorEvent> predictionEvents = KnowledgeRepository.getInstance()
-					.getPredictionsForSensorEvent(currentSensorEvent);
+			predictions = getPredictionsForSensorEvent(currentSensorEvent);
+			if (predictions != null) {
 
-			// Convert them to Predictions and calculate their probability
-			predictions = predictionEvents.stream()
-					.map(sensorEvent -> new TransitionPrediction(sensorEvent))
-					.collect(Collectors.toList());
-
-			// Calculate the probability for each
-			double probability = 1.0 / predictions.size();
-			predictions.forEach(prediction -> prediction.setProbability(probability));
-			logger.info("Predictions from current sensorEvent: " + predictions);
+				// Calculate the probability for each
+				double probability = 1.0 / predictions.size();
+				predictions.forEach(prediction -> prediction.setProbability(probability));
+				logger.info("Predictions from current sensorEvent: " + predictions);
+			}
 		}
 
 		// Update previous event and save any new predictions
@@ -89,15 +82,14 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 
 	}
 
-	@Override
-	public List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
-		List<SensorEvent> predictionEvents = KnowledgeRepository.getInstance()
-				.getPredictionsForSensorEvent(sensorEvent);
+	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
+		List<SensorEvent> predictedEvents = getPredictedSensorEventsForSensorEvent(
+				sensorEvent);
 		List<Prediction> predictions;
 
 		// Convert them to Predictions and calculate their probability
-		int predictionsSize = predictionEvents.size();
-		predictions = predictionEvents.stream()
+		int predictionsSize = predictedEvents.size();
+		predictions = predictedEvents.stream()
 				.map(event -> new TransitionPrediction(event))
 				.collect(Collectors.toList());
 
@@ -105,6 +97,13 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 		double probability = 1.0 / predictions.size();
 		predictions.forEach(prediction -> prediction.setProbability(probability));
 		return predictions;
+	}
+
+	public static List<SensorEvent> getPredictedSensorEventsForSensorEvent(
+			SensorEvent sensorEvent) {
+		List<SensorEvent> predictedSensorEvents = new ArrayList<SensorEvent>();
+		// TODO create code to retrieve predicted sensor events.
+		return predictedSensorEvents;
 	}
 
 	/**

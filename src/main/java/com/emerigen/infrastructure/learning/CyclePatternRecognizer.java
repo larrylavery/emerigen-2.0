@@ -30,12 +30,11 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		return predictions;
 	}
 
-	@Override
-	public List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
+	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// TODO return cycle-based predictions based on the given event
-		setCurrentPredictions(predictions);
+		// TODO setCurrentPredictions(predictions);
 		return predictions;
 	}
 

@@ -59,13 +59,8 @@ public abstract class PatternRecognizer implements SensorEventListener {
 	@Override
 	public abstract List<Prediction> onSensorChanged(SensorEvent sensorEvent);
 
-	public abstract List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent);
-
-	/**
-	 * @return the currentPredictions
-	 */
-	public List<Prediction> getCurrentPredictions() {
-		return currentPredictions;
+	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
+		return new ArrayList<Prediction>();
 	}
 
 	/**

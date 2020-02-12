@@ -54,7 +54,7 @@ public class TransitionPatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenNoPreviousEventAndEventWithPredictions_whenOnSensorChangedCalled_thenPredictionListReturned() {
+	public final void givenOneTransition_whenOnSensorChangedCalledWithFirstEventKey_thenPredictionListReturned() {
 
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
@@ -66,16 +66,15 @@ public class TransitionPatternRecognizerTest {
 		SensorEvent sensorEvent2 = new SensorEvent(hrSensor, values2);
 		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
 		List<Prediction> predictions = pr.onSensorChanged(sensorEvent1);
-		assertThat(predictions).isNotNull().isEmpty();
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
 
 		predictions = pr.onSensorChanged(sensorEvent2);
-		assertThat(predictions).isNotNull().isEmpty();
+		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
 
-		// Log 2nd event and Transition
 		predictions = pr.onSensorChanged(sensorEvent1);
+//		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent2);
+
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size()).isEqualTo(1);
 	}

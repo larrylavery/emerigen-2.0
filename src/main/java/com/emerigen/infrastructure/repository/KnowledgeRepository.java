@@ -21,10 +21,10 @@ import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializationFeature;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.module.SimpleModule;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
@@ -35,9 +35,11 @@ import com.emerigen.infrastructure.sensor.CustomSensorEventSerializer;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
+import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.knowledge.Entity;
 import com.emerigen.knowledge.Transition;
+//import com.github.tomakehurst.wiremock.common.Json;
 
 /**
  * @author Larry
@@ -162,22 +164,22 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		return instance;
 	}
 
-	@Override
-	public List<SensorEvent> getSensorEventsForKeys(List<String> sensorEventKeys) {
-		if (sensorEventKeys == null) {
-			throw new IllegalArgumentException(
-					"sensorEventKeys must not be null or empty");
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		CouchbaseRepository repo = CouchbaseRepository.getInstance();
-
-		List<SensorEvent> sensorEvents = sensorEventKeys.stream()
-				.map(sensorEventKey -> mapper.convertValue(
-						repo.get(SENSOR_EVENT, sensorEventKey), SensorEvent.class))
-				.collect(Collectors.toList());
-
-		return sensorEvents;
-	}
+//	@Override
+//	public List<SensorEvent> getPredictedSensorEventsForSensorEvent(SensorEvent sensorEvent) {
+//		if (sensorEvent == null) {
+//			throw new IllegalArgumentException(
+//					"sensorEvent must not be null or empty");
+//		}
+//		ObjectMapper mapper = new ObjectMapper();
+//		CouchbaseRepository repo = CouchbaseRepository.getInstance();
+//
+//		List<SensorEvent> sensorEvents = sensorEventKeys.stream()
+//				.map(sensorEventKey -> mapper.convertValue(
+//						repo.get(SENSOR_EVENT, sensorEventKey), SensorEvent.class))
+//				.collect(Collectors.toList());
+//
+//		return sensorEvents;
+//	}
 
 	@Override
 	public void newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
@@ -237,40 +239,82 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 					"firstSensorEvent and predictedSensorEvent sensor locations must be the same");
 		}
 
-		// Create the keys and then the transitionJsonObject
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+
+		// Create first sensorEvent json document
+		long timestamp = System.currentTimeMillis() * 1000000;
+
+		JsonArray jsonArray = JsonArray.create();
+		for (int i = 0; i < firstSensorEvent.getValues().length; i++) {
+			jsonArray.add(firstSensorEvent.getValues()[i]);
+		}
+
+		JsonObject firstEventJsonDoc = JsonObject.create()
+				.put("sensorType", sensor.getType())
+				.put("sensorLocation", sensor.getLocation())
+				.put("timestamp", firstSensorEvent.getTimestamp())
+				.put("values", jsonArray)
+				.put("minimumDelayBetweenReadings",
+						sensor.getMinimumDelayBetweenReadings())
+				.put("reportingMode", sensor.getReportingMode())
+				.put("wakeUpSensor", sensor.isWakeUpSensor());
+
+		// Create predicted sensorEvent json document
+		JsonArray jsonArray2 = JsonArray.create();
+		for (int i = 0; i < firstSensorEvent.getValues().length; i++) {
+			jsonArray2.add(predictedSensorEvent.getValues()[i]);
+		}
+
+		JsonObject predictedEventJsonDoc = JsonObject.create()
+				.put("sensorType", sensor.getType())
+				.put("sensorLocation", sensor.getLocation())
+				.put("timestamp", predictedSensorEvent.getTimestamp())
+				.put("values", jsonArray2)
+				.put("minimumDelayBetweenReadings",
+						sensor.getMinimumDelayBetweenReadings())
+				.put("reportingMode", sensor.getReportingMode())
+				.put("wakeUpSensor", sensor.isWakeUpSensor());
+
 		JsonObject transitionJsonObject = JsonObject.create()
-				.put("firstSensorEventKey", firstSensorEvent.getKey())
-				.put("predictedSensorEventKey", predictedSensorEvent.getKey());
+				.put("sensorType", sensor.getType())
+				.put("sensorLocation", sensor.getLocation()).put("timestamp", timestamp)
+				.put("firstSensorEvent", firstEventJsonDoc)
+				.put("predictedSensorEvent", predictedEventJsonDoc);
 
 		// Log the transition object
 		repository.log(TRANSITION,
 				firstSensorEvent.getKey() + predictedSensorEvent.getKey(),
 				transitionJsonObject);
 	}
-
-	@Override
-	public List<String> getPredictedSensorEventKeysForSensorEvent(
-			SensorEvent sensorEvent) {
-		if (sensorEvent == null)
-			throw new IllegalArgumentException("sensorEvent must no be null");
-
-		/**
-		 * Retrieve predicted event keys from transitions where the firstSensorEvent is
-		 * equal to the supplied event
-		 */
-		String sensorEventKey = sensorEvent.getKey();
-		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
-				+ sensorEventKey + "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(statement));
-		List<String> predictedSensorEventKeys = new ArrayList<String>();
-		for (N1qlQueryRow row : result) {
-			logger.debug(
-					"Adding key to predicted sensorEvents: " + row.value().toString());
-			predictedSensorEventKeys.add(row.value().toString());
-		}
-		return predictedSensorEventKeys;
-	}
+//
+//	public static List<SensorEvent> getPredictedSensorEventsForSensorEvent(
+//			SensorEvent sensorEvent) {
+//		if (sensorEvent == null)
+//			throw new IllegalArgumentException("sensorEvent must no be null");
+//
+//		/**
+//		 * Retrieve predicted event keys from transitions where the firstSensorEvent is
+//		 * equal to the supplied event
+//		 */
+//		String sensorEventKey = sensorEvent.getKey();
+//		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE " 
+//				+ "firstSensorEvent.sensorType = \"" + sensorEvent.getSensorType() + "\""
+//				+ " AND firstSensorEvent.sensorLocatione = "\"" + sensorEvent.getSensorType() + \""
+//						+ ""
+//						+ "";
+//		List<SensorEvent> predictedSensorEvents = null;
+//		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE ";
+//		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
+//				N1qlQuery.simple(statement));
+//		List<String> predictedSensorEventKeys = new ArrayList<String>();
+//		for (N1qlQueryRow row : result) {
+//			logger.debug(
+//					"Adding key to predicted sensorEvents: " + row.value().toString());
+//			predictedSensorEventKeys.add(row.value().toString());
+//		}
+//		return predictedSensorEvents;
+//	}
 
 	@Override
 	public int getSensorEventCountForSensorTypeAndLocation(int sensorType,

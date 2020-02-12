@@ -147,8 +147,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				// merged
 
 				// Return prediction list that culls individual PR predictions
-				List<SensorEvent> predictions = getPredictionsForCurrentSensorEvent(
-						previousSensorEvent, sensorEvent);
+				// TODO do PR loop here and let them handle getPredictions
+				// result = getPredictionsForSensorEvent(sensorEvent);
 
 				// Provide all cycle learning routines access to the latest sensor event
 				updateCycles(previousSensorEvent, sensorEvent);
@@ -158,6 +158,9 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			}
 		}
 		previousSensorEvent = sensorEvent;
+
+		// Always log the new event
+		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
 		return result;
 	}
 
@@ -179,48 +182,6 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 			return elapsedTime >= minDelayBetweenReadingsMillis;
 		} else
 			return true;
-	}
-
-	/**
-	 * Locate any predictions from the current sensor event, creating a transition
-	 * if necessary.
-	 * 
-	 * @param previousSensorEvent
-	 * @param currentSensorEvent
-	 */
-	protected List<SensorEvent> getPredictionsForCurrentSensorEvent(
-			SensorEvent previousSensorEvent, SensorEvent currentSensorEvent) {
-
-		List<SensorEvent> predictions = new ArrayList<SensorEvent>();
-
-		if (isNewEvent(currentSensorEvent)) {
-			logger.info("sensorEvent IS new");
-
-			// Create new Transition from previous event, unless no previous event
-			if (null != previousSensorEvent) {
-				logger.info(
-						"Creating new transition from sensorEvent: " + previousSensorEvent
-								+ ", to sensorEvent: " + currentSensorEvent);
-				KnowledgeRepository.getInstance().newTransition(previousSensorEvent,
-						currentSensorEvent);
-			}
-
-			// Not predicting now
-			predictions = new ArrayList<SensorEvent>();
-
-		} else if (eventHasPredictions(currentSensorEvent)
-				|| predictions.contains(currentSensorEvent)) {
-			logger.info("sensorEvent has predictions");
-
-			// Save the current predictions
-			predictions = KnowledgeRepository.getInstance()
-					.getPredictionsForSensorEvent(currentSensorEvent);
-			logger.info("Predictions from current sensorEvent: " + predictions);
-
-			// TODO make predictions to whom??
-		}
-		return predictions;
-
 	}
 
 	/**

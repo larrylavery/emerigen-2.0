@@ -3,8 +3,6 @@
  */
 package com.emerigen.infrastructure.repository;
 
-import java.util.List;
-
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.knowledge.Entity;
@@ -107,24 +105,6 @@ public abstract class AbstractKnowledgeRepository {
 	public abstract void newTransition(SensorEvent firstSensorEvent,
 			SensorEvent predictedSensorEvent);
 
-	// Locate all predicted SensorEvents for the specified SensorEvent
-	public List<SensorEvent> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
-		List<String> predictedSensorEventKeys = getPredictedSensorEventKeysForSensorEvent(
-				sensorEvent);
-		List<SensorEvent> predictedSensorEvents = getSensorEventsForKeys(
-				predictedSensorEventKeys);
-		return predictedSensorEvents;
-	}
-
-	// Utility: Get predicted pattern keys for the supplied Pattern
-	protected abstract List<String> getPredictedSensorEventKeysForSensorEvent(
-			SensorEvent sensorEvent);
-
-	// Get full Patterns for each supplied pattern key
-	protected abstract List<SensorEvent> getSensorEventsForKeys(
-			List<String> sensorEventKeys);
-
-	// Get the count of all inputs processed for a given sensor type and location
 	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType,
 			int sensorLocation);
 
