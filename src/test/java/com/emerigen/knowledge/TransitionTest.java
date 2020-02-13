@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -16,13 +15,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
@@ -184,7 +179,7 @@ public class TransitionTest {
 	}
 
 	@Test
-	public final void givenValidTransition_whenLogged_thenPredictionRetrieved() {
+	public final void givenValidTransition_whenLogged_thenTransitionRetrieved() {
 
 		// Given
 
@@ -211,19 +206,12 @@ public class TransitionTest {
 		}
 
 		// Query all transitions where the firstSensorEvent key equals the supplied
-		// sensorEvent
+		// sensorEvent i.e. getPredictions!
 
-		String sensorEventKey = sensorEvent1.getKey();
-		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
-				+ sensorEventKey + "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(statement));
-		List<String> predictedSensorEventKeys = new ArrayList<String>();
-		for (N1qlQueryRow row : result) {
-			predictedSensorEventKeys.add(row.value().toString());
-		}
+		Transition newTransition = KnowledgeRepository.getInstance()
+				.getTransition(sensorEvent1.getKey() + sensorEvent2.getKey());
 
-		assertThat(predictedSensorEventKeys.size()).isEqualTo(1);
+		assertThat(newTransition).isNotNull();
 
 	}
 
@@ -242,19 +230,17 @@ public class TransitionTest {
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 		SensorEvent sensorEvent3 = new SensorEvent(sensor, values3);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent3);
+//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
+//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent3);
 
 		// And given 2 valid transitions with same firstSensorEvents logged
-		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
-		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
-		SensorEvent predictedSensorEvent2 = new SensorEvent(sensor, values3);
+//		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
+//		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
+//		SensorEvent predictedSensorEvent2 = new SensorEvent(sensor, values3);
 
-		KnowledgeRepository.getInstance().newTransition(firstSensorEvent,
-				predictedSensorEvent);
-		KnowledgeRepository.getInstance().newTransition(firstSensorEvent,
-				predictedSensorEvent2);
+		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent2);
+		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent3);
 
 		// Give the bucket a chance to catch up after the log
 		try {
@@ -268,7 +254,7 @@ public class TransitionTest {
 		// Then getPredictionsForSensorEvent() should return the two predicted
 		// sensorEvents
 		List<Prediction> predictedSensorEvents = TransitionPatternRecognizer
-				.getPredictionsForSensorEvent(firstSensorEvent);
+				.getPredictionsForSensorEvent(sensorEvent1);
 
 		assertThat(predictedSensorEvents).isNotNull().isNotEmpty();
 		assertThat(predictedSensorEvents.size()).isEqualTo(2);

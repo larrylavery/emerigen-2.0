@@ -83,11 +83,13 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	}
 
 	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
-		List<SensorEvent> predictedEvents = getPredictedSensorEventsForSensorEvent(
-				sensorEvent);
+		List<SensorEvent> predictedEvents = KnowledgeRepository.getInstance()
+				.getPredictedSensorEventsForSensorEvent(sensorEvent);
 		List<Prediction> predictions;
 
 		// Convert them to Predictions and calculate their probability
+		if (predictedEvents == null)
+			return null;
 		int predictionsSize = predictedEvents.size();
 		predictions = predictedEvents.stream()
 				.map(event -> new TransitionPrediction(event))
@@ -99,12 +101,22 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 		return predictions;
 	}
 
-	public static List<SensorEvent> getPredictedSensorEventsForSensorEvent(
-			SensorEvent sensorEvent) {
-		List<SensorEvent> predictedSensorEvents = new ArrayList<SensorEvent>();
-		// TODO create code to retrieve predicted sensor events.
-		return predictedSensorEvents;
-	}
+//	public static List<SensorEvent> getPredictedSensorEventsForSensorEvent(
+//			SensorEvent sensorEvent) {
+//		List<SensorEvent> predictedSensorEvents = new ArrayList<SensorEvent>();
+//
+//		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
+//				+ "meta().id = " + sensorEvent.getKey();
+//
+//		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
+//				N1qlQuery.simple(statement));
+//		List<String> predictedSensorEventKeys = new ArrayList<String>();
+//		for (N1qlQueryRow row : result) {
+//			logger.debug("Adding sensorEvent to predicted sensorEvents: " + row.value());
+//			predictedSensorEvents.add(row.value());
+//		}
+//		return predictedSensorEvents;
+//	}
 
 	/**
 	 * 
