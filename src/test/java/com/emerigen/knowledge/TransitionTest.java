@@ -179,6 +179,78 @@ public class TransitionTest {
 	}
 
 	@Test
+	public final void givenTwoValidTransitionsWithSameFirstEvents_whenLogged_thenGetPredictionsReturnsTwo() {
+
+		// Given
+
+		Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		SensorEvent sensorEvent3 = new SensorEvent(sensor, values3);
+
+		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent2);
+		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent3);
+
+		try {
+			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("couchbase.server.logging.catchup.timer")));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Query all transitions where the firstSensorEvent key equals the supplied
+		// sensorEvent i.e. getPredictions!
+
+		List<SensorEvent> sensorEvents = KnowledgeRepository.getInstance()
+				.getPredictedSensorEventsForSensorEvent(sensorEvent1);
+
+		assertThat(sensorEvents).isNotNull().isNotEmpty();
+		assertThat(sensorEvents.size()).isEqualTo(2);
+
+	}
+
+	@Test
+	public final void givenValidTransition_whenLogged_thenGetPredictionsRetrunsOne() {
+
+		// Given
+
+		Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent2);
+
+		try {
+			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("couchbase.server.logging.catchup.timer")));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Query all transitions where the firstSensorEvent key equals the supplied
+		// sensorEvent i.e. getPredictions!
+
+		List<SensorEvent> sensorEvents = KnowledgeRepository.getInstance()
+				.getPredictedSensorEventsForSensorEvent(sensorEvent1);
+
+		assertThat(sensorEvents).isNotNull().isNotEmpty();
+
+	}
+
+	@Test
 	public final void givenValidTransition_whenLogged_thenTransitionRetrieved() {
 
 		// Given
@@ -188,9 +260,6 @@ public class TransitionTest {
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
-//		sensor.setMinimumDelayBetweenReadings(1000);
-//		sensor.setReportingMode(Sensor.DELAY_NORMAL);
-//		sensor.setWakeUpSensor(false);
 
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);

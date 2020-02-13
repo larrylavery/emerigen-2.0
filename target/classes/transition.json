@@ -7,7 +7,7 @@
       "sensorType",
       "sensorLocation",
       "timestamp",
-      "firstSensorEvent",
+      "firstSensorEventKey",
       "predictedSensorEvent"
     ],
     "properties": {
@@ -23,9 +23,9 @@
         "description": "The time this transition was logged",
         "type": "number"
       },
-      "firstSensorEvent": {
-        "description": "The first sensor event of the transition",
-        "$ref": "definitions.json#/sensorEvent"
+      "firstSensorEventKey": {
+        "description": "The key for the first sensor event of the transition",
+        "type": "string"
       },
       "predictedSensorEvent": {
         "description": "The predicted sensor event of the transition",

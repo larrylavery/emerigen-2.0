@@ -52,6 +52,16 @@ public class CustomSensorEventDeserializer extends StdDeserializer<SensorEvent> 
 			JsonNode node = codec.readTree(parser);
 
 			// Retrieve the sensor event fields
+			System.out.println("SensorEvent node: " + node.toString());
+
+			// Next token a predicted event? consume it
+			JsonNode predictedSensorEventNode = node.get("predictedSensorEvent");
+			if (predictedSensorEventNode != null) {
+				System.out.println("SensorEvent node was the predicted sensor event"
+						+ node.toString());
+				node = predictedSensorEventNode;
+			}
+
 			sensorType = node.get("sensorType").asInt();
 			sensorEvent.setSensorType(sensorType);
 			sensorLocation = node.get("sensorLocation").asInt();
@@ -86,7 +96,8 @@ public class CustomSensorEventDeserializer extends StdDeserializer<SensorEvent> 
 			sensor.setReportingMode(reportingMode);
 
 			sensorEvent.setSensor(sensor);
-			logger.info("Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
+			logger.info("Sensor created: " + sensor + ", sensorEvent complete: "
+					+ sensorEvent);
 			return sensorEvent;
 		} catch (IOException e) {
 			throw new RepositoryException("IO exception thrown: ", e);

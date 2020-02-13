@@ -49,9 +49,8 @@ public class CustomTransitionDeserializer extends StdDeserializer<Transition> {
 			transition.setSensorType(node.get("sensorType").asInt());
 			transition.setSensorLocation(node.get("sensorLocation").asInt());
 
-			JsonNode firstSensorEventNode = node.get("firstSensorEvent");
-			SensorEvent firstSensorEvent = extractSensorEvent(firstSensorEventNode);
-			transition.setFirstSensorEvent(firstSensorEvent);
+			String firstSensorEventKey = node.get("firstSensorEventKey").asText();
+			transition.setFirstSensorEventKey(firstSensorEventKey);
 
 			JsonNode predictedSensorEventNode = node.get("predictedSensorEvent");
 			SensorEvent predictedSensorEvent = extractSensorEvent(

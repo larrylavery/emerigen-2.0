@@ -34,10 +34,8 @@ public class CustomTransitionSerializer extends StdSerializer<Transition> {
 					transition.getSensorLocation());
 
 			// Create firstSensorEvent fields
-			jsonGenerator.writeObjectFieldStart("firstSensorEvent");
-			writeTransitionNodeSensorEvent(jsonGenerator,
-					transition.getFirstSensorEvent());
-			jsonGenerator.writeEndObject();
+			jsonGenerator.writeStringField("firstSensorEventKey",
+					transition.getFirstSensorEventKey());
 
 			// Create predictedSensorEvent fields
 			jsonGenerator.writeStartObject("predictedSensorEvent");
