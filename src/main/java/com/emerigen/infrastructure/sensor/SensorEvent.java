@@ -144,7 +144,7 @@ public class SensorEvent {
 		if (sensorType != other.sensorType)
 			return false;
 		if (!Utils.equals(getValuesHashCode(), other.getValuesHashCode()))
-//			if (!Arrays.equals(values, other.values))
+//		if (!Arrays.equals(values, other.values))
 			return false;
 		return true;
 	}

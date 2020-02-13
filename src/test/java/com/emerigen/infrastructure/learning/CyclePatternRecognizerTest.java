@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -99,7 +101,31 @@ public class CyclePatternRecognizerTest {
 
 	@Test
 	public final void givenEventExistingInCycle_whenOnSensorChangedCalled_thenPositionAfterEventReturnedAsPrediction() {
-		fail("Not yet implemented"); // TODO
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+
+		// When
+		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
+		float[] values2 = { 5.0f, 2.0f };
+		float[] values3 = { 50.0f, 20.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event2.getTimestamp() + 100);
+		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		event3.setTimestamp(event3.getTimestamp() + 200);
+
+		// Set the event timestamp to after the cycle duration
+
+		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
+		predictions = gpsCycle.onSensorChanged(event3);
+		assertThat(predictions).isNotNull().isEmpty();
+		predictions = gpsCycle.onSensorChanged(event2);
+
+		assertThat(predictions.size()).isNotNull().isEqualTo(1);
+		assertThat(predictions.get(0).getSensorEvent().equals(event3)).isTrue();
 	}
 
 	@Test
@@ -139,7 +165,27 @@ public class CyclePatternRecognizerTest {
 
 	@Test
 	public final void givenNewCycle_whenOnSensorChangedCalledWithEventPastCycleDuration_thenCycleRolledOverAndEventAddedAndEmptyPredictionListReturned() {
-		fail("Not yet implemented"); // TODO
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+
+		// When
+		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
+		float[] values2 = { 5.0f, 2.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+
+		// Set the event timestamp to after the cycle duration
+		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+
+		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
+		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
+		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
+
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(gpsCycle.cycleDurationTimeNano);
+		assertThat(predictions).isNotNull().isEmpty();
 	}
 
 	@Test

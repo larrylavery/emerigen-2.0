@@ -4,6 +4,8 @@
 package com.emerigen.infrastructure.learning;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -106,7 +108,9 @@ public abstract class Cycle implements Serializable {
 	 * @param sensorEvent
 	 * @return
 	 */
-	public boolean onSensorChanged(SensorEvent sensorEvent) {
+	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
+
+		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Validate parms
 		if (sensorEvent == null)
@@ -125,10 +129,10 @@ public abstract class Cycle implements Serializable {
 		// Create new cycle node based on the adjusted cycle start time
 		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
 
-		// Empty cycle list?
+		// Empty cycle? add to beginning of list and return empty predictions
 		if (previousCycleNodeIndex < 0) {
 			addFirstCycleNode(newCycleNode);
-			return true;
+			return predictions;
 
 		} else {
 
@@ -138,13 +142,19 @@ public abstract class Cycle implements Serializable {
 				// Previous and new sensor events are equal?
 				if (sensorEventsAreEqual(sensorEvent,
 						nodeList.get(previousCycleNodeIndex).getSensorEvent())) {
-					return mergeAndReplacePreviousNode(newCycleNode);
+					mergeAndReplacePreviousNode(newCycleNode);
+
+					// Return the next node in the cycle as the prediction
+					predictions.add(new CyclePrediction(nodeList.get(i)));
 
 					// Have we passed the most recent previous cycle node?
 				} else if (previousNodeTimeIsGreaterThanNewNodeTime(newCycleNode)) {
 					boolean result = insertBeforePreviousNode(newCycleNode);
+					predictions.add(new CyclePrediction(
+							nodeList.get(previousCycleNodeIndex + 1)));
 					previousCycleNodeIndex--;
-					return result;
+
+					return predictions;
 				}
 				previousCycleNodeIndex = wrapIndex(++previousCycleNodeIndex);
 
@@ -155,7 +165,7 @@ public abstract class Cycle implements Serializable {
 			 * "end", which is really at the end of one circular cycle traversal.
 			 */
 			nodeList.add(newCycleNode);
-			return true;
+			return predictions;
 		}
 	}
 
@@ -291,7 +301,7 @@ public abstract class Cycle implements Serializable {
 	@Override
 	public String toString() {
 		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano
-				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", cycle="
+				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", nodeList="
 				+ nodeList + ", previousCycleNodeIndex=" + previousCycleNodeIndex
 				+ ", cycleType=" + cycleType + ", sensorLocation=" + sensorLocation
 				+ ", sensorType=" + sensorType

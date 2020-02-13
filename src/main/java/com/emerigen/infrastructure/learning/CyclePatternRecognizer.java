@@ -77,4 +77,9 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "CyclePatternRecognizer [cycle=" + cycle + "]";
+	}
+
 }

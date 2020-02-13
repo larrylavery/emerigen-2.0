@@ -207,8 +207,8 @@ public class CycleNode {
 	@Override
 	public String toString() {
 		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationNano="
-				+ dataPointDurationNano + ", myCycle=" + myCycle
-				+ ", startTimeOffsetNano=" + startTimeOffsetNano + "]";
+				+ dataPointDurationNano + ", startTimeOffsetNano=" + startTimeOffsetNano
+				+ ", probability=" + probability + "]";
 	}
 
 	/**
