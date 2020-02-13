@@ -15,11 +15,10 @@ public class SensorManager {
 	public static final int SENSOR_DELAY_NORMAL = 0;
 	private static Logger logger = Logger.getLogger(SensorManager.class);
 	private List<Sensor> allSensors = new ArrayList<Sensor>();
-	// Enable retrieving all sensors for a listener
-	private HashMap<SensorEventListener, List<Sensor>> registeredSensorsPerListener;
 
 	// Enable retrieving all event listeners for a sensor
 	private HashMap<Sensor, List<SensorEventListener>> eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
+	private HashMap<Sensor, List<SensorEventListener>> disabledEventListeners;
 
 	// Singleton infrastructure
 	private static SensorManager instance;
@@ -269,6 +268,15 @@ public class SensorManager {
 	 */
 	public final List<SensorEventListener> getRegistrationsForSensor(Sensor sensor) {
 		return eventListenersPerSensor.get(sensor);
+	}
+
+	public void disableListenerRegistrations() {
+		disabledEventListeners = eventListenersPerSensor;
+		eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
+	}
+
+	public void enableListenerRegistrations() {
+		eventListenersPerSensor = disabledEventListeners;
 	}
 
 }

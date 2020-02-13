@@ -21,6 +21,9 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public class EmerigenSensorEventListener implements SensorEventListener {
 
 	// My current sensors
+	List<Sensor> sensors = new ArrayList<Sensor>();
+	List<SensorEventListener> listeners = new ArrayList<SensorEventListener>();
+
 	private Sensor accelerometerSensor;
 	private Sensor heartRateSensor;
 	private Sensor temperatureSensor;
@@ -48,6 +51,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
 
+		// TODO design to handle whatever sensors/listeners available
+		// TODO for each sensor, load cycles & transition PRs like sm.getDefaultSensor()
 		// Create all sensors
 		CreateAllSensors();
 
@@ -88,8 +93,6 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListenerForSensorWithFrequency(this, glucoseSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
-
-		// TODO retrieve and register all cycles for each sensor
 	}
 
 	/**
@@ -102,40 +105,14 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	 */
 	protected boolean significantChangeHasOccurred(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent) {
-		return false;
-	}
-
-	/**
-	 * Our main processing has completed. Enable subclasses to do their processing.
-	 * 
-	 * @param previousSensorEvent
-	 * @param currentSensorEvent
-	 * @return
-	 */
-	protected List<Prediction> processSensorChange(SensorEvent previousSensorEvent,
-			SensorEvent currentSensorEvent) {
-		return null;
-	}
-
-	/**
-	 * Update all dynamic cycles with the current sensor event
-	 * 
-	 * @param previousSensorEvent
-	 * @param currentSensorEvent
-	 */
-	protected void updateCycles(SensorEvent previousSensorEvent,
-			SensorEvent currentSensorEvent) {
-		// TODO implement cycle detection code soon
-		return;
+		return true;
 	}
 
 	@Override
 	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 
+		SensorManager sm = SensorManager.getInstance();
 		List<Prediction> result = new ArrayList<Prediction>();
-
-		// Always log the new event
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
 
 		// Required elapse time has passed since last event?
 		if (minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent, sensorEvent,
@@ -143,18 +120,18 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 			// Data has significantly changed?
 			if (significantChangeHasOccurred(previousSensorEvent, sensorEvent)) {
-				// TODO let cycle-based pattern recognizers have all events so durations
-				// merged
 
-				// Return prediction list that culls individual PR predictions
-				// TODO do PR loop here and let them handle getPredictions
-				// result = getPredictionsForSensorEvent(sensorEvent);
-
-				// Provide all cycle learning routines access to the latest sensor event
-				updateCycles(previousSensorEvent, sensorEvent);
-
-				// Do any event-listener-specific processing
-				result = processSensorChange(previousSensorEvent, sensorEvent);
+				/**
+				 * Send the event to each registered Listener for processing and
+				 * accumulate the predictions.
+				 */
+				List<SensorEventListener> listeners = sm
+						.getRegistrationsForSensor(sensorEvent.getSensor());
+				for (SensorEventListener sensorEventListener : listeners) {
+					if (!(sensorEventListener instanceof EmerigenSensorEventListener)) {
+						result.addAll(sensorEventListener.onSensorChanged(sensorEvent));
+					}
+				}
 			}
 		}
 		previousSensorEvent = sensorEvent;
@@ -174,55 +151,29 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	protected boolean minimumDelayBetweenReadingsIsSatisfied(
 			SensorEvent previousSensorEvent, SensorEvent currentSensorEvent,
 			int minDelayBetweenReadingsMillis) {
-		if (previousSensorEvent != null) {
-
-			long currentTime = currentSensorEvent.getTimestamp();
-			long previousTime = previousSensorEvent.getTimestamp();
-			long elapsedTime = currentTime - previousTime;
-			return elapsedTime >= minDelayBetweenReadingsMillis;
-		} else
-			return true;
-	}
-
-	/**
-	 * 
-	 * @param sensorEvent
-	 * @return true if predictions exist for the given event
-	 */
-	protected boolean eventHasPredictions(SensorEvent sensorEvent) {
-
-		// Retrieve the count of predictions for this sensor event
-		int predictionCount = KnowledgeRepository.getInstance()
-				.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
-						sensorEvent.getSensorLocation());
-		return predictionCount > 0;
-	}
-
-	/**
-	 * TODO the sensor event has just been logged, so this should return false???
-	 * 
-	 * @param sensorEvent
-	 * @return true if the sensorEvent is not in the repository
-	 */
-	private boolean isNewEvent(SensorEvent sensorEvent) {
-
-		SensorEvent event = KnowledgeRepository.getInstance()
-				.getSensorEvent(sensorEvent.getKey());
-		return null == event;
+		return true;
+//		if (previousSensorEvent != null) {
+//
+//			long currentTime = currentSensorEvent.getTimestamp();
+//			long previousTime = previousSensorEvent.getTimestamp();
+//			long elapsedTime = currentTime - previousTime;
+//			return elapsedTime >= minDelayBetweenReadingsMillis;
+//		} else
+//			return true;
 	}
 
 	@Override
 	public void onPause() {
 
-		// TODO Unregister from all sensors during a pause
-		// sensorManager.unregisterListenerFromAllSensors(this);
+		// Disable, but save, all current registrations
+		sensorManager.disableListenerRegistrations();
 	}
 
 	@Override
 	public void onResume() {
 
 		// Restore registrations on resumption
-		subscribeToAllSensors();
+		sensorManager.enableListenerRegistrations();
 	}
 
 }

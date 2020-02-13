@@ -3,8 +3,13 @@ package com.emerigen.infrastructure.sensor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
@@ -22,7 +27,8 @@ public class EmerigenSensorEventListenerTest {
 		@Override
 		public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 			invokedCount++;
-			return null;
+			System.out.println("invoked count is " + invokedCount);
+			return new ArrayList<Prediction>();
 		}
 
 	}
@@ -32,7 +38,7 @@ public class EmerigenSensorEventListenerTest {
 					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	@Test
-	public void givenValidTransitionPatternRecognizer_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
+	public void givenValidPatternRecognizers_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
 		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
@@ -42,23 +48,12 @@ public class EmerigenSensorEventListenerTest {
 		float[] values = { 1.2f };
 
 		sensorManager.registerListenerForSensorWithFrequency(listener2, sensor, 1);
-//		TransitionPatternRecognizer tpr = new TransitionPatternRecognizer();
-//		Sensor hrSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
-//				Sensor.LOCATION_PHONE);
-//
-//		sensorManager.registerListenerForSensorWithFrequency(listener2, sensor,
-//				minDelayBetweenReadingsMillis);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener2, sensor))
 				.isTrue();
+
 		listener.onSensorChanged(new SensorEvent(sensor, values));
 		assertThat(invokedCount).isEqualTo(1);
 
-	}
-
-	@Test
-	public void givenValidCyclePatternRecognizer_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
-			throws Exception {
-		fail("Not implemented yet");
 	}
 
 	@Test
@@ -77,15 +72,23 @@ public class EmerigenSensorEventListenerTest {
 	}
 
 	@Test
-	public void givenOneCycleAndOneTransitionPatternRecognizers_whenRegistered_thenBothatternRecognizersReceivesAllEvents()
+	public void givenOneCycleAndOneTransitionPatternRecognizers_whenRegistered_thenBothPatternRecognizersReceivesAllEvents()
 			throws Exception {
-		fail("Not implemented yet");
-	}
+		SensorManager sm = SensorManager.getInstance();
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		SensorEventListener listener2 = new EventListener();
+		sm.registerListenerForSensorWithFrequency(listener2, sensor, 2);
+		float[] values = { 1.2f, 2.3f };
+		float[] values2 = { 11.2f, 12.3f };
 
-	@Test
-	public void givenMultipleCyclePRsAndOneTransitionPatternRecognizer_whenRegistered_thenAllReceiveAllEvents()
-			throws Exception {
-		fail("Not implemented yet");
+		SensorEvent se = new SensorEvent(sensor, values);
+		SensorEvent se2 = new SensorEvent(sensor, values2);
+
+		listener.onSensorChanged(se);
+		listener.onSensorChanged(se2);
+		assertThat(invokedCount).isEqualTo(2);
 	}
 
 	@Test
@@ -97,7 +100,21 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenMultiplePRs_whenRegistered_thenTheyReceiveAllEventsThatAreSignificantlyDifferent()
 			throws Exception {
-		fail("Not implemented yet");
+		SensorManager sm = SensorManager.getInstance();
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		SensorEventListener listener2 = new EventListener();
+		sm.registerListenerForSensorWithFrequency(listener2, sensor, 2);
+		float[] values = { 1.2f, 2.3f };
+		float[] values2 = { 11.2f, 12.3f };
+
+		SensorEvent se = new SensorEvent(sensor, values);
+		SensorEvent se2 = new SensorEvent(sensor, values2);
+
+		listener.onSensorChanged(se);
+		listener.onSensorChanged(se2);
+		assertThat(invokedCount).isEqualTo(2);
 	}
 
 	@Test
@@ -121,32 +138,36 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
-		fail("not yet implemented");
-		SensorManager sensorManager = SensorManager.getInstance();
+		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+
+		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(2);
 
 		listener.onPause();
-//		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isFalse();
+		assertThat(sm.getRegistrationsForSensor(sensor)).isNull();
 
 		listener.onResume();
-//		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, )).isTrue();
+		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(2);
 
 	}
 
-	@Test
-	public void givenValidCyclePatternRecognizer_whenOnPauseThenOnResumeInvoked_thenCyclePatternRecognizersMatch()
-			throws Exception {
-		fail("not yet implemented");
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+	}
 
-		SensorManager sensorManager = SensorManager.getInstance();
-		SensorEventListener listener = new EmerigenSensorEventListener();
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+	}
 
-		listener.onPause();
-//		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isFalse();
+	@Before
+	public void setUp() throws Exception {
+		SensorManager.getInstance().reset();
+	}
 
-		listener.onResume();
-//		assertThat(sensorManager.listenerIsRegisteredToAnySensor(listener)).isTrue();
-
+	@After
+	public void tearDown() throws Exception {
 	}
 
 }

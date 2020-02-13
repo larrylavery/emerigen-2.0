@@ -66,13 +66,11 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 		} else {
 
 			predictions = getPredictionsForSensorEvent(currentSensorEvent);
-			if (predictions != null) {
 
-				// Calculate the probability for each
-				double probability = 1.0 / predictions.size();
-				predictions.forEach(prediction -> prediction.setProbability(probability));
-				logger.info("Predictions from current sensorEvent: " + predictions);
-			}
+			// Calculate the probability for each
+			double probability = 1.0 / predictions.size();
+			predictions.forEach(prediction -> prediction.setProbability(probability));
+			logger.info("Predictions from current sensorEvent: " + predictions);
 		}
 
 		// Update previous event and save any new predictions
@@ -85,15 +83,17 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
 		List<SensorEvent> predictedEvents = KnowledgeRepository.getInstance()
 				.getPredictedSensorEventsForSensorEvent(sensorEvent);
-		List<Prediction> predictions;
+		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Convert them to Predictions and calculate their probability
 		if (predictedEvents == null)
 			return null;
 		int predictionsSize = predictedEvents.size();
-		predictions = predictedEvents.stream()
+		List<Prediction> newPredictions = predictedEvents.stream()
 				.map(event -> new TransitionPrediction(event))
 				.collect(Collectors.toList());
+		if (newPredictions != null)
+			predictions.addAll(newPredictions);
 
 		// Calculate the probability for each
 		double probability = 1.0 / predictions.size();
