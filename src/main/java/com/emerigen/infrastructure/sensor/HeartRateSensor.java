@@ -1,23 +1,23 @@
 package com.emerigen.infrastructure.sensor;
 
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.Utils;
 
 public class HeartRateSensor extends Sensor {
 
-	public HeartRateSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH, reportingMode, minimumDelay,
-				isWakeUpSensor);
-	}
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+			* 1000000;
 
-	public HeartRateSensor(int sensorLocation, int reportingMode, int minimumDelay,
+	private long minimumDelayBetweenReadingsForMe = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.heartrate.minimum.delay.between.readings.millis"))
+			* 1000000;
+
+	public HeartRateSensor(int sensorLocation, int reportingMode,
 			boolean isWakeUpSensor) {
-		super(Sensor.TYPE_HEART_RATE, sensorLocation, reportingMode, minimumDelay,
-				isWakeUpSensor);
-	}
-
-	public HeartRateSensor(int sensorType, int sensorLocation, int reportingMode,
-			int minimumDelay, boolean isWakeUpSensor) {
-		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_HEART_RATE, sensorLocation, reportingMode, isWakeUpSensor);
 	}
 
 	@Override

@@ -168,8 +168,7 @@ public class CyclePatternRecognizerTest {
 		Sensor gpsSensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		SensorManager.getInstance().registerListenerForSensorWithFrequency(gpsCycle,
-				gpsSensor, 1);
+		SensorManager.getInstance().registerListenerForSensor(gpsCycle, gpsSensor);
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
 		float[] values2 = { 5.0f, 2.0f };
@@ -293,17 +292,18 @@ public class CyclePatternRecognizerTest {
 		// Given
 		SensorManager.getInstance().reset();
 		SensorEventListener generalListener = new EmerigenSensorEventListener();
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
 		float[] values2 = { 10.0f, 10.0f };
 		float[] values3 = { 100.0f, 100.0f };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values);
-		generalListener.onSensorChanged(event1);
-		List<Prediction> predictions = generalListener.onSensorChanged(event2);
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
+		SensorEvent event2 = new SensorEvent(hrSensor, values);
+		List<Prediction> predictions = generalListener.onSensorChanged(event1);
+		assertThat(predictions.size()).isEqualTo(0);
+		predictions = generalListener.onSensorChanged(event2);
 
 		// Then
 		assertThat(predictions.size()).isEqualTo(1);

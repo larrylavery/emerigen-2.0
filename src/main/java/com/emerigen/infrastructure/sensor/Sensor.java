@@ -54,11 +54,13 @@ public abstract class Sensor implements Serializable {
 	public static final int LOCATION_CAR = 8;
 	public static final int LOCATION_MACHINE = 16;
 
-	public static final int DELAY_NORMAL = 1;
+	public static final int DELAY_NORMAL = 0;
+	public static final long nanoSecondsPerMilliSeconds = 1000000;
 
-	private int minimumDelayBetweenReadings = Integer
-			.parseInt(EmerigenProperties.getInstance()
-					.getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+			* nanoSecondsPerMilliSeconds;
 
 	private int reportingMode;
 	private boolean wakeUpSensor;
@@ -109,7 +111,40 @@ public abstract class Sensor implements Serializable {
 	}
 
 	/**
-	 * Calculate the distance between GPS coordinates using the Haversine algorithm
+	 * By default assume that a significant change has occurred. Subclasses should
+	 * override this method as required.
+	 * 
+	 * @param previousSensorEvent
+	 * @param currentSensorEvent
+	 * @return
+	 */
+	public boolean significantChangeHasOccurred(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent) {
+		return true;
+	}
+
+	/**
+	 * 
+	 * @param previousSensorEvent
+	 * @param currentSensorEvent
+	 * @param minDelayBetweenReadingsMillis
+	 * @return true if elapse time between events exceeds the required minimum
+	 */
+	public boolean minimumDelayBetweenReadingsIsSatisfied(SensorEvent previousSensorEvent,
+			SensorEvent currentSensorEvent) {
+		if (previousSensorEvent != null) {
+
+			long currentTime = currentSensorEvent.getTimestamp();
+			long previousTime = previousSensorEvent.getTimestamp();
+			long elapsedTime = currentTime - previousTime;
+			return elapsedTime >= minimumDelayBetweenReadings;
+		} else
+			return true;
+	}
+
+	/**
+	 * Calculate the distance between the previous and current readings. Must be
+	 * overriden by subclasses
 	 * 
 	 * @param previousGpsCoordinates
 	 * @param currentGpsCoordinates
@@ -199,7 +234,7 @@ public abstract class Sensor implements Serializable {
 	/**
 	 * @return the minimumDelayBetweenReadings
 	 */
-	public int getMinimumDelayBetweenReadings() {
+	public long getMinimumDelayBetweenReadings() {
 		return minimumDelayBetweenReadings;
 	}
 

@@ -8,8 +8,8 @@ public class AccelerometerSensorEventListener extends EmerigenSensorEventListene
 
 	private static final Logger logger = Logger.getLogger(AccelerometerSensor.class);
 
-	private static final float SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties.getInstance()
-			.getValue("sensor.accelerometer.shake.threshold.millis"));
+	private static final float SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties
+			.getInstance().getValue("sensor.accelerometer.shake.threshold.millis"));
 
 	public AccelerometerSensorEventListener() {
 	}
@@ -24,9 +24,7 @@ public class AccelerometerSensorEventListener extends EmerigenSensorEventListene
 	 * important. Only if speed since last measurement >= some threshold.
 	 * 
 	 */
-
-	@Override
-	protected boolean significantChangeHasOccurred(SensorEvent previousSensorEvent,
+	public boolean significantChangeHasOccurred(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent) {
 
 		// Calculate the device's speed

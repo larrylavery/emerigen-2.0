@@ -80,20 +80,13 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	}
 
 	private void subscribeToAllSensors() {
-		sensorManager.registerListenerForSensorWithFrequency(this, heartRateSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListenerForSensorWithFrequency(this, accelerometerSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListenerForSensorWithFrequency(this, temperatureSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListenerForSensorWithFrequency(this, gpsSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListenerForSensorWithFrequency(this, sleepSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListenerForSensorWithFrequency(this, bloodPressureSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListenerForSensorWithFrequency(this, glucoseSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(this, heartRateSensor);
+		sensorManager.registerListenerForSensor(this, accelerometerSensor);
+		sensorManager.registerListenerForSensor(this, temperatureSensor);
+		sensorManager.registerListenerForSensor(this, gpsSensor);
+		sensorManager.registerListenerForSensor(this, sleepSensor);
+		sensorManager.registerListenerForSensor(this, bloodPressureSensor);
+		sensorManager.registerListenerForSensor(this, glucoseSensor);
 	}
 
 	@Override

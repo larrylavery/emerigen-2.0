@@ -36,8 +36,8 @@ public class CouchbaseRepositoryQueryTest {
 		float[] values2 = { 24.11f, 4.21f, 4.31f };
 		float[] values3 = { 34.111f, 4.211f, 4.311f };
 		float[] values4 = { 44.1111f, 4.2111f, 4.3111f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
-				Sensor.DELAY_NORMAL, false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		SensorEvent event3 = new SensorEvent(sensor, values3);
@@ -142,8 +142,8 @@ public class CouchbaseRepositoryQueryTest {
 		float[] values2 = { 4.11f, 4.21f, 4.31f };
 		float[] values3 = { 4.111f, 4.211f, 4.311f };
 		float[] values4 = { 4.1111f, 4.2111f, 4.3111f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
-				Sensor.DELAY_NORMAL, false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		SensorEvent event3 = new SensorEvent(sensor, values3);
@@ -197,8 +197,8 @@ public class CouchbaseRepositoryQueryTest {
 		float[] values2 = { 4.11f, 4.21f, 4.31f };
 		float[] values3 = { 4.111f, 4.211f, 4.311f };
 		float[] values4 = { 4.1111f, 4.2111f, 4.3111f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
-				Sensor.DELAY_NORMAL, false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		SensorEvent event3 = new SensorEvent(sensor, values3);
@@ -248,8 +248,8 @@ public class CouchbaseRepositoryQueryTest {
 		// Create two transition JSON Documents
 		float[] values = { 4.1f, 4.2f, 4.3f };
 
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
-				Sensor.DELAY_NORMAL, false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		JsonObject sensorEventJsonDoc = JsonObject.create()

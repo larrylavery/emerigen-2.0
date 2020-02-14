@@ -16,6 +16,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  */
 public class CyclePatternRecognizer extends PatternRecognizer {
 	private Cycle cycle;
+	private SensorEvent previousSensorEvent = null;
 
 	public CyclePatternRecognizer(Cycle cycle) {
 		this.cycle = cycle;
@@ -25,6 +26,16 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
+		// Required elapse time has passed since last event?
+		if (sensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
+				previousSensorEvent, sensorEvent)) {
+
+			// Data has significantly changed?
+			if (sensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
+					sensorEvent)) {
+
+			}
+		}
 		// TODO return cycle-based predictions based on the current event
 		setCurrentPredictions(predictions);
 		return predictions;

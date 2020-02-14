@@ -82,8 +82,8 @@ public class SensorEventListenerTest {
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		SensorEventListener myListener = new EventListener();
-		SensorManager.getInstance().registerListenerForSensorWithFrequency(myListener,
-				sensor, 0);
+		SensorManager.getInstance().registerListenerForSensor(myListener,
+				sensor);
 		// Create sensor mock with the sensor and listener that will receive events
 		SensorMock sensorMock = new SensorMock(sensor, myListener, 0, 0);
 
@@ -138,8 +138,7 @@ public class SensorEventListenerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(listener, sensor);
 
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 

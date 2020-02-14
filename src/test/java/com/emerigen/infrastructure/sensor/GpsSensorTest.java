@@ -13,8 +13,7 @@ public class GpsSensorTest {
 		GpsSensorEventListener gpsListener = new GpsSensorEventListener();
 		Sensor gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
-		SensorManager.getInstance().registerListenerForSensorWithFrequency(gpsListener, gpsSensor,
-				0);
+		SensorManager.getInstance().registerListenerForSensor(gpsListener, gpsSensor);
 
 		float[] firstSensorReading = { 29.738547f, -98.687334f }; // home address
 		float[] secondSensorReading = { 29.591613f, -98.596793f };

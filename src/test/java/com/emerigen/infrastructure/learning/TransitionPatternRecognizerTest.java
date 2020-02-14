@@ -22,6 +22,11 @@ import com.emerigen.knowledge.Transition;
 
 public class TransitionPatternRecognizerTest {
 
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+			* 1000000;
+
 	@Test
 	public final void givenNoDefaultSensor_whenRetrieved_thenTheAssociatedTransitionPRIsRegistered() {
 		SensorManager sm = SensorManager.getInstance();
@@ -51,30 +56,31 @@ public class TransitionPatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenOneTransition_whenOnSensorChangedCalledWithFirstEvent_thenPredictionListReturned() {
+	public final void givenOneTransition_whenOnSensorChangedCalledWithFirstEvent_thenPredictionListReturned()
+			throws InterruptedException {
 
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
 		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		float[] values2 = new float[] { rd.nextFloat(), 281.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(hrSensor, values2);
+		sensorEvent2
+				.setTimestamp(sensorEvent2.getTimestamp() + minimumDelayBetweenReadings);
 		SensorEventListener listener = new EmerigenSensorEventListener();
 
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 
 		predictions = listener.onSensorChanged(sensorEvent2);
 		// Give the bucket a chance to catch up after the log
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
+		// event timestamp must be after the last event
+		sensorEvent1
+				.setTimestamp(sensorEvent2.getTimestamp() + minimumDelayBetweenReadings);
+
+		Thread.sleep(100);
 		predictions = listener.onSensorChanged(sensorEvent1);
 
 		assertThat(predictions).isNotNull().isNotEmpty();

@@ -2,23 +2,30 @@ package com.emerigen.infrastructure.sensor;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.Utils;
 
 public class GpsSensor extends Sensor {
 
+	private static final double GPS_DISTANCE_THRESHOLD = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("sensor.gps.distance.threshold.meters"));
+
 	private static final Logger logger = Logger.getLogger(GpsSensor.class);
 
 	public GpsSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
 	public GpsSensor(int sensorLocation, int reportingMode, int minimumDelay,
 			boolean isWakeUpSensor) {
-		super(Sensor.TYPE_GPS, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_GPS, sensorLocation, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
-	public GpsSensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelay,
-			boolean isWakeUpSensor) {
+	public GpsSensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelay, boolean isWakeUpSensor) {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 
@@ -33,7 +40,8 @@ public class GpsSensor extends Sensor {
 	public double getDifferenceBetweenReadings(SensorEvent previousSensorEvent,
 			SensorEvent currentSensorEvent) {
 		if (currentSensorEvent == null)
-			throw new IllegalArgumentException("Current gps coordinates must not be null.");
+			throw new IllegalArgumentException(
+					"Current gps coordinates must not be null.");
 
 		// No previous GPS coordinates, return distance 0.0
 		if (previousSensorEvent == null)
@@ -63,9 +71,11 @@ public class GpsSensor extends Sensor {
 	@Override
 	public boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
 		if (firstSensorEvent == null)
-			throw new IllegalArgumentException("Current gps coordinates must not be null.");
+			throw new IllegalArgumentException(
+					"Current gps coordinates must not be null.");
 		if (secondSensorEvent == null)
-			throw new IllegalArgumentException("Current gps coordinates must not be null.");
+			throw new IllegalArgumentException(
+					"Current gps coordinates must not be null.");
 
 		boolean latitudeEquals = Utils.equals(firstSensorEvent.getValues()[0],
 				secondSensorEvent.getValues()[0]);

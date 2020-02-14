@@ -1,7 +1,6 @@
 package com.emerigen.infrastructure.sensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,21 +20,30 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public class EmerigenSensorEventListenerTest {
 
 	int invokedCount = 0;
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+			* 1000000;
 
 	public class EventListener implements SensorEventListener {
+		SensorEvent previousSensorEvent = null;
 
 		@Override
 		public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
-			invokedCount++;
-			System.out.println("invoked count is " + invokedCount);
+			long timestamp = System.currentTimeMillis();
+
+			// Required elapse time has passed since last event?
+			if (sensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
+					previousSensorEvent, sensorEvent)) {
+
+				invokedCount++;
+				System.out.println("invoked count is " + invokedCount);
+			}
+			previousSensorEvent = sensorEvent;
 			return new ArrayList<Prediction>();
 		}
 
 	}
-
-	private final int minDelayBetweenReadingsMillis = Integer
-			.parseInt(EmerigenProperties.getInstance()
-					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	@Test
 	public void givenValidPatternRecognizers_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
@@ -47,7 +55,7 @@ public class EmerigenSensorEventListenerTest {
 		SensorEventListener listener2 = new EventListener();
 		float[] values = { 1.2f };
 
-		sensorManager.registerListenerForSensorWithFrequency(listener2, sensor, 1);
+		sensorManager.registerListenerForSensor(listener2, sensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener2, sensor))
 				.isTrue();
 
@@ -66,8 +74,7 @@ public class EmerigenSensorEventListenerTest {
 		PatternRecognizer cpr = new CyclePatternRecognizer(
 				new DailyCycle(accSensor.getType(), accSensor.getLocation()));
 
-		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(cpr, accSensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
@@ -79,7 +86,7 @@ public class EmerigenSensorEventListenerTest {
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		SensorEventListener listener2 = new EventListener();
-		sm.registerListenerForSensorWithFrequency(listener2, sensor, 2);
+		sm.registerListenerForSensor(listener2, sensor);
 		float[] values = { 1.2f, 2.3f };
 		float[] values2 = { 11.2f, 12.3f };
 
@@ -87,6 +94,8 @@ public class EmerigenSensorEventListenerTest {
 		SensorEvent se2 = new SensorEvent(sensor, values2);
 
 		listener.onSensorChanged(se);
+		se2.setTimestamp(se2.getTimestamp() + minimumDelayBetweenReadings);
+
 		listener.onSensorChanged(se2);
 		assertThat(invokedCount).isEqualTo(2);
 	}
@@ -94,7 +103,27 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenMultiplePRs_whenRegistered_thenTheyReceiveAllEventsAfterConfiguredDelayTime()
 			throws Exception {
-		fail("Not implemented yet");
+		SensorManager sm = SensorManager.getInstance();
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		SensorEventListener listener2 = new EventListener();
+		sm.registerListenerForSensor(listener2, sensor);
+		float[] values = { 1.2f, 2.3f };
+		float[] values2 = { 11.2f, 12.3f };
+		float[] values3 = { 211.2f, 212.3f };
+
+		SensorEvent se = new SensorEvent(sensor, values);
+		SensorEvent se2 = new SensorEvent(sensor, values2);
+		se2.setTimestamp(se.getTimestamp());
+		listener2.onSensorChanged(se);
+		listener2.onSensorChanged(se2);
+		se2.setTimestamp(se.getTimestamp());
+		SensorEvent se3 = new SensorEvent(sensor, values3);
+		se3.setTimestamp(se3.getTimestamp() + minimumDelayBetweenReadings);
+
+		listener2.onSensorChanged(se3);
+		assertThat(invokedCount).isEqualTo(2);
 	}
 
 	@Test
@@ -102,15 +131,16 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 		SensorEventListener listener2 = new EventListener();
-		sm.registerListenerForSensorWithFrequency(listener2, sensor, 2);
+		sm.registerListenerForSensor(listener2, sensor);
 		float[] values = { 1.2f, 2.3f };
 		float[] values2 = { 11.2f, 12.3f };
 
 		SensorEvent se = new SensorEvent(sensor, values);
 		SensorEvent se2 = new SensorEvent(sensor, values2);
+		se2.setTimestamp(se2.getTimestamp() + minimumDelayBetweenReadings);
 
 		listener.onSensorChanged(se);
 		listener.onSensorChanged(se2);
@@ -118,21 +148,27 @@ public class EmerigenSensorEventListenerTest {
 	}
 
 	@Test
-	public void givenPRsRequestingInsignificantChanges_whenRegistered_thenTheyReceiveAllEventsIncludingInsignificantChanges()
-			throws Exception {
-		fail("Not implemented yet");
-	}
-
-	@Test
 	public void givenPRsRequestingNoDelayDuration_whenRegistered_thenTheyReceiveAllEventsWithoutDelayinserted()
 			throws Exception {
-		fail("Not implemented yet");
-	}
+		SensorManager sm = SensorManager.getInstance();
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
+		SensorEventListener listener2 = new EventListener();
+		sm.registerListenerForSensor(listener2, sensor);
+		float[] values = { 1.2f, 2.3f };
+		float[] values2 = { 11.2f, 12.3f };
+		float[] values3 = { 111.2f, 112.3f };
 
-	@Test
-	public void givenPRsRequestingNoDelayOrSignificantDifferent_whenRegistered_thenTheyReceiveAllEventsWithoutDelayOrSignificanceChecked()
-			throws Exception {
-		fail("Not implemented yet");
+		SensorEvent se = new SensorEvent(sensor, values);
+		SensorEvent se2 = new SensorEvent(sensor, values2);
+		SensorEvent se3 = new SensorEvent(sensor, values3);
+//		se2.setTimestamp(se2.getTimestamp() + minimumDelayBetweenReadings);
+
+		listener.onSensorChanged(se);
+		listener.onSensorChanged(se2);
+		listener.onSensorChanged(se3);
+		assertThat(invokedCount).isEqualTo(3);
 	}
 
 	@Test
@@ -140,8 +176,8 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 
 		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(2);
 
@@ -164,6 +200,7 @@ public class EmerigenSensorEventListenerTest {
 	@Before
 	public void setUp() throws Exception {
 		SensorManager.getInstance().reset();
+		invokedCount = 0;
 	}
 
 	@After

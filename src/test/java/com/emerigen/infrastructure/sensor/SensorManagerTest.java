@@ -111,8 +111,7 @@ public class SensorManagerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(listener, sensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
 		sensorManager.unregisterListenerFromSensor(listener, sensor);
@@ -128,8 +127,7 @@ public class SensorManagerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle());
-		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(cpr, accSensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
@@ -140,8 +138,7 @@ public class SensorManagerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle());
-		sensorManager.registerListenerForSensorWithFrequency(cpr, accSensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(cpr, accSensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
 	}
 
@@ -211,8 +208,7 @@ public class SensorManagerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new TransitionPatternRecognizer(sensor);
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(listener, sensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 	}
 
@@ -223,8 +219,7 @@ public class SensorManagerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(listener, sensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();
 
 		// simulate the h/w sensor publishing an event by invoking the onSensorChanged
@@ -246,22 +241,7 @@ public class SensorManagerTest {
 		SensorEventListener listener = new EventListener();
 
 		final Throwable throwable = catchThrowable(
-				() -> sensorManager.registerListenerForSensorWithFrequency(listener, null,
-						Sensor.DELAY_NORMAL));
-
-		then(throwable).isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public final void givenNonPositiveMinDelay_whenRegistered_thenIllegalArgumentException() {
-		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(
-				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
-
-		SensorEventListener listener = new EventListener();
-
-		final Throwable throwable = catchThrowable(() -> sensorManager
-				.registerListenerForSensorWithFrequency(listener, sensor, -1));
+				() -> sensorManager.registerListenerForSensor(listener, null));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -275,8 +255,7 @@ public class SensorManagerTest {
 		SensorEventListener listener = new EventListener();
 
 		final Throwable throwable = catchThrowable(
-				() -> sensorManager.registerListenerForSensorWithFrequency(null, sensor,
-						Sensor.DELAY_NORMAL));
+				() -> sensorManager.registerListenerForSensor(null, sensor));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -288,8 +267,7 @@ public class SensorManagerTest {
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EventListener();
-		sensorManager.registerListenerForSensorWithFrequency(listener, sensor,
-				Sensor.DELAY_NORMAL);
+		sensorManager.registerListenerForSensor(listener, sensor);
 
 		// simulate the h/w sensor publishing an event by invoking the onSensorChanged
 		// with an event

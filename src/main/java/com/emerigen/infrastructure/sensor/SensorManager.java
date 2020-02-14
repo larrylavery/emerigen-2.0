@@ -9,10 +9,13 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class SensorManager {
 
-	public static final int SENSOR_DELAY_NORMAL = 0;
+	public static final int SENSOR_DELAY_NORMAL = Integer
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 	private static Logger logger = Logger.getLogger(SensorManager.class);
 	private List<Sensor> allSensors = new ArrayList<Sensor>();
 
@@ -47,25 +50,18 @@ public class SensorManager {
 	}
 
 	/**
-	 * Register a listener for the given sensor type at the given sampling frequency
+	 * Register a listener for the given sensor
 	 * 
-	 * @param listener          The listener to invoke when sensor publishes a new
-	 *                          event
-	 * @param sensorType        the classname of the sensor to register for
-	 * @param samplingFrequency the frequency at which this listener should receive
-	 *                          new event notifications. The desired delay between
-	 *                          two consecutive events in microseconds
+	 * @param listener   The listener to invoke when sensor publishes a new event
+	 * @param sensorType the classname of the sensor to register for
 	 * @return true if the listener has been registered, otherwise false
 	 */
-	public boolean registerListenerForSensorWithFrequency(SensorEventListener listener,
-			Sensor sensor, int samplingFrequencyMillis) {
+	public boolean registerListenerForSensor(SensorEventListener listener,
+			Sensor sensor) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener must not be null");
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
-		if (samplingFrequencyMillis < 0)
-			throw new IllegalArgumentException(
-					"samplingFrequencyMillis must be zero or more");
 
 		List<SensorEventListener> eventListeners = eventListenersPerSensor.get(sensor);
 		if (eventListeners == null) {
@@ -192,7 +188,7 @@ public class SensorManager {
 
 		case Sensor.TYPE_HEART_RATE:
 			sensor = new HeartRateSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+					false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -261,8 +257,7 @@ public class SensorManager {
 	private void registerEventListenersForSensor(List<SensorEventListener> listeners,
 			Sensor sensor) {
 		for (SensorEventListener sensorEventListener : listeners) {
-			registerListenerForSensorWithFrequency(sensorEventListener, sensor,
-					SENSOR_DELAY_NORMAL);
+			registerListenerForSensor(sensorEventListener, sensor);
 		}
 	}
 

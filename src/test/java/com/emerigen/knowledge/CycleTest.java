@@ -262,8 +262,8 @@ public class CycleTest {
 		// Given valid cycle
 		Cycle cycle = new DailyCycle(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.1f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.TYPE_HEART_RATE,
-				Sensor.DELAY_NORMAL, false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		// add 1 node

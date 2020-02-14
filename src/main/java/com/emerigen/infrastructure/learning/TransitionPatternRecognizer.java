@@ -26,7 +26,12 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 
 	private List<Prediction> currentPredictions = new ArrayList<Prediction>();
 
+	// Indicates whether we are currently predicting
+	boolean predicting = false;
+
 	private SensorEvent previousSensorEvent;
+
+	private int accuratePredictionCount;
 	private static final Logger logger = Logger
 			.getLogger(TransitionPatternRecognizer.class);
 
@@ -45,39 +50,65 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	 */
 	@Override
 	public List<Prediction> onSensorChanged(SensorEvent currentSensorEvent) {
+//		IF delay has occurred THEN
+//	      IF we are predicting THEN
+//	         IF curr matches my predictions THEN
+//	            get the next set of predictions
+//	            stay in predicting state
+//	         ELSE curr does not match my predictions
+//	              change to "not predicting" state
+//	              update prediction accuracy
+//	         END-ELSE
+//	      ELSE we are not currently predicting
+//	         get predictions for curr event
+//	         IF at least one prediction found THEN
+//	            set state to predicting
+//	         ELSE no new predictions found
+//	             create new transition w prev & curr
+//	         END-ELSE no predictions
+//	       END-ELSE we are not predicting
 
-		List<Prediction> predictions = new ArrayList<Prediction>();
+//		List<Prediction> predictions = new ArrayList<Prediction>();
 
-		if (isNewEvent(currentSensorEvent)) {
-			logger.info("sensorEvent IS new");
+		// Required elapse time has passed since last event?
+		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
+				previousSensorEvent, currentSensorEvent)) {
 
-			// Create new Transition from previous event, unless no previous event
-			if (null != previousSensorEvent) {
-				logger.info(
-						"Creating new transition from sensorEvent: " + previousSensorEvent
-								+ ", to sensorEvent: " + currentSensorEvent);
-				KnowledgeRepository.getInstance().newTransition(previousSensorEvent,
-						currentSensorEvent);
+			// Data has significantly changed?
+			if (currentSensorEvent.getSensor().significantChangeHasOccurred(
+					previousSensorEvent, currentSensorEvent)) {
+
+				if (predicting) {
+
+					// Current event matches one of my predictions
+					if (currentPredictions.contains(currentSensorEvent)) {
+						currentPredictions = getPredictionsForSensorEvent(
+								currentSensorEvent);
+
+						// Stay in prediction state
+					} else {
+						// Current event doesn't match one of my predictions
+						predicting = false;
+						accuratePredictionCount++;
+					}
+				} else {
+					// We are not currently predicting
+					currentPredictions = getPredictionsForSensorEvent(currentSensorEvent);
+					if (!currentPredictions.isEmpty()) {
+						predicting = true;
+					} else {
+						// No new predictions found, create new transition
+						if (previousSensorEvent != null)
+							KnowledgeRepository.getInstance().newTransition(
+									previousSensorEvent, currentSensorEvent);
+					} // end-else no new predictions
+
+				} // end-else we are not currently predicting
+
 			}
-
-			// Not predicting now
-			predictions = new ArrayList<Prediction>();
-
-		} else {
-
-			predictions = getPredictionsForSensorEvent(currentSensorEvent);
-
-			// Calculate the probability for each
-			double probability = 1.0 / predictions.size();
-			predictions.forEach(prediction -> prediction.setProbability(probability));
-			logger.info("Predictions from current sensorEvent: " + predictions);
 		}
-
-		// Update previous event and save any new predictions
 		previousSensorEvent = currentSensorEvent;
-		setCurrentPredictions(predictions);
-		return predictions;
-
+		return currentPredictions;
 	}
 
 	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {

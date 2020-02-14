@@ -74,8 +74,7 @@ public class SensorEvent {
 
 	@JsonIgnore
 	public String getKey() {
-		return "" + sensor.getType() + sensor.getLocation() + getTimestamp()
-				+ values.hashCode();
+		return "" + sensor.getType() + sensor.getLocation() + values.hashCode();
 	}
 
 	public float[] getValues() {
