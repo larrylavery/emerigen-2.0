@@ -5,7 +5,9 @@ package com.emerigen.infrastructure.sensor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -125,13 +127,16 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				 * Send the event to each registered Listener for processing and
 				 * accumulate the predictions.
 				 */
+				Set<Prediction> distinctPredictions = new HashSet<Prediction>();
 				List<SensorEventListener> listeners = sm
 						.getRegistrationsForSensor(sensorEvent.getSensor());
 				for (SensorEventListener sensorEventListener : listeners) {
 					if (!(sensorEventListener instanceof EmerigenSensorEventListener)) {
-						result.addAll(sensorEventListener.onSensorChanged(sensorEvent));
+						distinctPredictions
+								.addAll(sensorEventListener.onSensorChanged(sensorEvent));
 					}
 				}
+				result.addAll(distinctPredictions);
 			}
 		}
 		previousSensorEvent = sensorEvent;

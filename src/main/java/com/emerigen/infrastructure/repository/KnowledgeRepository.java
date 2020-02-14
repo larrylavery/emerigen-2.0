@@ -23,6 +23,7 @@ import com.couchbase.client.deps.com.fasterxml.jackson.databind.module.SimpleMod
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
@@ -276,7 +277,15 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 			String key = sensorEvent.getKey();
 
-			repository.log(SENSOR_EVENT, key, jsonObject);
+			try {
+				repository.log(SENSOR_EVENT, key, jsonObject);
+			} catch (DocumentAlreadyExistsException e) {
+
+				// Ignoring these to contend with Listeners default behavior of always
+				// logging events
+				logger.warn("Ignoring DocumentAlreadyExistsException for sensor event - "
+						+ sensorEvent);
+			}
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);

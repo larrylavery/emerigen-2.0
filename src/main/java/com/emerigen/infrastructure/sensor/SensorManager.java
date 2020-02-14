@@ -36,11 +36,14 @@ public class SensorManager {
 	}
 
 	public static void reset() {
+
 		instance = null;
 	}
 
 	public SensorManager() {
 		eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
+		disabledEventListeners = null;
+		allSensors = new ArrayList<Sensor>();
 	}
 
 	/**

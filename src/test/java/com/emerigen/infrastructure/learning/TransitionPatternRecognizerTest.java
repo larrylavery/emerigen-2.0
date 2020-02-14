@@ -1,7 +1,6 @@
 package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Random;
@@ -13,9 +12,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
+import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.knowledge.Transition;
 
 public class TransitionPatternRecognizerTest {
@@ -49,12 +51,7 @@ public class TransitionPatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenPreviousEventAndEventWithPredictions_whenOnSensorChangedCalled_thenNewTransitionCreatedAndPredictionListReturned() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenOneTransition_whenOnSensorChangedCalledWithFirstEventKey_thenPredictionListReturned() {
+	public final void givenOneTransition_whenOnSensorChangedCalledWithFirstEvent_thenPredictionListReturned() {
 
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
@@ -64,16 +61,21 @@ public class TransitionPatternRecognizerTest {
 		float[] values2 = new float[] { rd.nextFloat(), 281.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(hrSensor, values2);
-		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor);
+		SensorEventListener listener = new EmerigenSensorEventListener();
 
-		List<Prediction> predictions = pr.onSensorChanged(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
+		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 
-		predictions = pr.onSensorChanged(sensorEvent2);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+		predictions = listener.onSensorChanged(sensorEvent2);
+		// Give the bucket a chance to catch up after the log
+		try {
+			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("couchbase.server.logging.catchup.timer")));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		predictions = pr.onSensorChanged(sensorEvent1);
-//		KnowledgeRepository.getInstance().newTransition(sensorEvent1, sensorEvent2);
+		predictions = listener.onSensorChanged(sensorEvent1);
 
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size()).isEqualTo(1);
@@ -120,7 +122,21 @@ public class TransitionPatternRecognizerTest {
 
 	@Test
 	public final void givenExistingEventWithoutPredictions_whenOnSensorChangedCalled_thenEmptyPredictionListReturned() {
-		fail("Not yet implemented"); // TODO
+		// Given a new valid SensorEvent logged
+		Random rd = new Random();
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		float[] values = new float[] { rd.nextFloat(), 1.2f };
+		float[] values2 = new float[] { rd.nextFloat(), 1.2f };
+		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
+
+		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor);
+		List<Prediction> predictions = pr.onSensorChanged(sensorEvent1);
+
+		SensorEvent sensorEvent2 = new SensorEvent(hrSensor, values2);
+		List<Prediction> predictions2 = pr.onSensorChanged(sensorEvent2);
+		assertThat(predictions2).isNotNull().isEmpty();
+
 	}
 
 	@BeforeClass

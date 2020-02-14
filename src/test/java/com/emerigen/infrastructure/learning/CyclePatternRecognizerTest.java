@@ -14,8 +14,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
+import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 
 public class CyclePatternRecognizerTest {
@@ -160,7 +162,29 @@ public class CyclePatternRecognizerTest {
 
 	@Test
 	public final void givenNewCycle_whenOnSensorChangedCalled_thenEventAddedToCycleAndEmptyPredictionListReturned() {
-		fail("Not yet implemented"); // TODO
+		// Given
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+
+		SensorManager.getInstance().registerListenerForSensorWithFrequency(gpsCycle,
+				gpsSensor, 1);
+		// When
+		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
+		float[] values2 = { 5.0f, 2.0f };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+
+		// Set the event timestamp to after the cycle duration
+		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+
+		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
+		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
+		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
+
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(gpsCycle.cycleDurationTimeNano);
+		assertThat(predictions).isNotNull().isEmpty();
 	}
 
 	@Test
@@ -267,8 +291,8 @@ public class CyclePatternRecognizerTest {
 	public final void givenNonEmptyCycle_whenNewEqualSensorEvent_thenMergedAndPreviousReplaced() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
+		SensorManager.getInstance().reset();
+		SensorEventListener generalListener = new EmerigenSensorEventListener();
 		Sensor gpsSensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
@@ -278,12 +302,11 @@ public class CyclePatternRecognizerTest {
 		float[] values3 = { 100.0f, 100.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values);
-		gpsCycle.onSensorChanged(event1);
-		gpsCycle.onSensorChanged(event2);
+		generalListener.onSensorChanged(event1);
+		List<Prediction> predictions = generalListener.onSensorChanged(event2);
 
 		// Then
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
-		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(predictions.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -354,22 +377,23 @@ public class CyclePatternRecognizerTest {
 	public final void givenNonEmptyCycleList_whenEqualNewNodeArrives_thenCycleContainsMergedNode() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		SensorManager.getInstance().reset();
+		SensorEventListener generalListener = new EmerigenSensorEventListener();
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
 		float[] values2 = { 10.0f, 10.0f };
 		float[] values3 = { 100.0f, 100.0f };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values);
-		gpsCycle.onSensorChanged(event1);
-		gpsCycle.onSensorChanged(event2);
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
+		SensorEvent event2 = new SensorEvent(hrSensor, values);
+		List<Prediction> predictions = generalListener.onSensorChanged(event1);
+		predictions = generalListener.onSensorChanged(event2);
 
 		// Then
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(predictions.size()).isEqualTo(1);
 	}
 
 	@Test

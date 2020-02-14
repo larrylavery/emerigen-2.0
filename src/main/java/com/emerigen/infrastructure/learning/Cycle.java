@@ -3,7 +3,6 @@
  */
 package com.emerigen.infrastructure.learning;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.utils.CircularList;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -18,7 +18,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
  * @author Larry
  *
  */
-public abstract class Cycle implements Serializable {
+public abstract class Cycle implements SensorEventListener {
 
 	/**
 	 * This is the starting timestamp for the beginning of each cycle type. For
@@ -108,6 +108,7 @@ public abstract class Cycle implements Serializable {
 	 * @param sensorEvent
 	 * @return
 	 */
+	@Override
 	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
 
 		List<Prediction> predictions = new ArrayList<Prediction>();
@@ -255,6 +256,8 @@ public abstract class Cycle implements Serializable {
 					.getSensorEvent().getTimestamp();
 			if (sensorEvent.getTimestamp() < previousEventTimestamp)
 				return true;
+			else
+				return false;
 		}
 		return false;
 	}
