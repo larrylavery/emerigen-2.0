@@ -18,6 +18,7 @@ public class SensorManager {
 			.getValue("sensor.default.minimum.delay.between.readings.millis"));
 	private static Logger logger = Logger.getLogger(SensorManager.class);
 	private List<Sensor> allSensors = new ArrayList<Sensor>();
+	private PredictionService predictionService = new PredictionService();
 
 	// Enable retrieving all event listeners for a sensor
 	private HashMap<Sensor, List<SensorEventListener>> eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
@@ -269,6 +270,34 @@ public class SensorManager {
 
 	public void enableListenerRegistrations() {
 		eventListenersPerSensor = disabledEventListeners;
+	}
+
+	/**
+	 * @return the predictionService
+	 */
+	public PredictionService getPredictionService() {
+		return predictionService;
+	}
+
+	/**
+	 * @param predictionService the predictionService to set
+	 */
+	public void setPredictionService(PredictionService predictionService) {
+		this.predictionService = predictionService;
+	}
+
+	/**
+	 * @return the eventListenersPerSensor
+	 */
+	public HashMap<Sensor, List<SensorEventListener>> getEventListenersPerSensor() {
+		return eventListenersPerSensor;
+	}
+
+	/**
+	 * @return the disabledEventListeners
+	 */
+	public HashMap<Sensor, List<SensorEventListener>> getDisabledEventListeners() {
+		return disabledEventListeners;
 	}
 
 }

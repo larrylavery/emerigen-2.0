@@ -20,6 +20,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	private PredictionService predictionService;
 
 	public CyclePatternRecognizer(Cycle cycle, PredictionService predictionService) {
+		super(predictionService);
 		if (cycle == null)
 			throw new IllegalArgumentException("cycle must not be null");
 		if (predictionService == null)

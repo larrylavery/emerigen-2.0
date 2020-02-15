@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
-import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -311,8 +310,8 @@ public class TransitionTest {
 
 		// Then getPredictionsForSensorEvent() should return the two predicted
 		// sensorEvents
-		List<Prediction> predictedSensorEvents = TransitionPatternRecognizer
-				.getPredictionsForSensorEvent(sensorEvent1);
+
+		List<Prediction> predictedSensorEvents = ps.getPredictionsForSensorEvent(sensorEvent1);
 
 		assertThat(predictedSensorEvents).isNotNull().isNotEmpty();
 		assertThat(predictedSensorEvents.size()).isEqualTo(2);

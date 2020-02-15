@@ -193,7 +193,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			logger.info(" JsonObject validated successfully");
 
 			try {
-				repository.logWithOverwrite(SENSOR_EVENT, UUID.randomUUID().toString(), jsonObject);
+				repository.log(SENSOR_EVENT, UUID.randomUUID().toString(), jsonObject);
 			} catch (DocumentAlreadyExistsException e) {
 
 				// Ignoring these to contend with Listeners default behavior of always

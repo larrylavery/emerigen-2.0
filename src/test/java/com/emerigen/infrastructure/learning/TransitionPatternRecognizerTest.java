@@ -47,9 +47,9 @@ public class TransitionPatternRecognizerTest {
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
 
-		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor,
-				new PredictionService(hrSensor));
-		List<Prediction> predictions = pr.getPredictionsForSensorEvent(sensorEvent1);
+		PredictionService ps = new PredictionService(hrSensor);
+		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor, ps);
+		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
 //		List<Prediction> predictions = pr.onSensorChanged(sensorEvent1);
 
 		assertThat(predictions).isNotNull().isEmpty();

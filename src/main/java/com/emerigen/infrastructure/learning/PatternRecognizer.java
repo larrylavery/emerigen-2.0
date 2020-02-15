@@ -52,15 +52,20 @@ import com.emerigen.infrastructure.sensor.SensorEventListener;
 public abstract class PatternRecognizer implements SensorEventListener {
 
 	private List<Prediction> currentPredictions = new ArrayList<Prediction>();
+	private PredictionService predictionService;
 
-	public PatternRecognizer() {
+	private PatternRecognizerState state;
+
+	public PatternRecognizer(PredictionService predictionService) {
+		if (predictionService == null)
+			throw new IllegalArgumentException("predictionService must not be null");
+		this.predictionService = predictionService;
+		this.state = new NotPredictingState(this);
 	}
 
 	@Override
-	public abstract List<Prediction> onSensorChanged(SensorEvent sensorEvent);
-
-	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
-		return new ArrayList<Prediction>();
+	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
+		return state.onSensorChanged(sensorEvent);
 	}
 
 	/**
@@ -68,6 +73,80 @@ public abstract class PatternRecognizer implements SensorEventListener {
 	 */
 	public void setCurrentPredictions(List<Prediction> currentPredictions) {
 		this.currentPredictions = currentPredictions;
+	}
+
+	/**
+	 * @return the sate
+	 */
+	public PatternRecognizerState getSate() {
+		return state;
+	}
+
+	/**
+	 * @param sate the sate to set
+	 */
+	public void setSate(PatternRecognizerState state) {
+		this.state = state;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((currentPredictions == null) ? 0 : currentPredictions.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PatternRecognizer other = (PatternRecognizer) obj;
+		if (currentPredictions == null) {
+			if (other.currentPredictions != null)
+				return false;
+		} else if (!currentPredictions.equals(other.currentPredictions))
+			return false;
+		return true;
+	}
+
+	/**
+	 * @return the predictionService
+	 */
+	public PredictionService getPredictionService() {
+		return predictionService;
+	}
+
+	/**
+	 * @param predictionService the predictionService to set
+	 */
+	public void setPredictionService(PredictionService predictionService) {
+		this.predictionService = predictionService;
+	}
+
+	/**
+	 * @return the state
+	 */
+	public PatternRecognizerState getState() {
+		return state;
+	}
+
+	/**
+	 * @param state the state to set
+	 */
+	public void setState(PatternRecognizerState state) {
+		this.state = state;
+	}
+
+	/**
+	 * @return the currentPredictions
+	 */
+	public List<Prediction> getCurrentPredictions() {
+		return currentPredictions;
 	}
 
 }

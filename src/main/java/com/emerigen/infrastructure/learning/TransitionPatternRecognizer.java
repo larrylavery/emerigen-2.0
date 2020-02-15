@@ -35,6 +35,7 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	private static final Logger logger = Logger.getLogger(TransitionPatternRecognizer.class);
 
 	public TransitionPatternRecognizer(Sensor sensor, PredictionService predictionService) {
+		super(predictionService);
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 		if (predictionService == null)
