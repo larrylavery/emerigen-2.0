@@ -165,13 +165,14 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public void newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
+	public String newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
 
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule("CustomSensorEventSerializer",
 				new Version(1, 0, 0, null, null, null));
 		module.addSerializer(SensorEvent.class, new CustomSensorEventSerializer());
 		mapper.registerModule(module);
+		String uuid = UUID.randomUUID().toString();
 
 		try {
 
@@ -193,7 +194,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			logger.info(" JsonObject validated successfully");
 
 			try {
-				repository.log(SENSOR_EVENT, UUID.randomUUID().toString(), jsonObject);
+				repository.log(SENSOR_EVENT, uuid, jsonObject);
 			} catch (DocumentAlreadyExistsException e) {
 
 				// Ignoring these to contend with Listeners default behavior of always
@@ -204,6 +205,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
 		}
+		return uuid;
 	}
 
 	@Override
@@ -221,8 +223,10 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public void newEntity(Entity entity) {
+	public String newEntity(Entity entity) {
 		ObjectMapper mapper = new ObjectMapper();
+		String uuid = UUID.randomUUID().toString();
+
 		try {
 
 			// Convert the Java object to a JsonDocument
@@ -242,11 +246,12 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
-			repository.log(ENTITY, UUID.randomUUID().toString(), jsonObject);
+			repository.log(ENTITY, uuid, jsonObject);
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
 		}
+		return uuid;
 
 	}
 
@@ -385,7 +390,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public void newCycle(String cycleKey, Cycle cycle) {
+	public String newCycle(String cycleKey, Cycle cycle) {
+		String uuid = UUID.randomUUID().toString();
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule("CustomCycleSerializer",
 				new Version(1, 0, 0, null, null, null));
@@ -416,6 +422,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
 		}
+		return cycleKey;
 
 	}
 

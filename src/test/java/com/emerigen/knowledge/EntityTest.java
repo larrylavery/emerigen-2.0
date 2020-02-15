@@ -11,8 +11,6 @@ import java.util.UUID;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.knowledge.ChannelType;
-import com.emerigen.knowledge.Entity;
 
 public class EntityTest {
 
@@ -22,8 +20,7 @@ public class EntityTest {
 		// Given
 		List<ChannelType> channels = new ArrayList<ChannelType>();
 		ChannelType channelType = new ChannelType("channelTypexx",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
+				"/Information/dev/logger/src/main/resources/channel-type-1.csv", false);
 		channels.add(channelType);
 
 		// When
@@ -41,8 +38,7 @@ public class EntityTest {
 		// Given
 		List<ChannelType> channels = new ArrayList<ChannelType>();
 		ChannelType channelType = new ChannelType("channelTypexx",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
+				"/Information/dev/logger/src/main/resources/channel-type-1.csv", false);
 		channels.add(channelType);
 
 		// When
@@ -86,43 +82,19 @@ public class EntityTest {
 	}
 
 	@Test
-	public final void givenValidEntity_whenTranslatedAndLogged_thenItshouldBeTheSameWhenRetrieved() {
-
-		// Given
-		String entityUuid = UUID.randomUUID().toString();
-		List<ChannelType> channels = new ArrayList<ChannelType>();
-		ChannelType channelType = new ChannelType("channelTypexx",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
-		channels.add(channelType);
-
-		//When
-		Entity entity = new Entity(entityUuid, channels);
-		KnowledgeRepository.getInstance().newEntity(entity);
-
-		Entity  retrievedEntity = KnowledgeRepository.getInstance().getEntity(entity.getEntityID());
-		assertThat(retrievedEntity).isEqualTo(entity);
-
-	}
-
-
-	
-	@Test
 	public final void givenValidEntity_whenCreated_thenItShouldValidateSuccessfully() {
 
 		// Given
 		String entityUuid = UUID.randomUUID().toString();
 		List<ChannelType> channels = new ArrayList<ChannelType>();
 		ChannelType channelType = new ChannelType("channelTypexx",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
+				"/Information/dev/logger/src/main/resources/channel-type-1.csv", false);
 		ChannelType channelType2 = new ChannelType("channelTypeyy",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
+				"/Information/dev/logger/src/main/resources/channel-type-1.csv", false);
 		channels.add(channelType);
 		channels.add(channelType2);
 
-		//When
+		// When
 		Entity entity = new Entity(entityUuid, channels);
 
 		assertThat(entity.getChannels().get(0)).isEqualTo(channelType);
@@ -137,25 +109,21 @@ public class EntityTest {
 		String entityUuid = UUID.randomUUID().toString();
 		List<ChannelType> channels = new ArrayList<ChannelType>();
 		ChannelType channelType = new ChannelType("channelTypexx",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
+				"/Information/dev/logger/src/main/resources/channel-type-1.csv", false);
 		ChannelType channelType2 = new ChannelType("channelTypeyy",
-				"/Information/dev/logger/src/main/resources/channel-type-1.csv",
-				false);
+				"/Information/dev/logger/src/main/resources/channel-type-1.csv", false);
 		channels.add(channelType);
 		channels.add(channelType2);
 
-		//When
+		// When
 		Entity entity = new Entity(entityUuid, channels);
-		KnowledgeRepository.getInstance().newEntity(entity);
-		String key = entity.getEntityID();
+		String key = KnowledgeRepository.getInstance().newEntity(entity);
+//		String key = entity.getEntityID();
 		Entity entityAfter = KnowledgeRepository.getInstance().getEntity(key);
 
 		assertThat(entityAfter.getEntityID()).isEqualTo(entity.getEntityID());
 		assertThat(entityAfter.getChannels()).isEqualTo(entity.getChannels());
 
 	}
-	
-
 
 }

@@ -157,8 +157,9 @@ public class EmerigenSensorEventListenerTest {
 
 		SensorEvent se = new SensorEvent(sensor, values);
 		SensorEvent se2 = new SensorEvent(sensor, values2);
+		se2.setTimestamp(se.getTimestamp() + minimumDelayBetweenReadings);
 		SensorEvent se3 = new SensorEvent(sensor, values3);
-//		se2.setTimestamp(se2.getTimestamp() + minimumDelayBetweenReadings);
+		se3.setTimestamp(se2.getTimestamp() + minimumDelayBetweenReadings);
 
 		listener.onSensorChanged(se);
 		listener.onSensorChanged(se2);

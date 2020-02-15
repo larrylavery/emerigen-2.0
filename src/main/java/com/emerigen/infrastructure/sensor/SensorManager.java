@@ -44,6 +44,13 @@ public class SensorManager {
 		instance = null;
 	}
 
+	public SensorManager(PredictionService predictionService) {
+		this.predictionService = new PredictionService();
+		eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
+		disabledEventListeners = null;
+		allSensors = new ArrayList<Sensor>();
+	}
+
 	public SensorManager() {
 		eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
 		disabledEventListeners = null;

@@ -12,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -235,8 +234,8 @@ public class TransitionPatternRecognizerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		CouchbaseRepository.getInstance().removeAllDocuments("transition");
-		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
+//		CouchbaseRepository.getInstance().removeAllDocuments("transition");
+//		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
 	}
 
 	@AfterClass

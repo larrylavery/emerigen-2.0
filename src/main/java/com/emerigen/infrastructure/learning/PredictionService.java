@@ -40,7 +40,7 @@ public class PredictionService {
 		this.sensor = this.sensor;
 	}
 
-	public void createPredictionFromSensorEvents(SensorEvent firstSensorEvent,
+	public String createPredictionFromSensorEvents(SensorEvent firstSensorEvent,
 			SensorEvent predictedSensorEvent) {
 
 		// Validate parms
@@ -81,6 +81,7 @@ public class PredictionService {
 
 		// Log the transition object
 		CouchbaseRepository.getInstance().log("transition", uuid, transitionJsonObject);
+		return uuid;
 	}
 
 	public PredictionService() {

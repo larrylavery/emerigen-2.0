@@ -21,7 +21,6 @@ import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizerTest;
 import com.emerigen.infrastructure.learning.DailyCycle;
-import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
@@ -274,35 +273,6 @@ public class CycleTest {
 //		}
 
 		assertThat(cycle2.equals(cycle)).isTrue();
-	}
-
-	@Test
-	public final void givenInvalidTransitionWithoutFirstSensorEvent_whenTranslatedAndLogged_thenItshouldThrowValidationException() {
-		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
-
-		// Given two valid SensorEvents logged
-		float[] values = new float[] { 1.1f, 1.2f };
-		float[] values2 = new float[] { 2.1f, 2.2f };
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_PHONE);
-		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
-		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
-
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
-
-		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
-
-		// When the invalid transition
-		PredictionService ps = new PredictionService(sensor);
-
-		final Throwable throwable = catchThrowable(
-				() -> ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2));
-
-		// Then ValidationException should occur
-		then(throwable).as("A IllegalArgumentException should be thrown for an invalid schema validation")
-				.isInstanceOf(IllegalArgumentException.class);
-
 	}
 
 }

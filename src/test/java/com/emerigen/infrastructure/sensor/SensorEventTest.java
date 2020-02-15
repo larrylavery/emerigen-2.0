@@ -61,13 +61,13 @@ public class SensorEventTest {
 		assertThat(retrievedSensorEvent.getTimestamp()).isEqualTo(timestamp);
 		assertThat(retrievedSensorEvent.getSensorType()).isEqualTo(Sensor.TYPE_HEART_RATE);
 		assertThat(retrievedSensorEvent.getSensorLocation()).isEqualTo(Sensor.LOCATION_WATCH);
-		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(2);
+		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(3);
 
 		assertThat(retrievedSensorEvent.getSensor()).isNotNull();
 		assertThat(retrievedSensorEvent.getSensor().getType()).isEqualTo(Sensor.TYPE_HEART_RATE);
 		assertThat(retrievedSensorEvent.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_WATCH);
 		assertThat(retrievedSensorEvent.getSensor().getMinimumDelayBetweenReadings()).isEqualTo(1000);
-		assertThat(retrievedSensorEvent.getSensor().getReportingMode()).isEqualTo(Sensor.DELAY_NORMAL);
+		assertThat(retrievedSensorEvent.getSensor().getReportingMode()).isEqualTo(1);
 		assertThat(retrievedSensorEvent.getSensor().isWakeUpSensor()).isFalse();
 		softly.assertAll();
 	}

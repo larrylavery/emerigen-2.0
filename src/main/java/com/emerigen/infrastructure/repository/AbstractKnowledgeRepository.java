@@ -93,10 +93,10 @@ import com.emerigen.knowledge.Transition;
 public abstract class AbstractKnowledgeRepository {
 
 	// Add new Entity to the knowledgebase
-	public abstract void newEntity(Entity entity);
+	public abstract String newEntity(Entity entity);
 
 	// Log a neww SensorEvent
-	public abstract void newSensorEvent(SensorEvent sensorEvent);
+	public abstract String newSensorEvent(SensorEvent sensorEvent);
 
 	// Log a new Cycle
 //	public abstract void newCycle(Cycle cycle);
@@ -129,7 +129,8 @@ public abstract class AbstractKnowledgeRepository {
 
 	public abstract Transition getTransition(String transitionKey);
 
-	public void newCycle(String cycleKey, Cycle cycle) {
+	public String newCycle(String cycleKey, Cycle cycle) {
+		return null;
 		// TODO Auto-generated method stub
 
 	}
