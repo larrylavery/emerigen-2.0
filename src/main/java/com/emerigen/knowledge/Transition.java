@@ -18,18 +18,13 @@ public class Transition {
 	public Transition() {
 	}
 
-	public Transition(final SensorEvent firstSensorEvent,
-			final SensorEvent predictedSensorEvent) {
+	public Transition(final SensorEvent firstSensorEvent, final SensorEvent predictedSensorEvent) {
 		if (firstSensorEvent == null || predictedSensorEvent == null)
-			throw new IllegalArgumentException(
-					"firstSensorEvent or predictedSensorEvent must not be null");
+			throw new IllegalArgumentException("firstSensorEvent or predictedSensorEvent must not be null");
 		if (firstSensorEvent.getSensorType() != predictedSensorEvent.getSensorType()) {
-			throw new IllegalArgumentException(
-					"Transition patterns must belong to the same sensor."
-							+ " firstPattern sensorType: "
-							+ firstSensorEvent.getSensorType()
-							+ ", predictedPattern sensorType: "
-							+ predictedSensorEvent.getSensorType());
+			throw new IllegalArgumentException("Transition patterns must belong to the same sensor."
+					+ " firstPattern sensorType: " + firstSensorEvent.getSensorType()
+					+ ", predictedPattern sensorType: " + predictedSensorEvent.getSensorType());
 		}
 		this.sensorType = firstSensorEvent.getSensorType();
 		this.sensorLocation = firstSensorEvent.getSensorLocation();
@@ -48,10 +43,8 @@ public class Transition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
-		result = prime * result
-				+ ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
+		result = prime * result + ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
+		result = prime * result + ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
 		result = prime * result + sensorLocation;
 		result = prime * result + sensorType;
 		return result;
@@ -85,10 +78,9 @@ public class Transition {
 
 	@Override
 	public String toString() {
-		return "Transition [timestamp=" + timestamp + ", firstSensorEventKey="
-				+ firstSensorEventKey + ", predictedSensorEvent=" + predictedSensorEvent
-				+ ", sensorType=" + sensorType + ", sensorLocation=" + sensorLocation
-				+ "]";
+		return "Transition [timestamp=" + timestamp + ", firstSensorEventKey=" + firstSensorEventKey
+				+ ", predictedSensorEvent=" + predictedSensorEvent + ", sensorType=" + sensorType
+				+ ", sensorLocation=" + sensorLocation + "]";
 	}
 
 	/**
@@ -138,10 +130,6 @@ public class Transition {
 	 */
 	public void setSensorLocation(int sensorLocation) {
 		this.sensorLocation = sensorLocation;
-	}
-
-	public String getKey() {
-		return firstSensorEventKey + predictedSensorEvent.getKey();
 	}
 
 	/**

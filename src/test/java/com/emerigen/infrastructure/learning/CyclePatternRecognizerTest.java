@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -22,8 +23,7 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 
 public class CyclePatternRecognizerTest {
 
-	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
-			int numberOfNodes) {
+	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation, int numberOfNodes) {
 		Cycle cycle;
 
 		if ("Daily".equals(cycleType))
@@ -35,8 +35,7 @@ public class CyclePatternRecognizerTest {
 		else if ("Yearly".equals(cycleType))
 			cycle = new YearlyCycle(sensorType, sensorLocation);
 		else
-			throw new IllegalArgumentException(
-					"cycle type must be valid, but was (" + cycleType + ")");
+			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
 		cycle.setPreviousCycleNodeIndex(0);
@@ -63,8 +62,7 @@ public class CyclePatternRecognizerTest {
 			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
 			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
 			wakeUpSensor = false;
-			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType,
-					sensorLocation);
+			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
 			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
 			sensor.setWakeUpSensor(wakeUpSensor);
 			sensor.setReportingMode(reportingMode);
@@ -83,15 +81,12 @@ public class CyclePatternRecognizerTest {
 
 	@Test
 	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAreRegistered() {
-		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH,
-				1);
+		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH, 1);
 
-		KnowledgeRepository.getInstance().newCycle(cycle);
-		CyclePatternRecognizer PR = new CyclePatternRecognizer(cycle);
-
+		KnowledgeRepository.getInstance().newCycle(UUID.randomUUID().toString(), cycle);
 		SensorManager sm = SensorManager.getInstance();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		CyclePatternRecognizer PR = new CyclePatternRecognizer(cycle, new PredictionService(sensor));
 
 		assertThat(sm.listenerIsRegisteredToSensor(PR, sensor)).isTrue();
 	}
@@ -106,8 +101,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
@@ -165,8 +160,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		SensorManager.getInstance().registerListenerForSensor(gpsCycle, gpsSensor);
 		// When
@@ -181,8 +176,7 @@ public class CyclePatternRecognizerTest {
 		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(gpsCycle.cycleDurationTimeNano);
+		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
@@ -191,8 +185,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
@@ -206,8 +200,7 @@ public class CyclePatternRecognizerTest {
 		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(gpsCycle.cycleDurationTimeNano);
+		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
@@ -227,8 +220,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle hrCycle = new DailyCycle(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -264,8 +257,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -292,8 +285,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		SensorManager.getInstance().reset();
 		SensorEventListener generalListener = new EmerigenSensorEventListener();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -315,8 +308,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -330,21 +323,19 @@ public class CyclePatternRecognizerTest {
 
 	@Test
 	public final void givenNewSensorEventWithDifferentSensorType_whenOnNewEvent_thenIllegalArgumentException() {
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
 
 		float[] values = { 1.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(hrSensor, values);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		final Throwable throwable = catchThrowable(
-				() -> gpsCycle.onSensorChanged(event2));
+		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event2));
 
-		then(throwable)
-				.as("A different sensor type event  throws an  IllegalArgumentException")
+		then(throwable).as("A different sensor type event  throws an  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -355,8 +346,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -379,8 +370,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		SensorManager.getInstance().reset();
 		SensorEventListener generalListener = new EmerigenSensorEventListener();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -402,8 +393,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 1.0f };
@@ -417,8 +408,7 @@ public class CyclePatternRecognizerTest {
 
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
-		assertThat(gpsCycle.getNodeList().get(0).getDataPointDurationNano())
-				.isGreaterThan(10000);
+		assertThat(gpsCycle.getNodeList().get(0).getDataPointDurationNano()).isGreaterThan(10000);
 	}
 
 	@Test
@@ -427,8 +417,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f };
@@ -437,8 +427,7 @@ public class CyclePatternRecognizerTest {
 
 		// Then
 		long timeOffset = event1.getTimestamp() - gpsCycle.getCycleStartTimeNano();
-		assertThat(gpsCycle.getNodeList().get(0).getStartTimeOffsetNano())
-				.isEqualTo(timeOffset);
+		assertThat(gpsCycle.getNodeList().get(0).getStartTimeOffsetNano()).isEqualTo(timeOffset);
 	}
 
 	@Test
@@ -446,8 +435,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
@@ -456,11 +445,9 @@ public class CyclePatternRecognizerTest {
 		event1.setTimestamp(event1.getTimestamp() - 1000);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		gpsCycle.onSensorChanged(event2);
-		final Throwable throwable = catchThrowable(
-				() -> gpsCycle.onSensorChanged(event1));
+		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event1));
 
-		then(throwable)
-				.as("An out of order sensor event throws  IllegalArgumentException")
+		then(throwable).as("An out of order sensor event throws  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -470,8 +457,8 @@ public class CyclePatternRecognizerTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
@@ -485,8 +472,7 @@ public class CyclePatternRecognizerTest {
 		gpsCycle.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(gpsCycle.cycleDurationTimeNano);
+		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);
 	}
 
 	@BeforeClass

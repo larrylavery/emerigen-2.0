@@ -7,15 +7,15 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class SensorManager {
 
-	public static final int SENSOR_DELAY_NORMAL = Integer
-			.parseInt(EmerigenProperties.getInstance()
-					.getValue("sensor.default.minimum.delay.between.readings.millis"));
+	public static final int SENSOR_DELAY_NORMAL = Integer.parseInt(EmerigenProperties.getInstance()
+			.getValue("sensor.default.minimum.delay.between.readings.millis"));
 	private static Logger logger = Logger.getLogger(SensorManager.class);
 	private List<Sensor> allSensors = new ArrayList<Sensor>();
 
@@ -56,8 +56,7 @@ public class SensorManager {
 	 * @param sensorType the classname of the sensor to register for
 	 * @return true if the listener has been registered, otherwise false
 	 */
-	public boolean registerListenerForSensor(SensorEventListener listener,
-			Sensor sensor) {
+	public boolean registerListenerForSensor(SensorEventListener listener, Sensor sensor) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener must not be null");
 		if (sensor == null)
@@ -92,8 +91,7 @@ public class SensorManager {
 	 * @param sensorClassName the sensor type to unregister from
 	 * @return true if the unregister was successful, otherwise false
 	 */
-	public boolean unregisterListenerFromSensor(SensorEventListener listener,
-			Sensor sensor) {
+	public boolean unregisterListenerFromSensor(SensorEventListener listener, Sensor sensor) {
 		List<SensorEventListener> eventListeners = eventListenersPerSensor.get(sensor);
 		if (!eventListeners.contains(listener)) {
 
@@ -123,7 +121,7 @@ public class SensorManager {
 				.getPatternRecognizersForSensor(sensor);
 
 		// Add a Transition pattern recognizer to the list for this sensor
-		patternRecognizers.add(new TransitionPatternRecognizer(sensor));
+		patternRecognizers.add(new TransitionPatternRecognizer(sensor, new PredictionService(sensor)));
 		return patternRecognizers;
 	}
 
@@ -131,8 +129,7 @@ public class SensorManager {
 		return allSensors;
 	}
 
-	public boolean listenerIsRegisteredToSensor(SensorEventListener listener,
-			Sensor sensor) {
+	public boolean listenerIsRegisteredToSensor(SensorEventListener listener, Sensor sensor) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener must not be null");
 		if (sensor == null)
@@ -174,8 +171,8 @@ public class SensorManager {
 		List<SensorEventListener> listeners;
 
 		// Retrieve existing sensors matching type and location
-		List<Sensor> sensors = allSensors.stream().filter(
-				(s) -> (s.getType() == sensorType) && (s.getLocation() == sensorLocation))
+		List<Sensor> sensors = allSensors.stream()
+				.filter((s) -> (s.getType() == sensorType) && (s.getLocation() == sensorLocation))
 				.collect(Collectors.toList());
 
 		// Return the first located sensor
@@ -187,8 +184,7 @@ public class SensorManager {
 		switch (sensorType) {
 
 		case Sensor.TYPE_HEART_RATE:
-			sensor = new HeartRateSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					false);
+			sensor = new HeartRateSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS, false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -196,8 +192,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_ACCELEROMETER:
-			sensor = new AccelerometerSensor(sensorLocation,
-					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
+			sensor = new AccelerometerSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -205,8 +201,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_SLEEP:
-			sensor = new SleepSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+			sensor = new SleepSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL,
+					false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -214,8 +210,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_BLOOD_PRESSURE:
-			sensor = new BloodPressureSensor(sensorLocation,
-					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
+			sensor = new BloodPressureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -223,8 +219,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_GLUCOSE:
-			sensor = new GlucoseSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+			sensor = new GlucoseSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL,
+					false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -232,8 +228,8 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_TEMPERATURE:
-			sensor = new TemperatureSensor(sensorLocation,
-					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
+			sensor = new TemperatureSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
+					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
@@ -241,21 +237,19 @@ public class SensorManager {
 			return sensor;
 
 		case Sensor.TYPE_GPS:
-			sensor = new GpsSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
-					SENSOR_DELAY_NORMAL, false);
+			sensor = new GpsSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL,
+					false);
 			allSensors.add(sensor);
 			listeners = retrievePatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating GPS sensor");
 			return sensor;
 		default:
-			throw new IllegalArgumentException(
-					"Sensor type must be equal to one of the defined constants");
+			throw new IllegalArgumentException("Sensor type must be equal to one of the defined constants");
 		}
 	}
 
-	private void registerEventListenersForSensor(List<SensorEventListener> listeners,
-			Sensor sensor) {
+	private void registerEventListenersForSensor(List<SensorEventListener> listeners, Sensor sensor) {
 		for (SensorEventListener sensorEventListener : listeners) {
 			registerListenerForSensor(sensorEventListener, sensor);
 		}

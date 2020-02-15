@@ -5,11 +5,9 @@ package com.emerigen.infrastructure.learning;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 
@@ -24,6 +22,8 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 
 	private Sensor sensor;
 
+	private PredictionService predictionService;
+
 	private List<Prediction> currentPredictions = new ArrayList<Prediction>();
 
 	// Indicates whether we are currently predicting
@@ -32,13 +32,15 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	private SensorEvent previousSensorEvent;
 
 	private int accuratePredictionCount;
-	private static final Logger logger = Logger
-			.getLogger(TransitionPatternRecognizer.class);
+	private static final Logger logger = Logger.getLogger(TransitionPatternRecognizer.class);
 
-	public TransitionPatternRecognizer(Sensor sensor) {
+	public TransitionPatternRecognizer(Sensor sensor, PredictionService predictionService) {
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
+		if (predictionService == null)
+			throw new IllegalArgumentException("predictionService must not be null");
 		this.sensor = sensor;
+		this.predictionService = predictionService;
 	}
 
 	/**
@@ -71,36 +73,36 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 //		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Required elapse time has passed since last event?
-		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
-				previousSensorEvent, currentSensorEvent)) {
+		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent,
+				currentSensorEvent)) {
 
 			// Data has significantly changed?
-			if (currentSensorEvent.getSensor().significantChangeHasOccurred(
-					previousSensorEvent, currentSensorEvent)) {
+			if (currentSensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
+					currentSensorEvent)) {
 
 				if (predicting) {
 
 					// Current event matches one of my predictions
-					if (currentPredictions.contains(currentSensorEvent)) {
-						currentPredictions = getPredictionsForSensorEvent(
-								currentSensorEvent);
+					if (predictionService.getCurrentPredictions().contains(currentSensorEvent)) {
+						currentPredictions = predictionService
+								.getPredictionsForSensorEvent(currentSensorEvent);
 
 						// Stay in prediction state
 					} else {
 						// Current event doesn't match one of my predictions
 						predicting = false;
-						accuratePredictionCount++;
+						predictionService.incrementPredictionsForSensor();
 					}
 				} else {
 					// We are not currently predicting
-					currentPredictions = getPredictionsForSensorEvent(currentSensorEvent);
+					currentPredictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
 					if (!currentPredictions.isEmpty()) {
 						predicting = true;
 					} else {
 						// No new predictions found, create new transition
 						if (previousSensorEvent != null)
-							KnowledgeRepository.getInstance().newTransition(
-									previousSensorEvent, currentSensorEvent);
+							predictionService.createPredictionFromSensorEvents(previousSensorEvent,
+									currentSensorEvent);
 					} // end-else no new predictions
 
 				} // end-else we are not currently predicting
@@ -108,29 +110,30 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 			}
 		}
 		previousSensorEvent = currentSensorEvent;
+		predictionService.setCurrentPredictions(currentPredictions);
 		return currentPredictions;
 	}
-
-	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
-		List<SensorEvent> predictedEvents = KnowledgeRepository.getInstance()
-				.getPredictedSensorEventsForSensorEvent(sensorEvent);
-		List<Prediction> predictions = new ArrayList<Prediction>();
-
-		// Convert them to Predictions and calculate their probability
-		if (predictedEvents == null)
-			return null;
-		int predictionsSize = predictedEvents.size();
-		List<Prediction> newPredictions = predictedEvents.stream()
-				.map(event -> new TransitionPrediction(event))
-				.collect(Collectors.toList());
-		if (newPredictions != null)
-			predictions.addAll(newPredictions);
-
-		// Calculate the probability for each
-		double probability = 1.0 / predictions.size();
-		predictions.forEach(prediction -> prediction.setProbability(probability));
-		return predictions;
-	}
+//
+//	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
+//		List<SensorEvent> predictedEvents = KnowledgeRepository.getInstance()
+//				.getPredictedSensorEventsForSensorEvent(sensorEvent);
+//		List<Prediction> predictions = new ArrayList<Prediction>();
+//
+//		// Convert them to Predictions and calculate their probability
+//		if (predictedEvents == null)
+//			return null;
+//		int predictionsSize = predictedEvents.size();
+//		List<Prediction> newPredictions = predictedEvents.stream()
+//				.map(event -> new TransitionPrediction(event))
+//				.collect(Collectors.toList());
+//		if (newPredictions != null)
+//			predictions.addAll(newPredictions);
+//
+//		// Calculate the probability for each
+//		double probability = 1.0 / predictions.size();
+//		predictions.forEach(prediction -> prediction.setProbability(probability));
+//		return predictions;
+//	}
 
 //	public static List<SensorEvent> getPredictedSensorEventsForSensorEvent(
 //			SensorEvent sensorEvent) {
@@ -157,23 +160,8 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	protected boolean eventHasPredictions(SensorEvent sensorEvent) {
 
 		// Retrieve the count of predictions for this sensor event
-		int predictionCount = KnowledgeRepository.getInstance()
-				.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
-						sensorEvent.getSensorLocation());
-		return predictionCount > 0;
-	}
-
-	/**
-	 * TODO the sensor event has just been logged, so this should return false???
-	 * 
-	 * @param sensorEvent
-	 * @return true if the sensorEvent is not in the repository
-	 */
-	private boolean isNewEvent(SensorEvent sensorEvent) {
-
-		SensorEvent event = KnowledgeRepository.getInstance()
-				.getSensorEvent(sensorEvent.getKey());
-		return null == event;
+		return predictionService.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
+				sensorEvent.getSensorLocation()) > 0;
 	}
 
 	@Override

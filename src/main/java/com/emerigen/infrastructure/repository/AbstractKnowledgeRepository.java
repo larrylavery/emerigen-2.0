@@ -99,35 +99,25 @@ public abstract class AbstractKnowledgeRepository {
 	public abstract void newSensorEvent(SensorEvent sensorEvent);
 
 	// Log a new Cycle
-	public abstract void newCycle(Cycle cycle);
+//	public abstract void newCycle(Cycle cycle);
 
 	// Log that a sensor event transition has been learned
-	public abstract void newTransition(SensorEvent firstSensorEvent,
-			SensorEvent predictedSensorEvent);
 
-	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType,
-			int sensorLocation);
-
-	// Get the count of predictions made for a sensor type and location
-	public abstract int getPredictionCountForSensorTypeAndLocation(int sensorType,
-			int sensorLocation);
+	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType, int sensorLocation);
 
 	// Get the prediction accuracy fro a specific entity on the channel
-	public double getPredictionAccuracyForSensorTypeAndLocation(int sensorType,
-			int sensorLocation) {
+	public double getPredictionAccuracyForSensorTypeAndLocation(int sensorType, int sensorLocation) {
 
-		int sensorEventCount = getSensorEventCountForSensorTypeAndLocation(sensorType,
-				sensorLocation);
+		int sensorEventCount = getSensorEventCountForSensorTypeAndLocation(sensorType, sensorLocation);
 		/**
 		 * TODO Add code to search for all SensorEvents that are the "predicted Events"
 		 * in all transitions where the firstEventKey = sensorType+sensorLocation+values
 		 */
-		int predictionCount = getPredictionCountForSensorTypeAndLocation(sensorType,
-				sensorLocation);
+		// TODO How does KnowledgeRepository get access to PredictionService?
+//		int predictionCount = getPredictionCountForSensorTypeAndLocation(sensorType,
+//				sensorLocation);
 
-		if (sensorEventCount != 0) {
-			return predictionCount / (double) sensorEventCount;
-		}
+//		}
 		return 0.0;
 	}
 
@@ -138,4 +128,9 @@ public abstract class AbstractKnowledgeRepository {
 	public abstract Cycle getCycle(String cycleTypeName, String cycleKey);
 
 	public abstract Transition getTransition(String transitionKey);
+
+	public void newCycle(String cycleKey, Cycle cycle) {
+		// TODO Auto-generated method stub
+
+	}
 }

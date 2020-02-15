@@ -6,6 +6,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.InputStream;
 import java.util.Random;
+import java.util.UUID;
 
 import org.assertj.core.api.SoftAssertions;
 import org.everit.json.schema.Schema;
@@ -20,6 +21,7 @@ import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizerTest;
 import com.emerigen.infrastructure.learning.DailyCycle;
+import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
@@ -34,8 +36,8 @@ public class CycleTest {
 	public final void givenValidCycle_whenLogged_thenItshouldBeTheSameWhenRetrieved() {
 		SoftAssertions softly = new SoftAssertions();
 		// Given
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 		sensor.setMinimumDelayBetweenReadings(1000);
 		sensor.setReportingMode(Sensor.DELAY_NORMAL);
 		sensor.setWakeUpSensor(false);
@@ -48,24 +50,19 @@ public class CycleTest {
 		event.setTimestamp(timestamp);
 
 		// Create new cycle
-		Cycle cycle = CyclePatternRecognizerTest.createCycle("Daily", sensor.getType(),
-				sensor.getLocation(), 1);
+		Cycle cycle = CyclePatternRecognizerTest.createCycle("Daily", sensor.getType(), sensor.getLocation(),
+				1);
 		CycleNode node = cycle.getNodeList().get(0);
-		JsonObject cycleNodeJsonDoc = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH)
-				.put("timestamp", "" + timestamp)
+		JsonObject cycleNodeJsonDoc = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH).put("timestamp", "" + timestamp)
 				.put("values", JsonArray.from(24.6, 300.0))
-				.put("minimumDelayBetweenReadings",
-						sensor.getMinimumDelayBetweenReadings())
-				.put("reportingMode", sensor.getReportingMode())
-				.put("wakeUpSensor", sensor.isWakeUpSensor())
+				.put("minimumDelayBetweenReadings", sensor.getMinimumDelayBetweenReadings())
+				.put("reportingMode", sensor.getReportingMode()).put("wakeUpSensor", sensor.isWakeUpSensor())
 				.put("dataPointDurationNano", node.getDataPointDurationNano())
 				.put("probability", node.getProbability());
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
-				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH)
+				.put("sensorType", Sensor.TYPE_HEART_RATE).put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("cycleStartTimeNano", cycle.getCycleStartTimeNano())
 				.put("cycleDurationTimeNano", cycle.getCycleDurationTimeNano())
 				.put("allowableStandardDeviationForEquality",
@@ -74,29 +71,25 @@ public class CycleTest {
 				.put("nodeList", JsonArray.from(cycleNodeJsonDoc));
 
 		// when logged then retrieved ok
-		KnowledgeRepository.getInstance().newCycle(cycle);
+		String uuid = UUID.randomUUID().toString();
+		KnowledgeRepository.getInstance().newCycle(uuid, cycle);
 
-		Cycle retrievedCycle = KnowledgeRepository.getInstance().getCycle("Daily",
-				cycle.getKey());
+		Cycle retrievedCycle = KnowledgeRepository.getInstance().getCycle("Daily", uuid);
 
 		// Verify cycle
 		assertThat(retrievedCycle).isNotNull();
-		assertThat(retrievedCycle.getCycleStartTimeNano())
-				.isEqualTo(cycle.getCycleStartTimeNano());
-		assertThat(retrievedCycle.getCycleDurationTimeNano())
-				.isEqualTo(cycle.getCycleDurationTimeNano());
+		assertThat(retrievedCycle.getCycleStartTimeNano()).isEqualTo(cycle.getCycleStartTimeNano());
+		assertThat(retrievedCycle.getCycleDurationTimeNano()).isEqualTo(cycle.getCycleDurationTimeNano());
 		assertThat(retrievedCycle.getAllowableStandardDeviationForEquality())
 				.isEqualTo(cycle.getAllowableStandardDeviationForEquality());
-		assertThat(retrievedCycle.getPreviousCycleNodeIndex())
-				.isEqualTo(cycle.getPreviousCycleNodeIndex());
+		assertThat(retrievedCycle.getPreviousCycleNodeIndex()).isEqualTo(cycle.getPreviousCycleNodeIndex());
 
 		// Verify cycle node
 		CircularList<CycleNode> newCycleNodes = retrievedCycle.getNodeList();
 		assertThat(newCycleNodes).isNotNull().isNotEmpty();
 		CycleNode newCycleNode = newCycleNodes.get(0);
 		assertThat(newCycleNode).isNotNull();
-		assertThat(newCycleNode.getDataPointDurationNano())
-				.isEqualTo(node.getDataPointDurationNano());
+		assertThat(newCycleNode.getDataPointDurationNano()).isEqualTo(node.getDataPointDurationNano());
 		assertThat(newCycleNode.getProbability()).isEqualTo(node.getProbability());
 
 		SensorEvent se = newCycleNode.getSensorEvent();
@@ -112,8 +105,7 @@ public class CycleTest {
 		assertThat(se.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_WATCH);
 		assertThat(se.getSensor().getMinimumDelayBetweenReadings())
 				.isEqualTo(sensor.getMinimumDelayBetweenReadings());
-		assertThat(se.getSensor().getReportingMode())
-				.isEqualTo(sensor.getReportingMode());
+		assertThat(se.getSensor().getReportingMode()).isEqualTo(sensor.getReportingMode());
 		assertThat(se.getSensor().isWakeUpSensor()).isEqualTo(sensor.isWakeUpSensor());
 		softly.assertAll();
 	}
@@ -127,10 +119,8 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-valid-two-cycle-nodes.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -138,8 +128,7 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as(
-				"A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -153,10 +142,8 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-valid.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -164,8 +151,7 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as(
-				"A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -179,10 +165,8 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-invalid-no-cycle-node.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -190,8 +174,7 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as(
-				"A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 	}
 
@@ -204,10 +187,8 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-invalid-no-sensor-event.json");
 
-		JSONObject jsonSchema = new JSONObject(
-				new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(
-				new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -215,8 +196,7 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as(
-				"A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -232,8 +212,7 @@ public class CycleTest {
 				() -> knowledgeRepository.getCycle("invalidCycleTypeName", "xxx"));
 
 		// Then
-		then(throwable).as(
-				"A IllegalArgumentException should be thrown for invalid cycle type name")
+		then(throwable).as("A IllegalArgumentException should be thrown for invalid cycle type name")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -262,28 +241,28 @@ public class CycleTest {
 		// Given valid cycle
 		Cycle cycle = new DailyCycle(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.1f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
-				Sensor.REPORTING_MODE_CONTINUOUS, false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH, Sensor.REPORTING_MODE_CONTINUOUS,
+				false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		// add 1 node
 		CycleNode node = new CycleNode(cycle, event1);
 		cycle.getNodeList().add(node);
 
-		KnowledgeRepository.getInstance().newCycle(cycle);
+		String uuid = UUID.randomUUID().toString();
+		KnowledgeRepository.getInstance().newCycle(uuid, cycle);
 
 		// Give the bucket a chance to catch up after the log
 		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
+			Thread.sleep(Long.parseLong(
+					EmerigenProperties.getInstance().getValue("couchbase.server.logging.catchup.timer")));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		// Then try to retrieve it
-		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle("Daily",
-				cycle.getKey());
+		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle("Daily", uuid);
 //
 //		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
 //				+ sensorEventKey + "\"";
@@ -304,8 +283,8 @@ public class CycleTest {
 		// Given two valid SensorEvents logged
 		float[] values = new float[] { 1.1f, 1.2f };
 		float[] values2 = new float[] { 2.1f, 2.2f };
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 
@@ -315,40 +294,13 @@ public class CycleTest {
 		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
 
 		// When the invalid transition
+		PredictionService ps = new PredictionService(sensor);
+
 		final Throwable throwable = catchThrowable(
-				() -> knowledgeRepository.newTransition(null, predictedSensorEvent));
+				() -> ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2));
 
 		// Then ValidationException should occur
-		then(throwable).as(
-				"A IllegalArgumentException should be thrown for an invalid schema validation")
-				.isInstanceOf(IllegalArgumentException.class);
-
-	}
-
-	@Test
-	public final void givenInvalidTransitionWithoutPredictedSensorEvent_whenTranslatedAndLogged_thenItshouldThrowValidationException() {
-		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
-
-		// Given two valid SensorEvents logged
-		float[] values = new float[] { 1.1f, 1.2f };
-		float[] values2 = new float[] { 2.1f, 2.2f };
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
-		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
-		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
-
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
-
-		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
-
-		// When the invalid transition
-		final Throwable throwable = catchThrowable(
-				() -> knowledgeRepository.newTransition(firstSensorEvent, null));
-
-		// Then ValidationException should occur
-		then(throwable).as(
-				"A IllegalArgumentException should be thrown for an invalid schema validation")
+		then(throwable).as("A IllegalArgumentException should be thrown for an invalid schema validation")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}

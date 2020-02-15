@@ -17,9 +17,15 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 public class CyclePatternRecognizer extends PatternRecognizer {
 	private Cycle cycle;
 	private SensorEvent previousSensorEvent = null;
+	private PredictionService predictionService;
 
-	public CyclePatternRecognizer(Cycle cycle) {
+	public CyclePatternRecognizer(Cycle cycle, PredictionService predictionService) {
+		if (cycle == null)
+			throw new IllegalArgumentException("cycle must not be null");
+		if (predictionService == null)
+			throw new IllegalArgumentException("predictionService must not be null");
 		this.cycle = cycle;
+		this.predictionService = predictionService;
 	}
 
 	@Override
@@ -27,12 +33,11 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Required elapse time has passed since last event?
-		if (sensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
-				previousSensorEvent, sensorEvent)) {
+		if (sensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent,
+				sensorEvent)) {
 
 			// Data has significantly changed?
-			if (sensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
-					sensorEvent)) {
+			if (sensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent, sensorEvent)) {
 
 			}
 		}
