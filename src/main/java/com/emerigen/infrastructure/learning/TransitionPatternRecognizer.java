@@ -72,6 +72,7 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 //	       END-ELSE we are not predicting
 
 //		List<Prediction> predictions = new ArrayList<Prediction>();
+		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Required elapse time has passed since last event?
 		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent,
@@ -81,39 +82,45 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 			if (currentSensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
 					currentSensorEvent)) {
 
-				if (predicting) {
-
-					// Current event matches one of my predictions
-					if (predictionService.getCurrentPredictions().contains(currentSensorEvent)) {
-						currentPredictions = predictionService
-								.getPredictionsForSensorEvent(currentSensorEvent);
-
-						// Stay in prediction state
-					} else {
-						// Current event doesn't match one of my predictions
-						predicting = false;
-						predictionService.incrementPredictionsForSensor();
-					}
-				} else {
-					// We are not currently predicting
-					currentPredictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
-					if (!currentPredictions.isEmpty()) {
-						predicting = true;
-					} else {
-						// No new predictions found, create new transition
-						if (previousSensorEvent != null)
-							predictionService.createPredictionFromSensorEvents(previousSensorEvent,
-									currentSensorEvent);
-					} // end-else no new predictions
-
-				} // end-else we are not currently predicting
-
+				predictions = getState().onSensorChanged(currentSensorEvent);
 			}
 		}
-		previousSensorEvent = currentSensorEvent;
-		predictionService.setCurrentPredictions(currentPredictions);
-		return currentPredictions;
+		return predictions;
 	}
+
+//				if (predicting) {
+//
+//					// Current event matches one of my predictions
+//					if (predictionService.getCurrentPredictions().contains(currentSensorEvent)) {
+//						currentPredictions = predictionService
+//								.getPredictionsForSensorEvent(currentSensorEvent);
+//
+//						// Stay in prediction state
+//					} else {
+//						// Current event doesn't match one of my predictions
+//						predicting = false;
+//						predictionService.incrementPredictionsForSensor();
+//					}
+//				} else {
+//					// We are not currently predicting
+//					currentPredictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
+//					if (!currentPredictions.isEmpty()) {
+//						predicting = true;
+//					} else {
+//						// No new predictions found, create new transition
+//						if (previousSensorEvent != null)
+//							predictionService.createPredictionFromSensorEvents(previousSensorEvent,
+//									currentSensorEvent);
+//					} // end-else no new predictions
+//
+//				} // end-else we are not currently predicting
+//
+//			}
+//		}
+//		previousSensorEvent = currentSensorEvent;
+//		predictionService.setCurrentPredictions(currentPredictions);
+//		return currentPredictions;
+//	}
 //
 //	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
 //		List<SensorEvent> predictedEvents = KnowledgeRepository.getInstance()

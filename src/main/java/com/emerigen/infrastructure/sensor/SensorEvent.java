@@ -74,7 +74,7 @@ public class SensorEvent {
 
 	@JsonIgnore
 	public String getKey() {
-		return "" + sensor.getType() + sensor.getLocation() + values.hashCode();
+		return "" + sensor.getType() + sensor.getLocation() + getValuesHashCode();
 	}
 
 	public float[] getValues() {
@@ -87,9 +87,8 @@ public class SensorEvent {
 
 	@Override
 	public String toString() {
-		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType
-				+ ", sensorLocation=" + sensorLocation + ", timestamp=" + timestamp
-				+ ", values=" + Arrays.toString(values) + "]";
+		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType + ", sensorLocation="
+				+ sensorLocation + ", timestamp=" + timestamp + ", values=" + Arrays.toString(values) + "]";
 	}
 
 	/**
@@ -120,7 +119,7 @@ public class SensorEvent {
 	private int getValuesHashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((values == null ? 0 : Arrays.hashCode(values)));
+		result = prime * result + Arrays.hashCode(values);
 		return result;
 	}
 

@@ -204,6 +204,8 @@ public class PredictionService {
 	}
 
 	public List<Prediction> getCurrentPredictions() {
+		if (currentPredictions == null)
+			currentPredictions = new ArrayList<Prediction>();
 		return currentPredictions;
 	}
 
