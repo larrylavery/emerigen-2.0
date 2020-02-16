@@ -2,6 +2,8 @@ package com.emerigen.infrastructure.learning;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.sensor.SensorEvent;
+
 /**
  * See the Prediction class for full implementation details.
  * 
@@ -11,8 +13,6 @@ import org.apache.log4j.Logger;
 public class CyclePrediction extends Prediction {
 
 	private double probability;
-
-	private CycleNode cycleNode;
 
 	private static final Logger logger = Logger.getLogger(CyclePrediction.class);
 
@@ -27,8 +27,13 @@ public class CyclePrediction extends Prediction {
 		if (cycleNode == null)
 			throw new IllegalArgumentException("cycleNode must not be null");
 		setSensorEvent(cycleNode.getSensorEvent());
+	}
 
-		this.cycleNode = cycleNode;
+	public CyclePrediction(SensorEvent sensorEvent) {
+
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null");
+		setSensorEvent(sensorEvent);
 	}
 
 	/**
@@ -47,13 +52,6 @@ public class CyclePrediction extends Prediction {
 
 		return probability;
 
-	}
-
-	/**
-	 * @return the cycleNode
-	 */
-	public CycleNode getCycleNode() {
-		return cycleNode;
 	}
 
 }
