@@ -17,9 +17,9 @@ import org.junit.Test;
 
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.emerigen.infrastructure.learning.CPR_InsertionsTest;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CycleNode;
-import com.emerigen.infrastructure.learning.CyclePatternRecognizerTest;
 import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
@@ -49,8 +49,7 @@ public class CycleTest {
 		event.setTimestamp(timestamp);
 
 		// Create new cycle
-		Cycle cycle = CyclePatternRecognizerTest.createCycle("Daily", sensor.getType(), sensor.getLocation(),
-				1);
+		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
 		CycleNode node = cycle.getNodeList().get(0);
 		JsonObject cycleNodeJsonDoc = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
 				.put("sensorLocation", Sensor.LOCATION_WATCH).put("timestamp", "" + timestamp)
