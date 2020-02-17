@@ -87,8 +87,8 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					// Locate the right position to insert the new cycle node
 					for (int i = 0; i < cycle.getNodeList().size(); i++) {
 
-						// Previous and new sensor events are equal? merge them
-						if (cycle.currentSensorEventEqualsPreviousSensorEvent(currentSensorEvent)) {
+						// Prior and new sensor event are equal? merge them
+						if (equalsExistingSensorEvent(currentSensorEvent)) {
 							predictions = cycle.mergeAndReplacePreviousEvent(currentSensorEvent);
 							return predictions;
 
@@ -117,6 +117,33 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		// Save and return any current predictions
 		predictionService.setCurrentPredictions(predictions);
 		return predictions;
+	}
+
+	/**
+	 * 
+	 * Locate the first node that is equal to the given node, ore return false
+	 * 
+	 * @param currentSensorEvent
+	 * @return
+	 */
+	private boolean equalsExistingSensorEvent(SensorEvent currentSensorEvent) {
+		int startIndex = 0;
+		while (startIndex < cycle.nodeList.size()) {
+
+			// current node equals given event
+			if (cycle.nodeList.get(startIndex).getSensorEvent().equals(currentSensorEvent)) {
+				cycle.setPreviousCycleNodeIndex(startIndex);
+				return true;
+			} else {
+
+				// Compare the next event
+				startIndex++;
+			}
+		}
+		/**
+		 * No sensor Event found
+		 */
+		return false;
 	}
 
 	/**
