@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 
 import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
 import com.emerigen.infrastructure.sensor.SensorEvent;
-import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.utils.CircularList;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -18,7 +17,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
  * @author Larry
  *
  */
-public abstract class Cycle implements SensorEventListener {
+public abstract class Cycle {
 
 	/**
 	 * This is the starting timestamp for the beginning of each cycle type. For
@@ -89,124 +88,28 @@ public abstract class Cycle implements SensorEventListener {
 		this.cycleDurationTimeNano = calculateCycleDurationNano();
 	}
 
-	/**
-	 * Called whenever a new sensor event is generated that matches its sensor type.
-	 * It will learn new events by attempting to aggregate consecutive data point
-	 * duration times. The end result of processing many new sensor events is a
-	 * cycle list populated with cycle nodes that have the longest durations.
-	 * 
-	 * For example, in the case of a GPS sensor, the nodes represent the GPS
-	 * locations that have the longest visition durations; effectively the route
-	 * prediction nodes for the specified cycle duration (ie daily, weekly, monthly,
-	 * ...)
-	 * 
-	 * The logic is not specific to one type of data point or cycle and should work
-	 * just as well for most sensors (one exception is Accelerometer) and all cycle
-	 * durations.
-	 * 
-	 * @param sensorEvent
-	 * @return
-	 */
-//	@Override
-//	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
-//
-//		List<Prediction> predictions = new ArrayList<Prediction>();
-//
-//		// Validate parms
-//		if (sensorEvent == null)
-//			throw new IllegalArgumentException("sensorEvent must not be null");
-//		if (!(sensorType == sensorEvent.getSensorType()))
-//			throw new IllegalArgumentException("given sensor type (" + sensorEvent.getSensorType()
-//					+ "), does not match cycle sensor type (" + sensorType + ")");
-//
-//		if (eventIsOutOfOrder(sensorEvent))
-//			throw new IllegalArgumentException("sensorEvent out of order received.");
-//
-//		// Roll over n cycles if the event timestamp is past our current end time
-//		adjustCycleStartTimeToClosestEnclosingCycle(sensorEvent);
-//
-//		// Create new cycle node based on the adjusted cycle start time
-//		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
-//
-//		// Empty cycle? add to beginning of list and return empty predictions
-//		if (previousCycleNodeIndex < 0) {
-//			addFirstCycleNode(newCycleNode);
-//			return predictions;
-//
-//		} else {
-//
-//			// Locate the right position to insert the new cycle node
-//			for (int i = 0; i < nodeList.size(); i++) {
-//
-//				// Previous and new sensor events are equal?
-//				if (cycle.sensorEventsAreEqual(sensorEvent,
-//						nodeList.get(previousCycleNodeIndex).getSensorEvent())) {
-//					cycle.mergeAndReplacePreviousNode(newCycleNode);
-//
-//					// Return the next node in the cycle as the prediction
-//					// TODO fix end of list issues
-//					predictions.add(new CyclePrediction(nodeList.get(i)));
-//
-//					// Have we passed the most recent previous cycle node?
-//				} else if (previousNodeTimeIsGreaterThanNewNodeTime(newCycleNode)) {
-//					boolean result = insertBeforePreviousNode(newCycleNode);
-//					predictions.add(new CyclePrediction(nodeList.get(previousCycleNodeIndex + 1)));
-//					previousCycleNodeIndex--;
-//
-//					return predictions;
-//				}
-//				previousCycleNodeIndex = wrapIndex(++previousCycleNodeIndex);
-//
-//			} // end for
-//
-//			/**
-//			 * Non-empty list, no equals found, no prior closest found, add to the current
-//			 * "end", which is really at the end of one circular cycle traversal.
-//			 */
-//			nodeList.add(newCycleNode);
-//			return predictions;
-//		}
-//	}
-
-	public int wrapIndex(int index) {
-		return index % nodeList.size();
+	public void incrementPreviousNodeIndex() {
+		previousCycleNodeIndex = (previousCycleNodeIndex + 1) % nodeList.size();
 	}
 
-	boolean previousSensorEventTimeIsGreaterThanCurrentSensorEventTime(SensorEvent currentSensorEvent) {
+	boolean previousSensorEventOccuredAfterCurrentSensorEvent(SensorEvent currentSensorEvent) {
 		CycleNode newCycleNode = new CycleNode(this, currentSensorEvent);
 		return nodeList.get(previousCycleNodeIndex).getStartTimeOffsetNano() > newCycleNode
 				.getStartTimeOffsetNano();
 
 	}
-//	private boolean previousNodeTimeIsGreaterThanNewNodeTime(CycleNode newCycleNode) {
-//		return nodeList.get(previousCycleNodeIndex).getStartTimeOffsetNano() > newCycleNode
-//				.getStartTimeOffsetNano();
-//	}
 
-	boolean currentEventEqualsPreviousEvent(SensorEvent currentSensorEvent) {
+	boolean currentSensorEventEqualsPreviousSensorEvent(SensorEvent currentSensorEvent) {
 		return currentSensorEvent.getSensor().equals(currentSensorEvent,
 				nodeList.get(previousCycleNodeIndex).getSensorEvent());
 	}
-
-//	private boolean sensorEventsAreEqual(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent) {
-//		return firstSensorEvent.getSensor().equals(firstSensorEvent, secondSensorEvent);
-//	}
-
-	/**
-	 * We have moved just past the closest event in the past. Insert new node before
-	 * the previous node and return
-	 */
-//	private boolean insertBeforePreviousNode(CycleNode newCycleNode) {
-//		nodeList.add(previousCycleNodeIndex, newCycleNode);
-//		return true;
-//	}
 
 	List<Prediction> insertBeforePreviousNode(SensorEvent newSensorEvent) {
 		List<Prediction> predictions = new ArrayList<>();
 		CycleNode newCycleNode = new CycleNode(this, newSensorEvent);
 		nodeList.add(previousCycleNodeIndex, newCycleNode);
 		predictions.add(new CyclePrediction(newSensorEvent));
-		previousCycleNodeIndex = wrapIndex(++previousCycleNodeIndex);
+		incrementPreviousNodeIndex();
 		return predictions;
 
 	}
@@ -246,19 +149,9 @@ public abstract class Cycle implements SensorEventListener {
 		logger.info("New cycle Node merged with previous node, merged node: " + newCycleNode.toString()
 				+ ", cycle list: " + nodeList.toString());
 		predictions.add(new CyclePrediction(nodeList.get(previousCycleNodeIndex + 1).getSensorEvent()));
+//		previousCycleNodeIndex = incrementIndex(previousCycleNodeIndex);
 		return predictions;
 	}
-//	private boolean mergeAndReplacePreviousNode(CycleNode newCycleNode) {
-//		long mergedDuration = nodeList.get(previousCycleNodeIndex).getDataPointDurationNano()
-//				+ newCycleNode.getDataPointDurationNano();
-//		newCycleNode.setDataPointDurationNano(mergedDuration);
-//
-//		nodeList.remove(previousCycleNodeIndex);
-//		nodeList.add(previousCycleNodeIndex, newCycleNode);
-//		logger.info("New cycle Node merged with previous node, merged node: " + newCycleNode.toString()
-//				+ ", cycle list: " + nodeList.toString());
-//		return true;
-//	}
 
 	void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
 		if ((sensorEvent.getTimestamp() - getCycleStartTimeNano()) > getCycleDurationTimeNano()) {
@@ -268,8 +161,8 @@ public abstract class Cycle implements SensorEventListener {
 					/ getCycleDurationTimeNano();
 
 			// Reset previous node pointer to first object of the new cycle
-			if (cyclesToSkip > 0)
-				previousCycleNodeIndex = 0;
+//			if (cyclesToSkip > 0)
+//				previousCycleNodeIndex = 0;
 
 			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * getCycleDurationTimeNano());
 			logger.info("Incoming event was past our current cycle duration so the new cycleStartTime ("
@@ -455,13 +348,14 @@ public abstract class Cycle implements SensorEventListener {
 	}
 
 	void addSensorEvent(SensorEvent sensorEvent) {
+		CycleNode newCycleNode = new CycleNode(this, sensorEvent);
 
 		if (isEmpty()) {
-			CycleNode newCycleNode = new CycleNode(this, sensorEvent);
 			addFirstCycleNode(newCycleNode);
 		} else {
-			this.nodeList.add(new CycleNode(this, sensorEvent));
+			this.nodeList.add(newCycleNode);
 		}
+		incrementPreviousNodeIndex();
 	}
 
 	/**
@@ -483,6 +377,10 @@ public abstract class Cycle implements SensorEventListener {
 
 	public boolean isEmpty() {
 		return nodeList.isEmpty();
+	}
+
+	public void addCycleNode(CycleNode cycleNode) {
+		nodeList.add(cycleNode);
 	}
 
 }

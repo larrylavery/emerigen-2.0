@@ -88,15 +88,15 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					for (int i = 0; i < cycle.getNodeList().size(); i++) {
 
 						// Previous and new sensor events are equal? merge them
-						if (cycle.currentEventEqualsPreviousEvent(currentSensorEvent)) {
+						if (cycle.currentSensorEventEqualsPreviousSensorEvent(currentSensorEvent)) {
 							predictions = cycle.mergeAndReplacePreviousEvent(currentSensorEvent);
-							// return predictions;
+							return predictions;
 
 							// Have we passed the most recent previous cycle node?
-						} else if (cycle.previousSensorEventTimeIsGreaterThanCurrentSensorEventTime(
-								currentSensorEvent)) {
+						} else if (cycle
+								.previousSensorEventOccuredAfterCurrentSensorEvent(currentSensorEvent)) {
 							predictions = cycle.insertBeforePreviousNode(currentSensorEvent);
-							// return predictions;
+							return predictions;
 						}
 					} // end for more cycle nodes
 
@@ -105,6 +105,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 				 * Non-empty list, no equals found, no prior closest found, add to the "end".
 				 */
 				cycle.addSensorEvent(currentSensorEvent);
+
 			} // end data has changed significantly
 		} // end minimum delay has occurred
 

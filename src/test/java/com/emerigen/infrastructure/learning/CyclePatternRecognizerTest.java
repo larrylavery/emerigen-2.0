@@ -3,9 +3,9 @@ package com.emerigen.infrastructure.learning;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.junit.After;
@@ -15,10 +15,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
-import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 
 public class CyclePatternRecognizerTest {
@@ -116,10 +114,11 @@ public class CyclePatternRecognizerTest {
 
 		// Set the event timestamp to after the cycle duration
 
-		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
-		predictions = gpsCycle.onSensorChanged(event3);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		predictions = cpr.onSensorChanged(event3);
 		assertThat(predictions).isNotNull().isEmpty();
-		predictions = gpsCycle.onSensorChanged(event2);
+		predictions = cpr.onSensorChanged(event2);
 
 		assertThat(predictions.size()).isNotNull().isEqualTo(1);
 		assertThat(predictions.get(0).getSensorEvent().equals(event3)).isTrue();
@@ -159,11 +158,12 @@ public class CyclePatternRecognizerTest {
 	public final void givenNewCycle_whenOnSensorChangedCalled_thenEventAddedToCycleAndEmptyPredictionListReturned() {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 
-		SensorManager.getInstance().registerListenerForSensor(gpsCycle, gpsSensor);
+		SensorManager.getInstance().registerListenerForSensor(cpr, gpsSensor);
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
 		float[] values2 = { 5.0f, 2.0f };
@@ -173,7 +173,7 @@ public class CyclePatternRecognizerTest {
 		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 
 		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
-		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);
@@ -195,9 +195,10 @@ public class CyclePatternRecognizerTest {
 
 		// Set the event timestamp to after the cycle duration
 		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
-		List<Prediction> predictions = gpsCycle.onSensorChanged(event1);
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);
@@ -214,62 +215,286 @@ public class CyclePatternRecognizerTest {
 		fail("Not yet implemented"); // TODO
 	}
 
+	/**
+	 * The next several test verify the cycle rolling over capability
+	 */
 	@Test
-	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastSeveralExistingEvents_thenAddedAfterMostRecentPriorEvent() {
+	public final void givenOneNodeCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedBeforeExisting() {
 
 		// Given
-		Cycle hrCycle = new DailyCycle(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
-
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 1.0f };
-		float[] values2 = { 10.0f, 10.0f };
-		float[] values3 = { 100.0f, 100.0f };
-		float[] values4 = { 1000.0f, 1000.0f };
-		SensorEvent event1 = new SensorEvent(hrSensor, values);
-		SensorEvent event2 = new SensorEvent(hrSensor, values2);
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() - 100 + gpsCycle.cycleDurationTimeNano);
+
+		// Test that event added in between the existing events
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+
+		predictions = cpr.onSensorChanged(event2);
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
+	public final void givenOneNodeCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedAfterExisting() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() + 100 + gpsCycle.cycleDurationTimeNano);
+
+		// Test that event added in between the existing events
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+
+		predictions = cpr.onSensorChanged(event2);
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
+	}
+
+	@Test
+	public final void givenTwoNodeCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedInbetween() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		// event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() + 1000);
+
+		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		event3.setTimestamp(event1.getTimestamp() + 00 + gpsCycle.cycleDurationTimeNano);
+
+		// Test that event added in between the existing events
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+
+		predictions = cpr.onSensorChanged(event2);
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
+
+		predictions = cpr.onSensorChanged(event3);
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(3);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event3);
+	}
+
+	@Test
+	public final void givenNonEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedInOrder() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		// event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event1.setTimestamp(event1.getTimestamp() - 1000 + gpsCycle.cycleDurationTimeNano);
+
+		// Test that event added to the beginning of the next cycle
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		predictions = cpr.onSensorChanged(event2);
+
+		// Then
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event2);
+	}
+
+	@Test
+	public final void givenEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAdded() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+
+		// Test that added to the beginning of the next cycle
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+
+		// Then
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
+	public final void givenEmptyCycle_whenNewEventPastTwoCyclesDuration_thenCycleRolledOverAndEventAdded() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		event1.setTimestamp(event1.getTimestamp() + (2 * gpsCycle.cycleDurationTimeNano));
+
+		// Test that added to the beginning of the next cycle
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+
+		// Then
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
+	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastCycleDuration_thenAddedInNextCyleAfterMostRecentPriorEvent() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values4 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 
 		// this event will go between event2 and event4 after cycle rolled over 1 period
 		// (24 hours in this case)
-		SensorEvent event3 = new SensorEvent(hrSensor, values3);
-		event3.setTimestamp(event3.getTimestamp() + hrCycle.cycleDurationTimeNano);
-		SensorEvent event4 = new SensorEvent(hrSensor, values4);
+		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		event3.setTimestamp(event3.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
 		event4.setTimestamp(event3.getTimestamp() + 100);
-		hrCycle.onSensorChanged(event1);
-		hrCycle.onSensorChanged(event2);
-		hrCycle.onSensorChanged(event4);
-		hrCycle.onSensorChanged(event3);
+		cpr.onSensorChanged(event1);
+		cpr.onSensorChanged(event2);
+		cpr.onSensorChanged(event4);
+		event3.setTimestamp(gpsCycle.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
+		cpr.onSensorChanged(event3);
 
 		// Then
-		assertThat(hrCycle.getNodeList().size()).isEqualTo(4);
-		assertThat(hrCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(hrCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
-		assertThat(hrCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event3);
-		assertThat(hrCycle.getNodeList().get(3).getSensorEvent()).isEqualTo(event4);
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(4);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event3);
+		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event4);
+	}
 
+	@Test
+	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastCycleDuration_thenAddedFirstInNextCycle() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(gpsCycle.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
+
+		// this event will go before the 1st event in the next cycle
+		// (24 hours in this case)
+		cpr.onSensorChanged(event1);
+		cpr.onSensorChanged(event2);
+
+		// Then
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event1);
 	}
 
 	@Test
 	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd() {
 
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 1.0f };
-		float[] values2 = { 10.0f, 10.0f };
-		float[] values3 = { 100.0f, 100.0f };
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() + 10000);
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-		gpsCycle.onSensorChanged(event1);
-		gpsCycle.onSensorChanged(event2);
-		gpsCycle.onSensorChanged(event3);
+		event3.setTimestamp(event2.getTimestamp() + 10000);
+		cpr.onSensorChanged(event1);
+		cpr.onSensorChanged(event2);
+		cpr.onSensorChanged(event3);
 
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(3);
@@ -281,22 +506,21 @@ public class CyclePatternRecognizerTest {
 
 	@Test
 	public final void givenNonEmptyCycle_whenNewEqualSensorEvent_thenMergedAndPreviousReplaced() {
-
-		// Given
-		SensorManager.getInstance().reset();
-		SensorEventListener generalListener = new EmerigenSensorEventListener();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 1.0f };
-		float[] values2 = { 10.0f, 10.0f };
-		float[] values3 = { 100.0f, 100.0f };
-		SensorEvent event1 = new SensorEvent(hrSensor, values);
-		SensorEvent event2 = new SensorEvent(hrSensor, values);
-		List<Prediction> predictions = generalListener.onSensorChanged(event1);
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions.size()).isEqualTo(0);
-		predictions = generalListener.onSensorChanged(event2);
+		predictions = cpr.onSensorChanged(event2);
 
 		// Then
 		assertThat(predictions.size()).isEqualTo(1);
@@ -314,7 +538,9 @@ public class CyclePatternRecognizerTest {
 		// When
 		float[] values = { 1.0f, 1.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		gpsCycle.onSensorChanged(event1);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		cpr.onSensorChanged(event1);
 
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
@@ -332,55 +558,55 @@ public class CyclePatternRecognizerTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(hrSensor, values);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
-		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event2));
+		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
 
-		then(throwable).as("A different sensor type event  throws an  IllegalArgumentException")
+		assertThat(throwable).as("A different sensor type event  throws an  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
 
 	@Test
-	public final void givenNonEmptyCycleList_whenSignificantlyDifferentEventDataPointArrives_thenNewNodeAddedToEndOfCycle() {
-
-		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
+	public final void givenNonEmptyCycle_whenSignificantlyDifferentEventDataPointArrives_thenNewNodeAddedToEndOfCycle() {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(0);
 
 		// When
-		float[] values = { 1.0f, 1.0f };
-		float[] values2 = { 10.0f, 10.0f };
-		float[] values3 = { 100.0f, 100.0f };
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values3);
-		gpsCycle.onSensorChanged(event1);
-		gpsCycle.onSensorChanged(event2);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		cpr.onSensorChanged(event1);
+		cpr.onSensorChanged(event2);
 
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
-		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
 	}
 
 	@Test
-	public final void givenNonEmptyCycleList_whenEqualNewNodeArrives_thenCycleContainsMergedNode() {
+	public final void givenNonEmptyCycle_whenEqualNewNodeArrives_thenCycleContainsMergedNode() {
 
 		// Given
-		SensorManager.getInstance().reset();
-		SensorEventListener generalListener = new EmerigenSensorEventListener();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 1.0f };
-		float[] values2 = { 10.0f, 10.0f };
-		float[] values3 = { 100.0f, 100.0f };
-		SensorEvent event1 = new SensorEvent(hrSensor, values);
-		SensorEvent event2 = new SensorEvent(hrSensor, values);
-		List<Prediction> predictions = generalListener.onSensorChanged(event1);
-		predictions = generalListener.onSensorChanged(event2);
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		predictions = cpr.onSensorChanged(event2);
 
 		// Then
 		assertThat(predictions).isNotNull().isNotEmpty();
@@ -388,23 +614,24 @@ public class CyclePatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenNonEmptyCycleList_whenEqualNewNodeArrives_thenMergedNodeDurationisAdditionOfPreviousAndNewNodes() {
-
-		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
+	public final void givenNonEmptyCycle_whenEqualNewEventArrives_thenMergedNodeDurationisAdditionOfPreviousAndNewNodes() {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 1.0f };
-		float[] values2 = { 10.0f, 10.0f };
-		float[] values3 = { 100.0f, 100.0f };
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values);
 		event2.setTimestamp(event2.getTimestamp() + 10000);
-		gpsCycle.onSensorChanged(event1);
-		gpsCycle.onSensorChanged(event2);
+
+		cpr.onSensorChanged(event1);
+		cpr.onSensorChanged(event2);
 
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
@@ -412,18 +639,18 @@ public class CyclePatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenEmptyCycleList_whenNewNodeArrives_thenNodeTimeOffsetMustBeDifferenceOfcycleStartAndEventTimestamp() {
-
-		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
+	public final void givenEmptyCycle_whenNewEventArrives_thenNodeTimeOffsetMustBeDifferenceOfcycleStartAndEventTimestamp() {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f };
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		gpsCycle.onSensorChanged(event1);
+		cpr.onSensorChanged(event1);
 
 		// Then
 		long timeOffset = event1.getTimestamp() - gpsCycle.getCycleStartTimeNano();
@@ -431,45 +658,49 @@ public class CyclePatternRecognizerTest {
 	}
 
 	@Test
-	public final void givenNonEmptyCycleList_whenNewEventArrivesWithTimestampBeforePreviousEvent_thenIllegalArgumentException() {
+	public final void givenNonEmptyCycle_whenNewEventArrivesWithTimestampBeforePreviousEvent_thenIllegalArgumentException() {
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
-		float[] values2 = { 5.0f, 2.0f };
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		event1.setTimestamp(event1.getTimestamp() - 1000);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		gpsCycle.onSensorChanged(event2);
-		final Throwable throwable = catchThrowable(() -> gpsCycle.onSensorChanged(event1));
+		cpr.onSensorChanged(event2);
+		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event1));
 
-		then(throwable).as("An out of order sensor event throws  IllegalArgumentException")
+		assertThat(throwable).as("An out of order sensor event throws  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
 
 	@Test
-	public final void givenCycleList_whenNewEventArrivesPastCycleDuration_thenCycleStartTimeUpdatedToStartTimeOf_Closest_NextCycle() {
+	public final void givenCycleList_whenNewEventArrivesPastCycleDuration_thenCycleStartTimeUpdatedToStartTimeOfClosestNextCycle() {
 		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		// When
-		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
-		float[] values2 = { 5.0f, 2.0f };
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
 		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 
 		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
-		gpsCycle.onSensorChanged(event1);
+		cpr.onSensorChanged(event1);
 		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);

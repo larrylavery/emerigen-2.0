@@ -23,7 +23,7 @@ public class CyclePredictionTest {
 	@Test
 	public final void givenNullCycleNode_whenCreated_thenIllegalArgumentException() {
 
-		final Throwable throwable = catchThrowable(() -> new CyclePrediction(null));
+		final Throwable throwable = catchThrowable(() -> new CyclePrediction((CycleNode) null));
 
 		then(throwable).as("Null cycle node on creation throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
