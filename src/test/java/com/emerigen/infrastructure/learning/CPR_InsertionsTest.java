@@ -185,7 +185,8 @@ public class CPR_InsertionsTest {
 		predictions = cpr.onSensorChanged(event2);
 
 		// Then
-		assertThat(predictions.size()).isEqualTo(1);
+		assertThat(predictions.size()).isEqualTo(0);
+		assertThat(gpsCycle.nodeList.get(0).getSensorEvent()).isEqualTo(event2);
 	}
 
 	@Test
@@ -229,8 +230,8 @@ public class CPR_InsertionsTest {
 		predictions = cpr.onSensorChanged(event2);
 
 		// Then
-		assertThat(predictions).isNotNull().isNotEmpty();
-		assertThat(predictions.size()).isEqualTo(1);
+		assertThat(predictions).isNotNull().isEmpty();
+		assertThat(gpsCycle.nodeList.get(0).getSensorEvent()).isEqualTo(event2);
 	}
 
 	@Test

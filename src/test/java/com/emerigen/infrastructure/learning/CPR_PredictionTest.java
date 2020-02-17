@@ -379,7 +379,7 @@ public class CPR_PredictionTest {
 	}
 
 	@Test
-	public final void givenOneCycleNode_whenCurrentSensorEventMatches_thenDataPointDurationsMergedAndEventDiscarded() {
+	public final void givenOneCycleNode_whenCurrentSensorEventMatches_thenDataPointDurationsMergedAndEventDiscardedNoPredictions() {
 		// Given
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);

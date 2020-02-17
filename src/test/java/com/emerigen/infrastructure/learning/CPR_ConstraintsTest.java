@@ -75,6 +75,60 @@ public class CPR_ConstraintsTest {
 	}
 
 	@Test
+	public final void givenValidCycle_whenEventWithDifferentSensorType_thenIllegalArgumentException() {
+
+		// Given
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+
+		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event1));
+
+		then(throwable).as("An invalid sensor throws IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public final void givenValidCycle_whenEventWithDifferentSensorLocation_thenIllegalArgumentException() {
+
+		// Given
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor2 = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_WATCH);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor2, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+
+		event2.setTimestamp(event2.getTimestamp() - gpsCycle.cycleDurationTimeNano);
+
+		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event1));
+
+		then(throwable).as("An invalid sensor location throws IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public final void givenNonEmptyCycleAndNewEventExistingPriorToCycleStart_whenOnSensorChangedCalled_thenEventOutOfOrderException() {
 
 		// Given
@@ -228,13 +282,8 @@ public class CPR_ConstraintsTest {
 		cpr.onSensorChanged(event1);
 		cpr.onSensorChanged(event2);
 
-		long sum = gpsCycle.nodeList.get(0).getStartTimeOffsetNano()
-				+ gpsCycle.nodeList.get(1).getStartTimeOffsetNano();
-
 		long difference = gpsCycle.nodeList.get(1).getStartTimeOffsetNano()
 				- gpsCycle.nodeList.get(0).getStartTimeOffsetNano();
-//		assertThat(gpsCycle.nodeList.get(1).getStartTimeOffsetNano()).isEqualTo(sum);
-		assertThat(sum).isLessThan(gpsCycle.cycleDurationTimeNano);
 		assertThat(difference).isEqualTo(20000);
 	}
 

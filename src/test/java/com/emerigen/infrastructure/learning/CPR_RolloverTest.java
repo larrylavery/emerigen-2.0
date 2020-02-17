@@ -353,8 +353,8 @@ public class CPR_RolloverTest {
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(4);
 		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event3);
-		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event4);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event4);
+		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event3);
 		assertThat(gpsCycle.getNodeList().get(3).getSensorEvent()).isEqualTo(event2);
 	}
 
