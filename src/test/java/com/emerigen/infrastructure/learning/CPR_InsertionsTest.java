@@ -1,7 +1,6 @@
 package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Random;
@@ -75,22 +74,8 @@ public class CPR_InsertionsTest {
 	}
 
 	@Test
-	public final void givenNewEvent_whenOnSensorChangedCalled_thenEventAddedAtAppropriatePositionAndFollowingEventIsReturnedAsPrediction() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenPreviousEventAndCurrentEventInOrder_whenOnSensorChangedCalled_thenEventAddedToCycleAndOnePredictionReturned() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenPreviousEventAndEventToGoAtEndOfCycle_whenOnSensorChangedCalled_thenEventAddedToCycleEndCycleRolledOverAndFirstPredictionListReturned() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd() {
+	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd()
+			throws InterruptedException {
 
 		// Given
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
@@ -102,8 +87,8 @@ public class CPR_InsertionsTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		event2.setTimestamp(event1.getTimestamp() + 10000);
@@ -162,28 +147,6 @@ public class CPR_InsertionsTest {
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
 		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-	}
-
-	@Test
-	public final void givenNonEmptyCycle_whenSignificantlyDifferentEventDataPointArrives_thenNewNodeAddedToEndOfCycle() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(0);
-
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		cpr.onSensorChanged(event1);
-		cpr.onSensorChanged(event2);
-
-		// Then
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
 	}
 
 	@Test

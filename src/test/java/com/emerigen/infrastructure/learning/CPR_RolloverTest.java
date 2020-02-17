@@ -207,6 +207,36 @@ public class CPR_RolloverTest {
 	}
 
 	@Test
+	public final void givenNonEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedFirstInOrder() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		// event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() - 1000 + gpsCycle.cycleDurationTimeNano);
+
+		// Test that event added to the beginning of the next cycle
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		predictions = cpr.onSensorChanged(event2);
+
+		// Then
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event2);
+		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
 	public final void givenNonEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedInOrder() {
 
 		// Given
@@ -355,38 +385,6 @@ public class CPR_RolloverTest {
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
 		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
 		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
-	}
-
-	@Test
-	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd() {
-
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
-
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() + 10000);
-		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-		event3.setTimestamp(event2.getTimestamp() + 10000);
-		cpr.onSensorChanged(event1);
-		cpr.onSensorChanged(event2);
-		cpr.onSensorChanged(event3);
-
-		// Then
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(3);
-		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
-		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event3);
-
 	}
 
 	@Test
