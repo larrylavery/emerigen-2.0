@@ -74,6 +74,66 @@ public class CPR_InsertionsTest {
 	}
 
 	@Test
+	public final void givenEventExistingCycle_whenOnSensorChangedCalled_thenPositionAfterEventReturnedAsPrediction() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		event3.setTimestamp(event1.getTimestamp() - 10000 + gpsCycle.cycleDurationTimeNano);
+
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		assertThat(predictions).isNotNull().isEmpty();
+
+		predictions = cpr.onSensorChanged(event2);
+		assertThat(predictions).isNotNull().isEmpty();
+
+		predictions = cpr.onSensorChanged(event3);
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(predictions.size()).isEqualTo(1);
+		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
+	public final void givenCycleWithMultipleNodes_whenNewEventWithRolloverAndLeastTimestamp_thenEventAddedToFirstPosition() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() - 10000 + gpsCycle.cycleDurationTimeNano);
+
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		assertThat(predictions).isNotNull().isEmpty();
+
+		predictions = cpr.onSensorChanged(event2);
+		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(predictions.size()).isEqualTo(1);
+		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event1);
+	}
+
+	@Test
 	public final void givenNonEmptyCycle_whenNewSensorEventPastAllExistingEvents_thenAddedToEnd()
 			throws InterruptedException {
 

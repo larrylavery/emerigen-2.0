@@ -108,7 +108,7 @@ public abstract class Cycle {
 		List<Prediction> predictions = new ArrayList<>();
 		CycleNode newCycleNode = new CycleNode(this, newSensorEvent);
 		nodeList.add(previousCycleNodeIndex, newCycleNode);
-		predictions.add(new CyclePrediction(newSensorEvent));
+		predictions.add(new CyclePrediction(nodeList.get(previousCycleNodeIndex + 1)));
 		incrementPreviousNodeIndex();
 		return predictions;
 
@@ -121,11 +121,22 @@ public abstract class Cycle {
 	 * 
 	 * TODO revisit offset calculation and verify with test
 	 */
+	List<Prediction> addToBeginningOfCycle(SensorEvent newSensorEvent) {
+		List<Prediction> predictions = new ArrayList<Prediction>();
+		CycleNode node = new CycleNode(this, newSensorEvent);
+		addFirstCycleNode(node);
+		if (nodeList.size() > 1)
+			predictions.add(new CyclePrediction(nodeList.get(previousCycleNodeIndex + 1)));
+		return predictions;
+
+	}
+
 	private void addFirstCycleNode(CycleNode newCycleNode) {
 		long timestamp = newCycleNode.getSensorEvent().getTimestamp();
 		long duration = newCycleNode.getTimeOffset(timestamp);
 		newCycleNode.setDataPointDurationNano(duration);
-		nodeList.add(newCycleNode);
+		nodeList.add(0, newCycleNode);
+		setPreviousCycleNodeIndex(0);
 		previousCycleNodeIndex = nodeList.indexOf(newCycleNode);
 		logger.info("New cycle list, adding first node: " + newCycleNode.toString());
 	}
@@ -146,10 +157,16 @@ public abstract class Cycle {
 
 		nodeList.remove(previousCycleNodeIndex);
 		nodeList.add(previousCycleNodeIndex, newCycleNode);
+		previousCycleNodeIndex = nodeList.indexOf(newCycleNode);
 		logger.info("New cycle Node merged with previous node, merged node: " + newCycleNode.toString()
 				+ ", cycle list: " + nodeList.toString());
-		predictions.add(new CyclePrediction(nodeList.get(previousCycleNodeIndex + 1).getSensorEvent()));
-//		previousCycleNodeIndex = incrementIndex(previousCycleNodeIndex);
+		if (nodeList.size() > (previousCycleNodeIndex + 1)) {
+			CycleNode node = nodeList.get(previousCycleNodeIndex + 1);
+			SensorEvent event = node.getSensorEvent();
+			Prediction prediction = new CyclePrediction(event);
+			predictions.add(prediction);
+			logger.info("New cycle Node merged and prediction being returned: " + prediction);
+		}
 		return predictions;
 	}
 

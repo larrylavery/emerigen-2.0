@@ -3,7 +3,6 @@ package com.emerigen.infrastructure.learning;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -89,32 +88,6 @@ public class CPR_LearningTest {
 	}
 
 	@Test
-	public final void givenNewCycle_whenOnSensorChangedCalled_thenEventAddedToCycleAndEmptyPredictionListReturned() {
-		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
-
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-
-		SensorManager.getInstance().registerListenerForSensor(cpr, gpsSensor);
-		// When
-		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
-		float[] values2 = { 5.0f, 2.0f };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-
-		// Set the event timestamp to after the cycle duration
-		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
-
-		long previousCycleStartTime = gpsCycle.getCycleStartTimeNano();
-		List<Prediction> predictions = cpr.onSensorChanged(event1);
-		long currentCycleStartTime = gpsCycle.getCycleStartTimeNano();
-
-		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(gpsCycle.cycleDurationTimeNano);
-		assertThat(predictions).isNotNull().isEmpty();
-	}
-
-	@Test
 	public final void givenValidCycleNodes_whenDurationsAdded_thenMustBeLessThanCycleDuration() {
 		fail("Not yet implemented"); // TODO
 	}
@@ -139,30 +112,6 @@ public class CPR_LearningTest {
 
 		// Then
 		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
-	}
-
-	@Test
-	public final void givenNonEmptyCycle_whenEqualNewNodeArrives_thenCycleContainsMergedNode() {
-
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
-
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values);
-		List<Prediction> predictions = cpr.onSensorChanged(event1);
-		predictions = cpr.onSensorChanged(event2);
-
-		// Then
-		assertThat(predictions).isNotNull().isNotEmpty();
-		assertThat(predictions.size()).isEqualTo(1);
 	}
 
 	@BeforeClass

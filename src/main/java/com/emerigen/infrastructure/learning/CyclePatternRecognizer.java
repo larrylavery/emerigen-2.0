@@ -95,7 +95,12 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 							// Have we passed the most recent previous cycle node?
 						} else if (cycle
 								.previousSensorEventOccuredAfterCurrentSensorEvent(currentSensorEvent)) {
-							predictions = cycle.insertBeforePreviousNode(currentSensorEvent);
+							if (locateLastPreviousNodeWithTimestampAfterCurrentSensorEvent(
+									currentSensorEvent)) {
+								predictions = cycle.insertBeforePreviousNode(currentSensorEvent);
+							} else {
+								predictions = cycle.addToBeginningOfCycle(currentSensorEvent);
+							}
 							return predictions;
 						}
 					} // end for more cycle nodes
@@ -112,6 +117,36 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		// Save and return any current predictions
 		predictionService.setCurrentPredictions(predictions);
 		return predictions;
+	}
+
+	/**
+	 * Locate the first prior node in the cycle with a timestamp less than the
+	 * current event. At the end of this method the previous Cycle index will be
+	 * pointing to the position to insert the current node.
+	 * 
+	 * @param currentSensorEvent
+	 */
+	private boolean locateLastPreviousNodeWithTimestampAfterCurrentSensorEvent(
+			SensorEvent currentSensorEvent) {
+		while (cycle.getPreviousCycleNodeIndex() >= 0) {
+
+			// previous node time greater than current, iterate to its previous
+			if (cycle.previousSensorEventOccuredAfterCurrentSensorEvent(currentSensorEvent)) {
+				cycle.setPreviousCycleNodeIndex(cycle.getPreviousCycleNodeIndex() - 1);
+			} else {
+				/**
+				 * We have located the 1st previous node whose timestamp is less than the
+				 * current event. Insert the new event after this node.
+				 */
+				cycle.incrementPreviousNodeIndex();
+				return true;
+			}
+		}
+		/**
+		 * All cycle nodes have timestamps greater than the current, insert the new node
+		 * first in the cycle
+		 */
+		return false;
 	}
 
 	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {

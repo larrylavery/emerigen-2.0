@@ -116,9 +116,9 @@ public class SensorEvent {
 		return result;
 	}
 
-	private int getValuesHashCode() {
+	private long getValuesHashCode() {
 		final int prime = 31;
-		int result = 1;
+		long result = 1;
 		result = prime * result + Arrays.hashCode(values);
 		return result;
 	}
