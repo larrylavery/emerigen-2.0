@@ -37,7 +37,7 @@ public class DynamicLoggingAspectTest {
 	@Test
 	public final void givenLoggingAspectCreated_whenExceptionFrequencyExceeded_thenLoggingLevelChangedToDebug() {
 		// given
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 10; i++) {
 			try {
 				DynamicLoggingAspectTest.exceptionThrower();
 			} catch (Exception e) {

@@ -18,9 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
-import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.Utils;
 
 public class CycleConstraintsTest {
@@ -163,56 +161,6 @@ public class CycleConstraintsTest {
 
 	}
 
-	@Test
-	public final void givenDifferencePastEqualityThreshold_whenGetStandardDeviation_thenNotEqual() {
-		assertThat(Utils.equals(1, 5)).isFalse();
-	}
-
-	@Test
-	public final void givenInts_whenGetStandardDeviation_thenValueCorrect() {
-		double std = Utils.getStandardDeviation(4, 0);
-		assertThat(Utils.equals(std, 2.82842712475, .2)).isTrue();
-	}
-
-	@Test
-	public final void givenFloats_whenGetStandardDeviation_thenValueCorrect() {
-		double std = Utils.getStandardDeviation(4.0f, 0f);
-		assertThat(Utils.equals(std, 2.82842712475, .2)).isTrue();
-	}
-
-	@Test
-	public final void givenDifferenceOf4_whenGetStandardDeviation_then2returned() {
-		double std = Utils.getStandardDeviation(4);
-		assertThat(Utils.equals(std, 2.82842712475, .2)).isTrue();
-	}
-
-	@Test
-	public final void givenNodesWithinStandardDeviationForEquality_whenCheckedForEquality_thenTrue() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		float[] values = { 1.1f, 2.2f };
-		float[] values2 = { 1.1f, 2.2f };
-		SensorEvent event1 = new SensorEvent(sensor, values);
-		SensorEvent event2 = new SensorEvent(sensor, values2);
-		CycleNode node1 = new CycleNode(myCycle, event1, 1);
-		CycleNode node2 = new CycleNode(myCycle, event2, 1);
-		assertThat(node1.equals(node2)).isTrue();
-	}
-
-	@Test
-	public final void givenNodesNotWithinStandardDeviationForEquality_whenCheckedForEquality_thenFalse() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		float[] values = { 1.1f, 2.2f };
-		float[] values2 = { 11.11f, 12.21f };
-		SensorEvent event1 = new SensorEvent(sensor, values);
-		SensorEvent event2 = new SensorEvent(sensor, values2);
-		CycleNode node1 = new CycleNode(myCycle, event1, 1);
-		CycleNode node2 = new CycleNode(myCycle2, event2, 1);
-		assertThat(node1.equals(node2)).isFalse();
-	}
-
-	@Test
 	public final void givenNonPositiveDataPointDuration_whenSetOnNode_thenIllegalArgumentException() {
 		SoftAssertions softly = new SoftAssertions();
 

@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * @IDEA Cycles/Nodes/Fields with standard deviation-based equality. Allows each
@@ -79,12 +78,11 @@ public class CycleNode {
 	 * 
 	 * TODO implement Node-specific std deviation for now. add Cycle/Field later
 	 */
-	private static double allowableStandardDeviationForEquality = Double
-			.parseDouble(EmerigenProperties.getInstance()
-					.getValue("cycle.allowable.std.deviation.for.equality"));
+	private static double allowableStandardDeviationForEquality = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("cycle.allowable.std.deviation.for.equality"));
 
-	private static long defaultCycleNodeDurationNano = Long.parseLong(EmerigenProperties
-			.getInstance().getValue("cycle.default.data.point.duration.nano"));
+	private static long defaultCycleNodeDurationNano = Long
+			.parseLong(EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
 
 	private static final Logger logger = Logger.getLogger(CycleNode.class);
 
@@ -129,8 +127,7 @@ public class CycleNode {
 		if (nodeToMergeWith == null)
 			throw new IllegalArgumentException("nodeToMergeWith must not be null");
 		if (nodeToMergeWith.myCycle != myCycle)
-			throw new IllegalArgumentException(
-					"Both nodes must be part of the same cycle");
+			throw new IllegalArgumentException("Both nodes must be part of the same cycle");
 
 		CycleNode newCycleNode = new CycleNode(myCycle, nodeToMergeWith.getSensorEvent(),
 				this.dataPointDurationNano + nodeToMergeWith.dataPointDurationNano);
@@ -145,15 +142,12 @@ public class CycleNode {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
-//		result = prime * result + ((myCycle == null) ? 0 : myCycle.hashCode());
+		result = prime * result + (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
 		long temp;
 		temp = Double.doubleToLongBits(probability);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((sensorEvent == null) ? 0 : sensorEvent.hashCode());
-		result = prime * result
-				+ (int) (startTimeOffsetNano ^ (startTimeOffsetNano >>> 32));
+		result = prime * result + (int) (startTimeOffsetNano ^ (startTimeOffsetNano >>> 32));
 		return result;
 	}
 
@@ -166,10 +160,9 @@ public class CycleNode {
 		if (getClass() != obj.getClass())
 			return false;
 		CycleNode other = (CycleNode) obj;
-		if (!Utils.equals(dataPointDurationNano, other.dataPointDurationNano))
+		if (dataPointDurationNano != other.dataPointDurationNano)
 			return false;
-		if (Double.doubleToLongBits(probability) != Double
-				.doubleToLongBits(other.probability))
+		if (Double.doubleToLongBits(probability) != Double.doubleToLongBits(other.probability))
 			return false;
 		if (sensorEvent == null) {
 			if (other.sensorEvent != null)
@@ -206,9 +199,8 @@ public class CycleNode {
 
 	@Override
 	public String toString() {
-		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationNano="
-				+ dataPointDurationNano + ", startTimeOffsetNano=" + startTimeOffsetNano
-				+ ", probability=" + probability + "]";
+		return "CycleNode [sensorEvent=" + sensorEvent + ", dataPointDurationNano=" + dataPointDurationNano
+				+ ", startTimeOffsetNano=" + startTimeOffsetNano + ", probability=" + probability + "]";
 	}
 
 	/**
@@ -259,8 +251,7 @@ public class CycleNode {
 	/**
 	 * @param defaultCycleNodeDurationNano the defaultCycleNodeDurationNano to set
 	 */
-	public static void setDefaultCycleNodeDurationNano(
-			long defaultCycleNodeDurationNano) {
+	public static void setDefaultCycleNodeDurationNano(long defaultCycleNodeDurationNano) {
 		CycleNode.defaultCycleNodeDurationNano = defaultCycleNodeDurationNano;
 	}
 
