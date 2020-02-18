@@ -4,7 +4,7 @@
       "sensorLocation": 1,
   "cycleStartTimeNano": 1,
   "cycleDurationTimeNano": 4,
-  "allowableStandardDeviationForEquality": 1.1,
+  "allowablePercentDifferenceForEquality": 1.1,
   "previousCycleNodeIndex": 0,
   "nodeList": [
     {

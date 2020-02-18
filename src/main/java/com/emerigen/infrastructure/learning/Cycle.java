@@ -190,7 +190,7 @@ public abstract class Cycle {
 	boolean eventIsOutOfOrder(SensorEvent sensorEvent) {
 
 		// If event occured prior to the previous event then out of order
-		if (previousCycleNodeIndex >= 0) {
+		if (previousCycleNodeIndex >= 0 && !nodeList.isEmpty()) {
 			long previousEventTimestamp = nodeList.get(previousCycleNodeIndex).getSensorEvent()
 					.getTimestamp();
 			if (sensorEvent.getTimestamp() < previousEventTimestamp)
@@ -245,7 +245,7 @@ public abstract class Cycle {
 		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationTimeNano="
 				+ cycleDurationTimeNano + ", nodeList=" + nodeList + ", previousCycleNodeIndex="
 				+ previousCycleNodeIndex + ", cycleType=" + cycleType + ", sensorLocation=" + sensorLocation
-				+ ", sensorType=" + sensorType + ", allowablePercentDifferenceForEquality="
+				+ ", sensorType=" + sensorType + ", PercentDifferenceForEquality="
 				+ allowablePercentDifferenceForEquality + "]";
 	}
 
@@ -273,8 +273,8 @@ public abstract class Cycle {
 		if (getClass() != obj.getClass())
 			return false;
 		Cycle other = (Cycle) obj;
-//		if (Double.doubleToLongBits(allowablePercentDifferenceForEquality) != Double
-//				.doubleToLongBits(other.allowableStandardDeviationForEquality))
+//		if (Double.doubleToLongBits(PercentDifferenceForEquality) != Double
+//				.doubleToLongBits(other.StandardDeviationForEquality))
 //			return false;
 		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
 			return false;
@@ -376,9 +376,7 @@ public abstract class Cycle {
 	}
 
 	/**
-	 * @param allowablePercentDifferenceForEquality the
-	 *                                              allowablePercentDifferenceForEquality
-	 *                                              to set
+	 * @param PercentDifferenceForEquality the PercentDifferenceForEquality to set
 	 */
 	public void setAllowablePercentDifferenceForEquality(double allowablePercentDifferenceForEquality) {
 		this.allowablePercentDifferenceForEquality = allowablePercentDifferenceForEquality;

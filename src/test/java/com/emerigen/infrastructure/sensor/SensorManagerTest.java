@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.CPR_InsertionsTest;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
@@ -144,16 +145,16 @@ public class SensorManagerTest {
 	@Test
 	public final void givenOnePatternRecognizerInRepository_whenUnregistered_thenNoRegistrationsInRepository() {
 		SensorManager sm = SensorManager.getInstance();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
 		assertThat(listeners).isNotNull();
-		assertThat(listeners.size()).isEqualTo(2);
+		assertThat(listeners.size()).isGreaterThan(0);
+		int listenerSize = listeners.size();
 		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
 
 		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(sensor);
-		assertThat(listeners).isNotNull();
-		assertThat(listeners.size()).isEqualTo(1);
+		assertThat(listeners2.size()).isEqualTo(listenerSize - 1);
 	}
 
 	@Test
@@ -161,39 +162,62 @@ public class SensorManagerTest {
 		SensorManager sm = SensorManager.getInstance();
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
+		List<SensorEventListener> origLlisteners = sm.getRegistrationsForSensor(sensor);
+		int origSize = origLlisteners.size();
+
 		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
-		assertThat(listeners).isNotNull();
-		assertThat(listeners.size()).isEqualTo(2);
+		assertThat(listeners).isNotNull().isNotEmpty();
+
 		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
 
 		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(sensor);
-		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
-		listeners2 = sm.getRegistrationsForSensor(sensor);
-		assertThat(listeners2).isNotNull();
-		assertThat(listeners2.size()).isEqualTo(0);
+		assertThat(listeners2.size()).isEqualTo(origSize - 1);
+//		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
+//		listeners2 = sm.getRegistrationsForSensor(sensor);
+//		assertThat(listeners2).isNotNull();
+//		assertThat(listeners2.size()).isEqualTo(0);
 	}
 
 	@Test
-	public final void givenMultiplePatternRecognizersInRepository_whenUnregistered_thenNoRegistration() {
+	public final void givenMultiplePatternRecognizersRegistered_whenUnregistered_thenNoRegistration() {
 		SensorManager sm = SensorManager.getInstance();
+		sm.reset();
+
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
-		sm.unregisterListenerFromSensor(null, sensor);
+		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(cycle, new PredictionService());
+
+		List<SensorEventListener> origLlisteners = sm.getRegistrationsForSensor(sensor);
+		int origSize = origLlisteners.size();
+
+		sm.registerListenerForSensor(cpr, sensor);
+
 		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
 		assertThat(listeners).isNotNull();
-		assertThat(listeners.size()).isEqualTo(2);
+		assertThat(listeners.size()).isEqualTo(origSize + 1);
+
+		sm.unregisterListenerFromSensor(cpr, sensor);
+		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(sensor);
+		assertThat(listeners2).isNotNull();
+		assertThat(listeners2.size()).isEqualTo(origSize);
 	}
 
 	@Test
 	public final void givenOnePatternRecognizerInRepository_whenAppStartup_thenIsRegisteredIsTrue() {
 		SensorManager sm = SensorManager.getInstance();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor sensor2 = sm.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
-		SensorEventListener listener = new TransitionPatternRecognizer(sensor, new PredictionService(sensor));
-		sm.unregisterListenerFromSensor(listener, sensor);
 		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
+		int listenersSize = listeners.size();
+		assertThat(listeners).isNotNull().isNotEmpty();
+		assertThat(listeners.size() >= 1).isTrue();
+
+		sm.unregisterListenerFromSensor(listeners.get(0), sensor);
+		listeners = sm.getRegistrationsForSensor(sensor);
 		assertThat(listeners).isNotNull();
-		assertThat(listeners.size()).isEqualTo(1);
+		assertThat(listeners.size() == listenersSize - 1).isTrue();
 	}
 
 	@Test

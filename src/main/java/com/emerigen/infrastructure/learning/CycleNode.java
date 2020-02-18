@@ -78,8 +78,8 @@ public class CycleNode {
 	 * 
 	 * TODO implement Node-specific std deviation for now. add Cycle/Field later
 	 */
-	private static double allowableStandardDeviationForEquality = Double.parseDouble(
-			EmerigenProperties.getInstance().getValue("cycle.allowable.std.deviation.for.equality"));
+	private static double allowablePercentDifferenceForEquality = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("cycle.allowable.percent.difference.for.equality"));
 
 	private static long defaultCycleNodeDurationNano = Long
 			.parseLong(EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
@@ -227,8 +227,8 @@ public class CycleNode {
 	/**
 	 * @return the allowableStandardDeviationForEquality
 	 */
-	public static double getAllowableStandardDeviationForEquality() {
-		return allowableStandardDeviationForEquality;
+	public static double getAllowablePercentDifferenceForEquality() {
+		return allowablePercentDifferenceForEquality;
 	}
 
 	/**
@@ -236,9 +236,9 @@ public class CycleNode {
 	 *                                              allowableStandardDeviationForEquality
 	 *                                              to set
 	 */
-	public static void setAllowableStandardDeviationForEquality(
-			double allowableStandardDeviationForEquality) {
-		CycleNode.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+	public static void setAllowablePercentDifferenceForEquality(
+			double allowablePercentDifferenceForEquality) {
+		CycleNode.allowablePercentDifferenceForEquality = allowablePercentDifferenceForEquality;
 	}
 
 	/**
@@ -281,10 +281,6 @@ public class CycleNode {
 	 */
 	public void setProbability(double probability) {
 		this.probability = probability;
-	}
-
-	public void setallowableStandardDeviationForEquality(double d) {
-		this.allowableStandardDeviationForEquality = d;
 	}
 
 }

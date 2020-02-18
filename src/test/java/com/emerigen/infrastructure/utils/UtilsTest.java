@@ -71,7 +71,7 @@ public class UtilsTest {
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };
-		float[] values2 = { 1.13f, 2.24f };
+		float[] values2 = { 1.12f, 2.23f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 		CycleNode node1 = new CycleNode(myCycle, event1, 1);

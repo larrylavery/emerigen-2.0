@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
+import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class SensorManager {
@@ -51,9 +52,7 @@ public class SensorManager {
 	}
 
 	public SensorManager() {
-		eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
-		disabledEventListeners = null;
-		allSensors = new ArrayList<Sensor>();
+		this(new PredictionService());
 	}
 
 	/**
@@ -124,9 +123,9 @@ public class SensorManager {
 			throw new IllegalArgumentException("sensor must not be null");
 
 		// Retrieve all cycle pattern recognizers for this sensor type
-		List<SensorEventListener> patternRecognizers = new ArrayList<>();
-//		List<SensorEventListener> patternRecognizers = KnowledgeRepository.getInstance()
-//				.getPatternRecognizersForSensor(sensor);
+//		List<SensorEventListener> patternRecognizers = new ArrayList<>();
+		List<SensorEventListener> patternRecognizers = KnowledgeRepository.getInstance()
+				.getPatternRecognizersForSensor(sensor);
 
 		// Add a Transition pattern recognizer to the list for this sensor
 		patternRecognizers.add(new TransitionPatternRecognizer(sensor, new PredictionService(sensor)));

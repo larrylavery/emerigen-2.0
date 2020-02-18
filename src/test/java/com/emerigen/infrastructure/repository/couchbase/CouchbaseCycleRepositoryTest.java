@@ -43,7 +43,7 @@ public class CouchbaseCycleRepositoryTest {
 				.put("dataPointDuration", 500).put("probability", 0.3);
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily").put("cycleStartTimeNano", 20)
-				.put("cycleDurationTimeNano", 1500).put("allowableStandardDeviationForEquality", 0.8)
+				.put("cycleDurationTimeNano", 1500).put("allowablePercentDifferenceForEquality", 0.8)
 				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("sensorType", Sensor.TYPE_HEART_RATE).put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
@@ -96,7 +96,7 @@ public class CouchbaseCycleRepositoryTest {
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily").put("cycleStartTimeNano", 20)
 				.put("cycleDurationTimeNano", 1500).put("sensorType", Sensor.TYPE_HEART_RATE)
 				.put("sensorLocation", Sensor.LOCATION_WATCH)
-				.put("allowableStandardDeviationForEquality", 0.8).put("previousCycleNodeIndex", 0)
+				.put("allowablePercentDifferenceForEquality", 0.8).put("previousCycleNodeIndex", 0)
 				.put("previousCycleNodeIndex", 0).put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test

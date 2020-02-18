@@ -274,7 +274,7 @@ public class CPR_ConstraintsTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		event2.setTimestamp(event1.getTimestamp() + 20000);
