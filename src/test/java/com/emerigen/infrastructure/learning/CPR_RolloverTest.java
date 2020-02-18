@@ -114,7 +114,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		event2.setTimestamp(event1.getTimestamp() - 100 + gpsCycle.cycleDurationTimeNano);
@@ -145,7 +145,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		event2.setTimestamp(event1.getTimestamp() + 100 + gpsCycle.cycleDurationTimeNano);
@@ -176,8 +176,8 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		// event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
@@ -219,7 +219,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		// event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
@@ -249,7 +249,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		// event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
@@ -279,7 +279,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		event1.setTimestamp(event1.getTimestamp() + gpsCycle.cycleDurationTimeNano);
 
@@ -305,7 +305,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		event1.setTimestamp(event1.getTimestamp() + (2 * gpsCycle.cycleDurationTimeNano));
 
@@ -331,9 +331,9 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = { rd.nextFloat(), rd.nextFloat() };
-		float[] values4 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
+		float[] values4 = { rd.nextFloat() + 1000, rd.nextFloat() + 1000 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		event2.setTimestamp(event1.getTimestamp() + 1000);
@@ -371,7 +371,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		event2.setTimestamp(gpsCycle.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
@@ -399,7 +399,7 @@ public class CPR_RolloverTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
