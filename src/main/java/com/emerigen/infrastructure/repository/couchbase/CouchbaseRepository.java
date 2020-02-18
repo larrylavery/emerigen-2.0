@@ -280,4 +280,28 @@ public class CouchbaseRepository {
 	public CouchbaseRepositoryConfig getConfig() {
 		return couchbaseRepositoryConfig;
 	}
+
+	/**
+	 * Remove the document with the given key from the specified bucket
+	 * 
+	 * @param bucketName
+	 * @param key
+	 */
+	public void remove(String bucketName, String key) {
+		if (bucketName == null | bucketName.isEmpty())
+			throw new IllegalArgumentException("bucketName must not be null or empty");
+		if (key == null | key.isEmpty())
+			throw new IllegalArgumentException("key must not be null or empty");
+
+		openBucketIfNecessary(bucketName);
+		Bucket bucket = buckets.get(bucketName);
+		if (bucket != null) {
+
+			String queryString = "DELETE FROM " + bucketName + " WHERE id =  \"" + key + "\"";
+			N1qlQueryResult result = CouchbaseRepository.getInstance().query(bucketName,
+					N1qlQuery.simple(queryString));
+//			throw new RepositoryException(
+//					"Error occurred while deleting all documents in bucket (" + bucket.name() + ")");
+		}
+	}
 }

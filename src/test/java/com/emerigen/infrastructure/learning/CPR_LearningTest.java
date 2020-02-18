@@ -79,12 +79,14 @@ public class CPR_LearningTest {
 	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAreRegistered() {
 		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH, 1);
 
-		KnowledgeRepository.getInstance().newCycle(UUID.randomUUID().toString(), cycle);
+		String key = UUID.randomUUID().toString();
+		KnowledgeRepository.getInstance().newCycle(key, cycle);
 		SensorManager sm = SensorManager.getInstance();
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		CyclePatternRecognizer PR = new CyclePatternRecognizer(cycle, new PredictionService(sensor));
 
 		assertThat(sm.listenerIsRegisteredToSensor(PR, sensor)).isTrue();
+		// CouchbaseRepository.getInstance().remove("cycle", key);
 	}
 
 	@Test

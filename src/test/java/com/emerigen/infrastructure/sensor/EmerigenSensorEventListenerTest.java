@@ -174,13 +174,13 @@ public class EmerigenSensorEventListenerTest {
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
-		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(2);
+		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(1);
 
 		listener.onPause();
 		assertThat(sm.getRegistrationsForSensor(sensor)).isNull();
 
 		listener.onResume();
-		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(2);
+		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(1);
 
 	}
 

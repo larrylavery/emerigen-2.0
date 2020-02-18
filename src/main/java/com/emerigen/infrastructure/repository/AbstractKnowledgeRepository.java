@@ -98,11 +98,6 @@ public abstract class AbstractKnowledgeRepository {
 	// Log a neww SensorEvent
 	public abstract String newSensorEvent(SensorEvent sensorEvent);
 
-	// Log a new Cycle
-//	public abstract void newCycle(Cycle cycle);
-
-	// Log that a sensor event transition has been learned
-
 	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType, int sensorLocation);
 
 	// Get the prediction accuracy fro a specific entity on the channel

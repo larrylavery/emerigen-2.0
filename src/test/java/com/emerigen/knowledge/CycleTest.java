@@ -64,7 +64,7 @@ public class CycleTest {
 				.put("cycleStartTimeNano", cycle.getCycleStartTimeNano())
 				.put("cycleDurationTimeNano", cycle.getCycleDurationTimeNano())
 				.put("allowableStandardDeviationForEquality",
-						cycle.getAllowableStandardDeviationForEquality())
+						cycle.getAllowablePercentDifferenceForEquality())
 				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("nodeList", JsonArray.from(cycleNodeJsonDoc));
 
@@ -78,8 +78,8 @@ public class CycleTest {
 		assertThat(retrievedCycle).isNotNull();
 		assertThat(retrievedCycle.getCycleStartTimeNano()).isEqualTo(cycle.getCycleStartTimeNano());
 		assertThat(retrievedCycle.getCycleDurationTimeNano()).isEqualTo(cycle.getCycleDurationTimeNano());
-		assertThat(retrievedCycle.getAllowableStandardDeviationForEquality())
-				.isEqualTo(cycle.getAllowableStandardDeviationForEquality());
+		assertThat(retrievedCycle.getAllowablePercentDifferenceForEquality())
+				.isEqualTo(cycle.getAllowablePercentDifferenceForEquality());
 		assertThat(retrievedCycle.getPreviousCycleNodeIndex()).isEqualTo(cycle.getPreviousCycleNodeIndex());
 
 		// Verify cycle node
@@ -106,6 +106,8 @@ public class CycleTest {
 		assertThat(se.getSensor().getReportingMode()).isEqualTo(sensor.getReportingMode());
 		assertThat(se.getSensor().isWakeUpSensor()).isEqualTo(sensor.isWakeUpSensor());
 		softly.assertAll();
+//		CouchbaseRepository.getInstance().remove("cycle", uuid);
+
 	}
 
 	@Test
@@ -261,17 +263,9 @@ public class CycleTest {
 
 		// Then try to retrieve it
 		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle("Daily", uuid);
-//
-//		String statement = "SELECT predictedSensorEventKey FROM `transition` WHERE firstSensorEventKey = \""
-//				+ sensorEventKey + "\"";
-//		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-//				N1qlQuery.simple(statement));
-//		List<String> predictedSensorEventKeys = new ArrayList<String>();
-//		for (N1qlQueryRow row : result) {
-//			predictedSensorEventKeys.add(row.value().toString());
-//		}
 
 		assertThat(cycle2.equals(cycle)).isTrue();
+//		CouchbaseRepository.getInstance().remove("cycle", uuid);
 	}
 
 }

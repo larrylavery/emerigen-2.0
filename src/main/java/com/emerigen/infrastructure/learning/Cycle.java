@@ -59,8 +59,8 @@ public abstract class Cycle {
 	private int sensorLocation;
 	private int sensorType;
 
-	private double allowableStandardDeviationForEquality = Double.parseDouble(
-			EmerigenProperties.getInstance().getValue("cycle.allowable.std.deviation.for.equality"));
+	private double allowablePercentDifferenceForEquality = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("cycle.allowable.percent.difference.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
@@ -245,8 +245,8 @@ public abstract class Cycle {
 		return "Cycle [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationTimeNano="
 				+ cycleDurationTimeNano + ", nodeList=" + nodeList + ", previousCycleNodeIndex="
 				+ previousCycleNodeIndex + ", cycleType=" + cycleType + ", sensorLocation=" + sensorLocation
-				+ ", sensorType=" + sensorType + ", allowableStandardDeviationForEquality="
-				+ allowableStandardDeviationForEquality + "]";
+				+ ", sensorType=" + sensorType + ", allowablePercentDifferenceForEquality="
+				+ allowablePercentDifferenceForEquality + "]";
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public abstract class Cycle {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(allowableStandardDeviationForEquality);
+		temp = Double.doubleToLongBits(allowablePercentDifferenceForEquality);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
 		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
@@ -273,7 +273,7 @@ public abstract class Cycle {
 		if (getClass() != obj.getClass())
 			return false;
 		Cycle other = (Cycle) obj;
-//		if (Double.doubleToLongBits(allowableStandardDeviationForEquality) != Double
+//		if (Double.doubleToLongBits(allowablePercentDifferenceForEquality) != Double
 //				.doubleToLongBits(other.allowableStandardDeviationForEquality))
 //			return false;
 		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
@@ -376,16 +376,16 @@ public abstract class Cycle {
 	}
 
 	/**
-	 * @param allowableStandardDeviationForEquality the
-	 *                                              allowableStandardDeviationForEquality
+	 * @param allowablePercentDifferenceForEquality the
+	 *                                              allowablePercentDifferenceForEquality
 	 *                                              to set
 	 */
-	public void setAllowableStandardDeviationForEquality(double allowableStandardDeviationForEquality) {
-		this.allowableStandardDeviationForEquality = allowableStandardDeviationForEquality;
+	public void setAllowablePercentDifferenceForEquality(double allowablePercentDifferenceForEquality) {
+		this.allowablePercentDifferenceForEquality = allowablePercentDifferenceForEquality;
 	}
 
-	public double getAllowableStandardDeviationForEquality() {
-		return allowableStandardDeviationForEquality;
+	public double getAllowablePercentDifferenceForEquality() {
+		return allowablePercentDifferenceForEquality;
 	}
 
 	public int getPreviousCycleNodeIndex() {

@@ -65,6 +65,8 @@ public class CouchbaseCycleRepositoryTest {
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);
 		softly.assertAll();
+//		CouchbaseRepository.getInstance().remove("cycle",
+//				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily");
 
 	}
 
@@ -112,6 +114,8 @@ public class CouchbaseCycleRepositoryTest {
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);
 		softly.assertAll();
+//		CouchbaseRepository.getInstance().remove("cycle",
+//				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily");
 
 	}
 

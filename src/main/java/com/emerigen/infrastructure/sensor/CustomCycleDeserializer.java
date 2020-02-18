@@ -61,8 +61,8 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 			cycle.setCycleStartTimeNano(startTime);
 			long durationTime = node.get("cycleDurationTimeNano").asLong();
 			cycle.setCycleDurationTimeNano(durationTime);
-			cycle.setAllowableStandardDeviationForEquality(
-					node.get("allowableStandardDeviationForEquality").asDouble());
+			cycle.setAllowablePercentDifferenceForEquality(
+					node.get("allowablePercentDifferenceForEquality").asDouble());
 			cycle.setPreviousCycleNodeIndex(0);
 
 			// Cycle nodes exist? build, otherwise return current cycle
@@ -79,10 +79,8 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 				// First, extract the sensor event
 				sensorEvent = extractSensorEvent(cycleNodeJsonNode);
 				cycleNode.setSensorEvent(sensorEvent);
-				cycleNode.setStartTimeOffsetNano(
-						cycleNodeJsonNode.get("cycleStartTimeOffsetNano").asLong());
-				cycleNode.setDataPointDurationNano(
-						cycleNodeJsonNode.get("dataPointDurationNano").asLong());
+				cycleNode.setStartTimeOffsetNano(cycleNodeJsonNode.get("cycleStartTimeOffsetNano").asLong());
+				cycleNode.setDataPointDurationNano(cycleNodeJsonNode.get("dataPointDurationNano").asLong());
 				cycleNode.setProbability(cycleNodeJsonNode.get("probability").asDouble());
 				cycleNode.setMyCycle(cycle);
 				cycle.addCycleNode(cycleNode);
@@ -117,14 +115,12 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 		minimumDelayBetweenReadings = node.get("minimumDelayBetweenReadings").asInt();
 		reportingMode = node.get("reportingMode").asInt();
 		wakeUpSensor = node.get("wakeUpSensor").asBoolean();
-		sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType,
-				sensorLocation);
+		sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
 		sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
 		sensor.setWakeUpSensor(wakeUpSensor);
 		sensor.setReportingMode(reportingMode);
 		sensorEvent.setSensor(sensor);
-		logger.info(
-				"Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
+		logger.info("Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
 		return sensorEvent;
 	}
 
@@ -156,7 +152,6 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 		else if ("Yearly".equals(cycleType))
 			return new YearlyCycle();
 		else
-			throw new IllegalArgumentException(
-					"Cycle type of (" + cycleType + ") is not valid.");
+			throw new IllegalArgumentException("Cycle type of (" + cycleType + ") is not valid.");
 	}
 }

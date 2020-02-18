@@ -282,8 +282,8 @@ public class CPR_ConstraintsTest {
 		cpr.onSensorChanged(event1);
 		cpr.onSensorChanged(event2);
 
-		long difference = gpsCycle.nodeList.get(1).getStartTimeOffsetNano()
-				- gpsCycle.nodeList.get(0).getStartTimeOffsetNano();
+		long difference = Math.abs(gpsCycle.nodeList.get(0).getStartTimeOffsetNano()
+				- gpsCycle.nodeList.get(1).getStartTimeOffsetNano());
 		assertThat(difference).isEqualTo(20000);
 	}
 
