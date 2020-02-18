@@ -163,8 +163,8 @@ public class TransitionPatternRecognizerTest {
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values1);
 		SensorEvent sensorEvent2 = new SensorEvent(hrSensor, values2);
