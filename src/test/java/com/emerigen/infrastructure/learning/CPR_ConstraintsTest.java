@@ -2,6 +2,7 @@ package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.Random;
@@ -33,44 +34,44 @@ public class CPR_ConstraintsTest {
 			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
-		cycle.setPreviousCycleNodeIndex(0);
-		CycleNode cycleNode;
-
-		for (int i = 0; i < numberOfNodes; i++) {
-			cycleNode = new CycleNode();
-			int minimumDelayBetweenReadings;
-			int reportingMode;
-			boolean wakeUpSensor;
-			SensorEvent sensorEvent = new SensorEvent();
-			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
-			Sensor sensor;
-
-			// Create SensorEvent
-			sensorEvent.setSensorType(sensorType);
-			sensorEvent.setSensorLocation(sensorLocation);
-
-			// Set sensor event values
-			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
-			sensorEvent.setValues(values);
-
-			// create and set event sensor
-			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
-			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
-			wakeUpSensor = false;
-			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
-			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
-			sensor.setWakeUpSensor(wakeUpSensor);
-			sensor.setReportingMode(reportingMode);
-			sensorEvent.setSensor(sensor);
-
-			// Set up the rest of the CycleNode fields
-			cycleNode.setSensorEvent(sensorEvent);
-			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
-			cycleNode.setDataPointDurationNano(1000 * (i + 1));
-			cycleNode.setProbability(0.3);
-			cycleNode.setMyCycle(cycle);
-			cycle.addCycleNode(cycleNode);
-		}
+//		cycle.setPreviousCycleNodeIndex(0);
+//		CycleNode cycleNode;
+//
+//		for (int i = 0; i < numberOfNodes; i++) {
+//			cycleNode = new CycleNode();
+//			int minimumDelayBetweenReadings;
+//			int reportingMode;
+//			boolean wakeUpSensor;
+//			SensorEvent sensorEvent = new SensorEvent();
+//			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
+//			Sensor sensor;
+//
+//			// Create SensorEvent
+//			sensorEvent.setSensorType(sensorType);
+//			sensorEvent.setSensorLocation(sensorLocation);
+//
+//			// Set sensor event values
+//			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
+//			sensorEvent.setValues(values);
+//
+//			// create and set event sensor
+//			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
+//			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
+//			wakeUpSensor = false;
+//			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
+//			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
+//			sensor.setWakeUpSensor(wakeUpSensor);
+//			sensor.setReportingMode(reportingMode);
+//			sensorEvent.setSensor(sensor);
+//
+//			// Set up the rest of the CycleNode fields
+//			cycleNode.setSensorEvent(sensorEvent);
+//			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
+//			cycleNode.setDataPointDurationNano(1000 * (i + 1));
+//			cycleNode.setProbability(0.3);
+//			cycleNode.setMyCycle(cycle);
+//			cycle.addCycleNode(cycleNode);
+//		}
 		return cycle;
 	}
 
@@ -83,7 +84,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -110,7 +111,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor2 = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_WATCH);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -120,7 +121,7 @@ public class CPR_ConstraintsTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor2, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 
-		event2.setTimestamp(event2.getTimestamp() - gpsCycle.cycleDurationTimeNano);
+		event2.setTimestamp(event2.getTimestamp() - cpr.cycleDurationTimeNano);
 
 		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event1));
 
@@ -135,7 +136,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -146,7 +147,7 @@ public class CPR_ConstraintsTest {
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 
 		cpr.onSensorChanged(event1);
-		event2.setTimestamp(event2.getTimestamp() - gpsCycle.cycleDurationTimeNano);
+		event2.setTimestamp(event2.getTimestamp() - cpr.cycleDurationTimeNano);
 
 		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
 
@@ -161,7 +162,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -170,7 +171,7 @@ public class CPR_ConstraintsTest {
 		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event2.getTimestamp() - gpsCycle.cycleDurationTimeNano);
+		event2.setTimestamp(event2.getTimestamp() - cpr.cycleDurationTimeNano);
 
 		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
 
@@ -182,9 +183,14 @@ public class CPR_ConstraintsTest {
 	public final void givenNullPredictionService_whenCPRCreated_thenIllegalArgumentException() {
 
 		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
-		final Throwable throwable = catchThrowable(() -> new CyclePatternRecognizer(new DailyCycle(), null));
+		final Throwable throwable = catchThrowable(
+				() -> new CyclePatternRecognizer(new DailyCycle(), gpsSensor, null));
 
 		assertThat(throwable).as("A null predictionService throws an  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -228,7 +234,7 @@ public class CPR_ConstraintsTest {
 
 		// When
 		final Throwable throwable = catchThrowable(
-				() -> new CyclePatternRecognizer(null, new PredictionService()));
+				() -> new CyclePatternRecognizer(new DailyCycle(), null, new PredictionService()));
 
 		assertThat(throwable).as("A null sensor throws an  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -242,7 +248,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -268,7 +274,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -281,24 +287,26 @@ public class CPR_ConstraintsTest {
 
 		cpr.onSensorChanged(event1);
 		cpr.onSensorChanged(event2);
-
-		long difference = Math.abs(gpsCycle.nodeList.get(0).getStartTimeOffsetNano()
-				- gpsCycle.nodeList.get(1).getStartTimeOffsetNano());
-		assertThat(difference).isEqualTo(20000);
+		fail("fail");
+//		long difference = Math.abs(gpsCycle.nodeList.get(0).getStartTimeOffsetNano()
+//				- gpsCycle.nodeList.get(1).getStartTimeOffsetNano());
+//		assertThat(difference).isEqualTo(20000);
 	}
 
 	@Test
 	public final void givenNewSensorEventWithDifferentSensorType_whenOnNewEvent_thenIllegalArgumentException() {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
 				Sensor.LOCATION_PHONE);
 
 		float[] values = { 1.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(hrSensor, values);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+//		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+//		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
 
@@ -313,7 +321,7 @@ public class CPR_ConstraintsTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats

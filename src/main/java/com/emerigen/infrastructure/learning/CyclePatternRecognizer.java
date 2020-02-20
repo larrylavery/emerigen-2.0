@@ -6,7 +6,12 @@ package com.emerigen.infrastructure.learning;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * See cuperclass documentation
@@ -15,18 +20,79 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  *
  */
 public class CyclePatternRecognizer extends PatternRecognizer {
+
+	/**
+	 * This is the starting timestamp for the beginning of each cycle type. For
+	 * example, Hourly cycles start at 0 minutes 0 seconds of the current hour,
+	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
+	 * 12:00am Sunday morning of the current week, etc
+	 * 
+	 * This is an absolute value of nanoseconds since Jan 1, 1970. It is used to
+	 * calculate offsets for data point timestamps in the sensor events. This field
+	 * is rolled over to the next Cycle start time at the end of the duration of the
+	 * present cycle (i.e. moved to the next 24 hours for DailyCycle, 7 days for a
+	 * weekly cycle, etc.).
+	 */
+	private long cycleStartTimeNano;
+
+	/**
+	 * This is the duration for a cycle. Time zones and Daylight Savings times are
+	 * taken into account. Generally, this will be 168 hours for a weekly cycle, 24
+	 * hours for a daily cycle, etc.; all converted to nanoseconds.
+	 */
+	long cycleDurationTimeNano;
+
+	/**
+	 * @IDEA - enable cycle data point fuzzines using equality based on std
+	 *       deviation. As long as values are within this standard deviation from
+	 *       each other they will be considered to be equal. This allows for
+	 *       fuzziness of the data points associated with the nodes of a cycle;
+	 *       effectively enabling predictions when data points vary somewhat, but
+	 *       not in principle (all too often occurs dealing with life). For example,
+	 *       with GPS daily routes, multiple things may influence route node
+	 *       visitations (and visitation durations) including traffic, working late,
+	 *       detours, stopping for gas, stopping by the grocery store on the way
+	 *       home, going to lunch at different places, ...
+	 */
+
 	private Cycle cycle;
+
+	private Sensor sensor;
 	private SensorEvent previousSensorEvent = null;
 	private PredictionService predictionService;
 
-	public CyclePatternRecognizer(Cycle cycle, PredictionService predictionService) {
+	private double allowablePercentDifferenceForEquality = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("cycle.allowable.percent.difference.for.equality"));
+
+	private static final Logger logger = Logger.getLogger(CyclePatternRecognizer.class);
+
+	public CyclePatternRecognizer(Cycle cycle, Sensor sensor, PredictionService predictionService) {
 		super(predictionService);
 		if (cycle == null)
 			throw new IllegalArgumentException("cycle must not be null");
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
 		if (predictionService == null)
 			throw new IllegalArgumentException("predictionService must not be null");
+
 		this.cycle = cycle;
+		this.sensor = sensor;
 		this.predictionService = predictionService;
+		this.cycleStartTimeNano = cycle.calculateCycleStartTimeNano();
+		this.cycleDurationTimeNano = cycle.calculateCycleDurationNano();
+
+	}
+
+	private void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
+		if ((sensorEvent.getTimestamp() - cycleStartTimeNano) > cycleDurationTimeNano) {
+
+			// Calculate closest enclosing cycle
+			long cyclesToSkip = (sensorEvent.getTimestamp() - cycleStartTimeNano) / cycleDurationTimeNano;
+
+			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * cycleDurationTimeNano);
+			logger.info("Incoming event was past our current cycle duration so the new cycleStartTime ("
+					+ cycleStartTimeNano + "), sensor event timestamp (" + sensorEvent.getTimestamp() + ")");
+		}
 	}
 
 	/**
@@ -53,13 +119,14 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		// Validate parms
 		if (currentSensorEvent == null)
 			throw new IllegalArgumentException("currentSensorEvent must not be null");
-		if (!(cycle.getSensorType() == currentSensorEvent.getSensorType()))
+
+		if (!(sensor.getType() == currentSensorEvent.getSensorType()))
 			throw new IllegalArgumentException("given sensor type (" + currentSensorEvent.getSensorType()
-					+ "), does not match cycle sensor type (" + cycle.getSensorType() + ")");
-		if (!(cycle.getSensorLocation() == currentSensorEvent.getSensorLocation()))
+					+ "), does not match my sensor type (" + sensor.getType() + ")");
+		if (!(sensor.getLocation() == currentSensorEvent.getSensorLocation()))
 			throw new IllegalArgumentException(
 					"given sensor location (" + currentSensorEvent.getSensorLocation()
-							+ "), does not match cycle sensor location (" + cycle.getSensorLocation() + ")");
+							+ "), does not match cycle sensor location (" + sensor.getLocation() + ")");
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Required elapse time has passed since last event?
@@ -70,46 +137,39 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 			if (currentSensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
 					currentSensorEvent)) {
 
-				if (cycle.eventIsOutOfOrder(currentSensorEvent))
-					throw new IllegalArgumentException(
-							"specified sensorEvent is out of order (it's timestamp occurs in the past).");
-
 				// Roll over n cycles if the event timestamp is past our current end time
-				cycle.adjustCycleStartTimeToClosestEnclosingCycle(currentSensorEvent);
+				adjustCycleStartTimeToClosestEnclosingCycle(currentSensorEvent);
 
-				// Add sensor event to beginning of empty cycle
-				if (cycle.isEmpty()) {
-					cycle.addSensorEvent(currentSensorEvent);
+				if (previousSensorEvent == null) {
+
+					// No previous event? save current event and return
+					previousSensorEvent = currentSensorEvent;
+					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
+					predictionService.setCurrentPredictions(predictions);
 					return predictions;
+				} else if (currentEventIsGreaterThanPreviousEvent(currentSensorEvent)) {
 
-				} else {
+					// Previous event occurs after current event? create new Transition
+					predictionService.createPredictionFromSensorEvents(previousSensorEvent,
+							currentSensorEvent);
+					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
+					predictionService.setCurrentPredictions(predictions);
+					return predictions;
+				} else if (currentEventIsLessThanPreviousEvent(currentSensorEvent)) {
 
-					// Locate the right position to insert the new cycle node
-					for (int i = 0; i < cycle.getNodeList().size(); i++) {
+					// Current event prior to previous event? create backward Transition
+					predictionService.createPredictionFromSensorEvents(currentSensorEvent,
+							previousSensorEvent);
+					predictions = predictionService.getPredictionsForSensorEvent(previousSensorEvent);
+					predictionService.setCurrentPredictions(predictions);
+					return predictions;
+				} else if (currentEventEqualsPreviousEvent(currentSensorEvent)) {
 
-						// Prior and new sensor event are equal? merge them
-						if (equalsExistingSensorEvent(currentSensorEvent)) {
-							predictions = cycle.mergeAndReplacePreviousEvent(currentSensorEvent);
-							return predictions;
-
-							// Have we passed the most recent previous cycle node?
-						} else if (cycle
-								.previousSensorEventOccuredAfterCurrentSensorEvent(currentSensorEvent)) {
-							if (locateLastPreviousNodeWithTimestampAfterCurrentSensorEvent(
-									currentSensorEvent)) {
-								predictions = cycle.insertBeforePreviousNode(currentSensorEvent);
-							} else {
-								predictions = cycle.addToBeginningOfCycle(currentSensorEvent);
-							}
-							return predictions;
-						}
-					} // end for more cycle nodes
-
-				} // end else the cycle is not empty
-				/**
-				 * Non-empty list, no equals found, no prior closest found, add to the "end".
-				 */
-				cycle.addSensorEvent(currentSensorEvent);
+					// Sensor events equal? Merge, discard current, return predictions
+					predictions = mergeAndReplacePreviousEvent(currentSensorEvent);
+					predictionService.setCurrentPredictions(predictions);
+					return predictions;
+				}
 
 			} // end data has changed significantly
 		} // end minimum delay has occurred
@@ -119,69 +179,107 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		return predictions;
 	}
 
-	/**
-	 * 
-	 * Locate the first node that is equal to the given node, ore return false
-	 * 
-	 * @param currentSensorEvent
-	 * @return
-	 */
-	private boolean equalsExistingSensorEvent(SensorEvent currentSensorEvent) {
-		int startIndex = 0;
-		while (startIndex < cycle.nodeList.size()) {
-
-			// current node equals given event
-			if (cycle.nodeList.get(startIndex).getSensorEvent().equals(currentSensorEvent)) {
-				cycle.setPreviousCycleNodeIndex(startIndex);
-				return true;
-			} else {
-
-				// Compare the next event
-				startIndex++;
-			}
-		}
-		/**
-		 * No sensor Event found
-		 */
-		return false;
+	private boolean currentEventEqualsPreviousEvent(SensorEvent currentSensorEvent) {
+		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		boolean timeOffsetsEqual = currentEventTimestampOffset == previousEvcentTimestampOffset;
+		boolean valuesEqual = Utils.equals(currentSensorEvent.hashCode(), previousSensorEvent.hashCode());
+		return timeOffsetsEqual && valuesEqual;
 	}
 
 	/**
-	 * Locate the first prior node in the cycle with a timestamp less than the
-	 * current event. At the end of this method the previous Cycle index will be
-	 * pointing to the position to insert the current node.
-	 * 
-	 * @param currentSensorEvent
+	 * The previous and current events are statistically equal, merge the durations
+	 * , accumulating the duration of the data point and discard the new event.
 	 */
-	private boolean locateLastPreviousNodeWithTimestampAfterCurrentSensorEvent(
-			SensorEvent currentSensorEvent) {
-		while (cycle.getPreviousCycleNodeIndex() >= 0) {
-
-			// previous node time greater than current, iterate to its previous
-			if (cycle.previousSensorEventOccuredAfterCurrentSensorEvent(currentSensorEvent)) {
-				cycle.setPreviousCycleNodeIndex(cycle.getPreviousCycleNodeIndex() - 1);
-			} else {
-				/**
-				 * We have located the 1st previous node whose timestamp is less than the
-				 * current event. Insert the new event after this node.
-				 */
-				cycle.incrementPreviousNodeIndex();
-				return true;
-			}
-		}
-		/**
-		 * All cycle nodes have timestamps greater than the current, insert the new node
-		 * first in the cycle
-		 */
-		return false;
-	}
-
-	public static List<Prediction> getPredictionsForSensorEvent(SensorEvent sensorEvent) {
+	List<Prediction> mergeAndReplacePreviousEvent(SensorEvent newSensorEvent) {
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
-		// TODO return cycle-based predictions based on the given event
-		// TODO setCurrentPredictions(predictions);
+		long mergedDuration = previousSensorEvent.getDataPointDurationNano()
+				+ newSensorEvent.getDataPointDurationNano();
+		previousSensorEvent.setDataPointDurationNano(mergedDuration);
+
+		// TODO update the previous event with the new merged event
+		logger.info("New sensor event merged with previous event, merged event: "
+				+ previousSensorEvent.toString());
+
+		predictions = predictionService.getPredictionsForSensorEvent(previousSensorEvent);
 		return predictions;
+	}
+
+	private boolean currentEventIsGreaterThanPreviousEvent(SensorEvent currentSensorEvent) {
+		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		return currentEventTimestampOffset > previousEvcentTimestampOffset;
+	}
+
+	private boolean currentEventIsLessThanPreviousEvent(SensorEvent currentSensorEvent) {
+		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		return currentEventTimestampOffset < previousEvcentTimestampOffset;
+	}
+
+	@Override
+	public String toString() {
+		return "CyclePatternRecognizer [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationTimeNano="
+				+ cycleDurationTimeNano + ", sensor=" + sensor + ", previousSensorEvent="
+				+ previousSensorEvent + ", predictionService=" + predictionService + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((cycle == null) ? 0 : cycle.hashCode());
+		result = prime * result + (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
+		result = prime * result + (int) (cycleStartTimeNano ^ (cycleStartTimeNano >>> 32));
+		result = prime * result + ((predictionService == null) ? 0 : predictionService.hashCode());
+		result = prime * result + ((previousSensorEvent == null) ? 0 : previousSensorEvent.hashCode());
+		result = prime * result + ((sensor == null) ? 0 : sensor.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CyclePatternRecognizer other = (CyclePatternRecognizer) obj;
+		if (cycle == null) {
+			if (other.cycle != null)
+				return false;
+		} else if (!cycle.equals(other.cycle))
+			return false;
+		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
+			return false;
+		if (cycleStartTimeNano != other.cycleStartTimeNano)
+			return false;
+		if (predictionService == null) {
+			if (other.predictionService != null)
+				return false;
+		} else if (!predictionService.equals(other.predictionService))
+			return false;
+		if (previousSensorEvent == null) {
+			if (other.previousSensorEvent != null)
+				return false;
+		} else if (!previousSensorEvent.equals(other.previousSensorEvent))
+			return false;
+		if (sensor == null) {
+			if (other.sensor != null)
+				return false;
+		} else if (!sensor.equals(other.sensor))
+			return false;
+		return true;
+	}
+
+	public long getCycleStartTimeNano() {
+		return cycleStartTimeNano;
+	}
+
+	public long getCycleDurationTimeNano() {
+		return cycleDurationTimeNano;
 	}
 
 	/**
@@ -198,34 +296,85 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		this.cycle = cycle;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((cycle == null) ? 0 : cycle.hashCode());
-		return result;
+	/**
+	 * @return the sensor
+	 */
+	public Sensor getSensor() {
+		return sensor;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CyclePatternRecognizer other = (CyclePatternRecognizer) obj;
-		if (cycle == null) {
-			if (other.cycle != null)
-				return false;
-		} else if (!cycle.equals(other.cycle))
-			return false;
-		return true;
+	/**
+	 * @param sensor the sensor to set
+	 */
+	public void setSensor(Sensor sensor) {
+		this.sensor = sensor;
 	}
 
+	/**
+	 * @return the previousSensorEvent
+	 */
+	public SensorEvent getPreviousSensorEvent() {
+		return previousSensorEvent;
+	}
+
+	/**
+	 * @param previousSensorEvent the previousSensorEvent to set
+	 */
+	public void setPreviousSensorEvent(SensorEvent previousSensorEvent) {
+		this.previousSensorEvent = previousSensorEvent;
+	}
+
+	/**
+	 * @return the predictionService
+	 */
 	@Override
-	public String toString() {
-		return "CyclePatternRecognizer [cycle=" + cycle + "]";
+	public PredictionService getPredictionService() {
+		return predictionService;
+	}
+
+	/**
+	 * @param predictionService the predictionService to set
+	 */
+	@Override
+	public void setPredictionService(PredictionService predictionService) {
+		this.predictionService = predictionService;
+	}
+
+	/**
+	 * @return the allowablePercentDifferenceForEquality
+	 */
+	public double getAllowablePercentDifferenceForEquality() {
+		return allowablePercentDifferenceForEquality;
+	}
+
+	/**
+	 * @param allowablePercentDifferenceForEquality the
+	 *                                              allowablePercentDifferenceForEquality
+	 *                                              to set
+	 */
+	public void setAllowablePercentDifferenceForEquality(double allowablePercentDifferenceForEquality) {
+		this.allowablePercentDifferenceForEquality = allowablePercentDifferenceForEquality;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	/**
+	 * @param cycleStartTimeNano the cycleStartTimeNano to set
+	 */
+	public void setCycleStartTimeNano(long cycleStartTimeNano) {
+		this.cycleStartTimeNano = cycleStartTimeNano;
+	}
+
+	/**
+	 * @param cycleDurationTimeNano the cycleDurationTimeNano to set
+	 */
+	public void setCycleDurationTimeNano(long cycleDurationTimeNano) {
+		this.cycleDurationTimeNano = cycleDurationTimeNano;
 	}
 
 }

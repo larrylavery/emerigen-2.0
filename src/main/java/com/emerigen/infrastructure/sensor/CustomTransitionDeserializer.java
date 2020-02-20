@@ -49,12 +49,14 @@ public class CustomTransitionDeserializer extends StdDeserializer<Transition> {
 			transition.setSensorType(node.get("sensorType").asInt());
 			transition.setSensorLocation(node.get("sensorLocation").asInt());
 
+			transition.setProbability(node.get("probability").asDouble());
+			transition.setDataPointDurationNano(node.get("datePointDurationNano").asLong());
+
 			String firstSensorEventKey = node.get("firstSensorEventKey").asText();
 			transition.setFirstSensorEventKey(firstSensorEventKey);
 
 			JsonNode predictedSensorEventNode = node.get("predictedSensorEvent");
-			SensorEvent predictedSensorEvent = extractSensorEvent(
-					predictedSensorEventNode);
+			SensorEvent predictedSensorEvent = extractSensorEvent(predictedSensorEventNode);
 			transition.setPredictedSensorEvent(predictedSensorEvent);
 
 			return transition;
@@ -87,14 +89,12 @@ public class CustomTransitionDeserializer extends StdDeserializer<Transition> {
 		minimumDelayBetweenReadings = node.get("minimumDelayBetweenReadings").asInt();
 		reportingMode = node.get("reportingMode").asInt();
 		wakeUpSensor = node.get("wakeUpSensor").asBoolean();
-		sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType,
-				sensorLocation);
+		sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
 		sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
 		sensor.setWakeUpSensor(wakeUpSensor);
 		sensor.setReportingMode(reportingMode);
 		sensorEvent.setSensor(sensor);
-		logger.info(
-				"Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
+		logger.info("Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
 		return sensorEvent;
 	}
 

@@ -34,44 +34,44 @@ public class CPR_LearningTest {
 			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
-		cycle.setPreviousCycleNodeIndex(0);
-		CycleNode cycleNode;
-
-		for (int i = 0; i < numberOfNodes; i++) {
-			cycleNode = new CycleNode();
-			int minimumDelayBetweenReadings;
-			int reportingMode;
-			boolean wakeUpSensor;
-			SensorEvent sensorEvent = new SensorEvent();
-			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
-			Sensor sensor;
-
-			// Create SensorEvent
-			sensorEvent.setSensorType(sensorType);
-			sensorEvent.setSensorLocation(sensorLocation);
-
-			// Set sensor event values
-			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
-			sensorEvent.setValues(values);
-
-			// create and set event sensor
-			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
-			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
-			wakeUpSensor = false;
-			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
-			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
-			sensor.setWakeUpSensor(wakeUpSensor);
-			sensor.setReportingMode(reportingMode);
-			sensorEvent.setSensor(sensor);
-
-			// Set up the rest of the CycleNode fields
-			cycleNode.setSensorEvent(sensorEvent);
-			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
-			cycleNode.setDataPointDurationNano(1000 * (i + 1));
-			cycleNode.setProbability(0.3);
-			cycleNode.setMyCycle(cycle);
-			cycle.addCycleNode(cycleNode);
-		}
+//		cycle.setPreviousCycleNodeIndex(0);
+//		CycleNode cycleNode;
+//
+//		for (int i = 0; i < numberOfNodes; i++) {
+//			cycleNode = new CycleNode();
+//			int minimumDelayBetweenReadings;
+//			int reportingMode;
+//			boolean wakeUpSensor;
+//			SensorEvent sensorEvent = new SensorEvent();
+//			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
+//			Sensor sensor;
+//
+//			// Create SensorEvent
+//			sensorEvent.setSensorType(sensorType);
+//			sensorEvent.setSensorLocation(sensorLocation);
+//
+//			// Set sensor event values
+//			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
+//			sensorEvent.setValues(values);
+//
+//			// create and set event sensor
+//			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
+//			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
+//			wakeUpSensor = false;
+//			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
+//			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
+//			sensor.setWakeUpSensor(wakeUpSensor);
+//			sensor.setReportingMode(reportingMode);
+//			sensorEvent.setSensor(sensor);
+//
+//			// Set up the rest of the CycleNode fields
+//			cycleNode.setSensorEvent(sensorEvent);
+//			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
+//			cycleNode.setDataPointDurationNano(1000 * (i + 1));
+//			cycleNode.setProbability(0.3);
+//			cycleNode.setMyCycle(cycle);
+//			cycle.addCycleNode(cycleNode);
+//		}
 		return cycle;
 	}
 
@@ -79,13 +79,15 @@ public class CPR_LearningTest {
 	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAreRegistered() {
 		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH, 1);
 
+		fail("Rewrite test"); // TODO do not make assumption on how many cycles in couchbase
 		String key = UUID.randomUUID().toString();
 		KnowledgeRepository.getInstance().newCycle(key, cycle);
 		SensorManager sm = SensorManager.getInstance();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
-		CyclePatternRecognizer PR = new CyclePatternRecognizer(cycle, new PredictionService(sensor));
+		Sensor gpsSensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
-		assertThat(sm.listenerIsRegisteredToSensor(PR, sensor)).isTrue();
+		assertThat(sm.listenerIsRegisteredToSensor(cpr, gpsSensor)).isTrue();
 		// CouchbaseRepository.getInstance().remove("cycle", key);
 	}
 
@@ -99,8 +101,7 @@ public class CPR_LearningTest {
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(0);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -111,9 +112,9 @@ public class CPR_LearningTest {
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		cpr.onSensorChanged(event1);
 		cpr.onSensorChanged(event2);
-
+		fail("rewrite");
 		// Then
-		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		// assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
 	}
 
 	@BeforeClass

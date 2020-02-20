@@ -52,4 +52,10 @@ public class YearlyCycle extends Cycle {
 		return secondsPerYear * milliSecondsPerSecond * nanosecondsPerMillisecond;
 	}
 
+	@Override
+	public String getCycleType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -135,7 +135,8 @@ public class CycleNode {
 	}
 
 	public long getTimeOffset(long timestamp) {
-		return timestamp - myCycle.getCycleStartTimeNano();
+		return 1;
+//		return timestamp - myCycle.getCycleStartTimeNano();
 	}
 
 	@Override

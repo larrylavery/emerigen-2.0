@@ -11,9 +11,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.DailyCycle;
-import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -69,9 +69,8 @@ public class EmerigenSensorEventListenerTest {
 		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
 				Sensor.LOCATION_PHONE);
 
-		PatternRecognizer cpr = new CyclePatternRecognizer(
-				new DailyCycle(accSensor.getType(), accSensor.getLocation()),
-				new PredictionService(accSensor));
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, accSensor, new PredictionService());
 
 		sensorManager.registerListenerForSensor(cpr, accSensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();

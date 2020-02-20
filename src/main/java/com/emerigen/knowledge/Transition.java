@@ -13,6 +13,29 @@ public class Transition {
 	private int sensorType;
 	private int sensorLocation;
 
+	/**
+	 * This value represents a Transition's strength. It is used during the "credit
+	 * assignment" support and for other other reinforcement mechanisms.
+	 */
+	private int cashOnHand;
+
+	/**
+	 * The length of time that the data point [measurement] (as measured by the
+	 * sensor event) is valid. If the event is a GPS measurement, then the
+	 * dataPointDurationNano is the length of time the GPS coordinates did not
+	 * significantly change (ie how long the user stayed at [visited] this location.
+	 * 
+	 * For a heart rate sensor, it represents the lengh of time the heart rate
+	 * stayed at the given heart rate (plus or minus the standard deviation of
+	 * course.
+	 */
+	private long dataPointDurationNano;
+
+	/**
+	 * The likelyhood that this "rule" will be successfull.
+	 */
+	private double probability;
+
 	private static Logger logger = Logger.getLogger(Transition.class);
 
 	public Transition() {
@@ -43,10 +66,16 @@ public class Transition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + cashOnHand;
+		result = prime * result + (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
 		result = prime * result + ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
 		result = prime * result + ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(probability);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + sensorLocation;
 		result = prime * result + sensorType;
+		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
 		return result;
 	}
 
@@ -59,6 +88,10 @@ public class Transition {
 		if (getClass() != obj.getClass())
 			return false;
 		Transition other = (Transition) obj;
+		if (cashOnHand != other.cashOnHand)
+			return false;
+		if (dataPointDurationNano != other.dataPointDurationNano)
+			return false;
 		if (firstSensorEventKey == null) {
 			if (other.firstSensorEventKey != null)
 				return false;
@@ -69,10 +102,14 @@ public class Transition {
 				return false;
 		} else if (!predictedSensorEvent.equals(other.predictedSensorEvent))
 			return false;
+		if (Double.doubleToLongBits(probability) != Double.doubleToLongBits(other.probability))
+			return false;
 		if (sensorLocation != other.sensorLocation)
 			return false;
 		if (sensorType != other.sensorType)
 			return false;
+//		if (timestamp != other.timestamp)
+//			return false;
 		return true;
 	}
 
@@ -144,5 +181,47 @@ public class Transition {
 	 */
 	public void setFirstSensorEventKey(String firstSensorEventKey) {
 		this.firstSensorEventKey = firstSensorEventKey;
+	}
+
+	/**
+	 * @return the cashOnHand
+	 */
+	public int getCashOnHand() {
+		return cashOnHand;
+	}
+
+	/**
+	 * @param cashOnHand the cashOnHand to set
+	 */
+	public void setCashOnHand(int cashOnHand) {
+		this.cashOnHand = cashOnHand;
+	}
+
+	/**
+	 * @return the dataPointDurationNano
+	 */
+	public long getDataPointDurationNano() {
+		return dataPointDurationNano;
+	}
+
+	/**
+	 * @param dataPointDurationNano the dataPointDurationNano to set
+	 */
+	public void setDataPointDurationNano(long dataPointDurationNano) {
+		this.dataPointDurationNano = dataPointDurationNano;
+	}
+
+	/**
+	 * @return the probability
+	 */
+	public double getProbability() {
+		return probability;
+	}
+
+	/**
+	 * @param probability the probability to set
+	 */
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 }

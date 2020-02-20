@@ -40,8 +40,7 @@ public class DailyCycle extends Cycle {
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime now = ZonedDateTime.now(zoneId);
 		ZonedDateTime todayStart = now.toLocalDate().atStartOfDay(zoneId);
-		long startTime = todayStart.toEpochSecond() * milliSecondsPerSecond
-				* nanoSecondsPerMillisecond;
+		long startTime = todayStart.toEpochSecond() * milliSecondsPerSecond * nanoSecondsPerMillisecond;
 		logger.info("cycleStartTimeNano = " + startTime);
 		return todayStart.toEpochSecond() * milliSecondsPerSecond * nanoSecondsPerMillisecond;
 	}

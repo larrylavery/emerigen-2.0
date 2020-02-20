@@ -351,7 +351,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		// Load all cycle types for the supplied sensorType and location
 		List<Cycle> cycles = getCycles(sensor);
 		List<SensorEventListener> PRs = cycles.stream()
-				.map(cycle -> new CyclePatternRecognizer(cycle, new PredictionService(sensor)))
+				.map(cycle -> new CyclePatternRecognizer(cycle, sensor, new PredictionService(sensor)))
 				.collect(Collectors.toList());
 		return PRs;
 	}

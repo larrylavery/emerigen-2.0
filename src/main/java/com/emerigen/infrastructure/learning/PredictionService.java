@@ -101,6 +101,33 @@ public class PredictionService {
 	}
 
 	/**
+	 * Retrieve all predictions for the given SensorEvent that occured prior to the
+	 * ending Timestamp
+	 * 
+	 * @param sensorEvent
+	 * @return
+	 */
+	public List<Prediction> getPredictionsForSensorEventBeforeTimestamp(SensorEvent sensorEvent,
+			long timestamp) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null or empty");
+		if (timestamp < 1)
+			throw new IllegalArgumentException("timestamp must be greater than 1");
+
+		List<Prediction> predictions = new ArrayList<Prediction>();
+		ObjectMapper mapper = new ObjectMapper();
+
+		registerCustomDeserializer(mapper);
+		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecordsBeforeTimestamp(sensorEvent,
+				timestamp);
+//		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecords(sensorEvent);
+		List<SensorEvent> predictedSensorEvents = convertFromJsonToSensorEvents(mapper, result);
+		predictions = convertToPredictions(predictedSensorEvents);
+		setProbabilitiesForEachPrediction(predictions);
+		return predictions;
+	}
+
+	/**
 	 * Retrieve all predictions for the given SensorEvent
 	 * 
 	 * @param sensorEvent
@@ -138,6 +165,16 @@ public class PredictionService {
 		List<Prediction> newPredictions = predictedSensorEvents.stream()
 				.map(event -> new TransitionPrediction(event)).collect(Collectors.toList());
 		return newPredictions;
+	}
+
+	private N1qlQueryResult retrievePredictedEventsFromTransitionRecordsBeforeTimestamp(
+			SensorEvent sensorEvent, long timestamp) {
+		CouchbaseRepository repo = CouchbaseRepository.getInstance();
+		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE " + "firstSensorEventKey = \""
+				+ sensorEvent.getKey() + "\"" + "AND timestamp < " + timestamp;
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
+				N1qlQuery.simple(statement));
+		return result;
 	}
 
 	private N1qlQueryResult retrievePredictedEventsFromTransitionRecords(SensorEvent sensorEvent) {

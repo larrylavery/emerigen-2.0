@@ -38,8 +38,6 @@ public class SensorEvent {
 	/**
 	 * The sensor that published this event
 	 */
-	// @JsonIgnore
-	// @JsonSerialize(as=MyInterface.class)
 	private Sensor sensor = null;
 
 	// The hash of all values
@@ -47,7 +45,18 @@ public class SensorEvent {
 	private int sensorType = 0;
 	private int sensorLocation = 0;
 	private long timestamp = System.currentTimeMillis() * 1000000;
-//	private long timestamp = System.nanoTime();
+
+	/**
+	 * The length of time that the data point [measurement] (as measured by the
+	 * sensor event) is valid. If the event is a GPS measurement, then the
+	 * dataPointDurationNano is the length of time the GPS coordinates did not
+	 * significantly change (ie how long the user stayed at [visited] this location.
+	 * 
+	 * For a heart rate sensor, it represents the lengh of time the heart rate
+	 * stayed at the given heart rate (plus or minus the standard deviation of
+	 * course.
+	 */
+	private long dataPointDurationNano;
 
 	/**
 	 * The length and meaning of these values is sensor specific. One in particular
@@ -186,5 +195,19 @@ public class SensorEvent {
 	 */
 	public void setValues(float[] values) {
 		this.values = values;
+	}
+
+	/**
+	 * @return the dataPointDurationNano
+	 */
+	public long getDataPointDurationNano() {
+		return dataPointDurationNano;
+	}
+
+	/**
+	 * @param dataPointDurationNano the dataPointDurationNano to set
+	 */
+	public void setDataPointDurationNano(long dataPointDurationNano) {
+		this.dataPointDurationNano = dataPointDurationNano;
 	}
 }

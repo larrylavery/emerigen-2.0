@@ -32,30 +32,30 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 			jsonGenerator.writeStringField("cycleType", cycle.getCycleType());
 			jsonGenerator.writeNumberField("sensorType", cycle.getSensorType());
 			jsonGenerator.writeNumberField("sensorLocation", cycle.getSensorLocation());
-			jsonGenerator.writeNumberField("cycleStartTimeNano", cycle.getCycleStartTimeNano());
-			jsonGenerator.writeNumberField("cycleDurationTimeNano", cycle.getCycleDurationTimeNano());
+//			jsonGenerator.writeNumberField("cycleStartTimeNano", cycle.getCycleStartTimeNano());
+//			jsonGenerator.writeNumberField("cycleDurationTimeNano", cycle.getCycleDurationTimeNano());
 			jsonGenerator.writeNumberField("allowablePercentDifferenceForEquality",
 					cycle.getAllowablePercentDifferenceForEquality());
-			jsonGenerator.writeNumberField("previousCycleNodeIndex", cycle.getPreviousCycleNodeIndex());
-
-			// Next write the array of cycle nodes
-			jsonGenerator.writeArrayFieldStart("nodeList");
-
-			for (int i = 0; i < cycle.getNodeList().size(); i++) {
-				CycleNode cycleNode = cycle.getNodeList().get(i);
-
-				logger.info("Writing next cycle node: " + cycleNode);
-
-				// Write sensorEvent
-				SensorEvent sensorEvent = cycleNode.getSensorEvent();
-				jsonGenerator.writeStartObject();
-				writeCycleNodeSensorEvent(jsonGenerator, cycleNode.getSensorEvent());
-				writeCycleNodeAttributes(jsonGenerator, cycleNode);
-				jsonGenerator.writeEndObject();
-
-			}
-
-			jsonGenerator.writeEndArray();
+//			jsonGenerator.writeNumberField("previousCycleNodeIndex", cycle.getPreviousCycleNodeIndex());
+//
+//			// Next write the array of cycle nodes
+//			jsonGenerator.writeArrayFieldStart("nodeList");
+//
+//			for (int i = 0; i < cycle.getNodeList().size(); i++) {
+//				CycleNode cycleNode = cycle.getNodeList().get(i);
+//
+//				logger.info("Writing next cycle node: " + cycleNode);
+//
+//				// Write sensorEvent
+//				SensorEvent sensorEvent = cycleNode.getSensorEvent();
+//				jsonGenerator.writeStartObject();
+//				writeCycleNodeSensorEvent(jsonGenerator, cycleNode.getSensorEvent());
+//				writeCycleNodeAttributes(jsonGenerator, cycleNode);
+//				jsonGenerator.writeEndObject();
+//
+//			}
+//
+//			jsonGenerator.writeEndArray();
 			jsonGenerator.writeEndObject(); // End of cycle nodes and all other data
 		} catch (IOException e) {
 			throw new RepositoryException("IO exception thrown: ", e);

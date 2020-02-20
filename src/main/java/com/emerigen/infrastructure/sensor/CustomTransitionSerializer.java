@@ -23,25 +23,23 @@ public class CustomTransitionSerializer extends StdSerializer<Transition> {
 	}
 
 	@Override
-	public void serialize(Transition transition, JsonGenerator jsonGenerator,
-			SerializerProvider serializer) {
+	public void serialize(Transition transition, JsonGenerator jsonGenerator, SerializerProvider serializer) {
 		try {
 
 			// create transition-specific fields
 			jsonGenerator.writeStartObject();
 			jsonGenerator.writeNumberField("sensorType", transition.getSensorType());
-			jsonGenerator.writeNumberField("sensorLocation",
-					transition.getSensorLocation());
+			jsonGenerator.writeNumberField("sensorLocation", transition.getSensorLocation());
+			jsonGenerator.writeNumberField("probability", transition.getProbability());
+			jsonGenerator.writeNumberField("dataPointDurationNano", transition.getDataPointDurationNano());
 
 			// Create firstSensorEvent fields
-			jsonGenerator.writeStringField("firstSensorEventKey",
-					transition.getFirstSensorEventKey());
+			jsonGenerator.writeStringField("firstSensorEventKey", transition.getFirstSensorEventKey());
 
 			// Create predictedSensorEvent fields
 			jsonGenerator.writeStartObject("predictedSensorEvent");
 			jsonGenerator.writeStartObject();
-			writeTransitionNodeSensorEvent(jsonGenerator,
-					transition.getPredictedSensorEvent());
+			writeTransitionNodeSensorEvent(jsonGenerator, transition.getPredictedSensorEvent());
 			jsonGenerator.writeEndObject();
 
 			jsonGenerator.writeEndObject(); // End of cycle nodes and all other data
@@ -57,18 +55,16 @@ public class CustomTransitionSerializer extends StdSerializer<Transition> {
 	 * @param sensorEvent
 	 * @throws IOException
 	 */
-	private void writeTransitionNodeSensorEvent(JsonGenerator jsonGenerator,
-			SensorEvent sensorEvent) throws IOException {
+	private void writeTransitionNodeSensorEvent(JsonGenerator jsonGenerator, SensorEvent sensorEvent)
+			throws IOException {
 
 		jsonGenerator.writeNumberField("sensorType", sensorEvent.getSensorType());
 		jsonGenerator.writeNumberField("sensorLocation", sensorEvent.getSensorLocation());
 		jsonGenerator.writeNumberField("timestamp", sensorEvent.getTimestamp());
 		jsonGenerator.writeNumberField("minimumDelayBetweenReadings",
 				sensorEvent.getSensor().getMinimumDelayBetweenReadings());
-		jsonGenerator.writeNumberField("reportingMode",
-				sensorEvent.getSensor().getReportingMode());
-		jsonGenerator.writeBooleanField("wakeUpSensor",
-				sensorEvent.getSensor().isWakeUpSensor());
+		jsonGenerator.writeNumberField("reportingMode", sensorEvent.getSensor().getReportingMode());
+		jsonGenerator.writeBooleanField("wakeUpSensor", sensorEvent.getSensor().isWakeUpSensor());
 		logger.info("Current json before values parsed: " + jsonGenerator.toString());
 
 		// Write sensor event values
@@ -79,8 +75,7 @@ public class CustomTransitionSerializer extends StdSerializer<Transition> {
 			logger.info("next values, float value: " + sensorEvent.getValues()[i]);
 		}
 		jsonGenerator.writeEndArray();
-		logger.info("Current json after Event related filds parsed: "
-				+ jsonGenerator.toString());
+		logger.info("Current json after Event related filds parsed: " + jsonGenerator.toString());
 	}
 
 }

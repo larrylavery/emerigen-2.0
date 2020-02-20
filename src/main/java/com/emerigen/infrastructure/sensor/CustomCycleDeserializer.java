@@ -14,7 +14,6 @@ import com.couchbase.client.deps.com.fasterxml.jackson.databind.DeserializationC
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonNode;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.MonthlyCycle;
 import com.emerigen.infrastructure.learning.WeeklyCycle;
@@ -53,38 +52,41 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 			// Create the cycle with basic information
 			String cycleType = node.get("cycleType").asText();
 			cycle = createCycle(cycleType);
+			double allowablePercentDifferenceForEquality = node.get("allowablePercentDifferenceForEquality")
+					.asDouble();
+			cycle.setAllowablePercentDifferenceForEquality(allowablePercentDifferenceForEquality);
 			int sensorType = node.get("sensorType").asInt();
 			cycle.setSensorType(sensorType);
 			int sensorLocation = node.get("sensorLocation").asInt();
 			cycle.setSensorLocation(sensorLocation);
-			long startTime = node.get("cycleStartTimeNano").asLong();
-			cycle.setCycleStartTimeNano(startTime);
-			long durationTime = node.get("cycleDurationTimeNano").asLong();
-			cycle.setCycleDurationTimeNano(durationTime);
-			cycle.setAllowablePercentDifferenceForEquality(
-					node.get("allowablePercentDifferenceForEquality").asDouble());
-			cycle.setPreviousCycleNodeIndex(0);
+//			long startTime = node.get("cycleStartTimeNano").asLong();
+//			cycle.setCycleStartTimeNano(startTime);
+//			long durationTime = node.get("cycleDurationTimeNano").asLong();
+//			cycle.setCycleDurationTimeNano(durationTime);
+//			cycle.setAllowablePercentDifferenceForEquality(
+//					node.get("allowablePercentDifferenceForEquality").asDouble());
+//			cycle.setPreviousCycleNodeIndex(0);
 
 			// Cycle nodes exist? build, otherwise return current cycle
-			JsonNode cycleNodes = node.get("nodeList");
-			if (cycleNodes == null)
-				return cycle;
-
-			CycleNode cycleNode = new CycleNode();
-
-			Iterator<JsonNode> cycleJsonNodes = cycleNodes.elements();
-			while (cycleJsonNodes.hasNext()) {
-				JsonNode cycleNodeJsonNode = cycleJsonNodes.next();
-
-				// First, extract the sensor event
-				sensorEvent = extractSensorEvent(cycleNodeJsonNode);
-				cycleNode.setSensorEvent(sensorEvent);
-				cycleNode.setStartTimeOffsetNano(cycleNodeJsonNode.get("cycleStartTimeOffsetNano").asLong());
-				cycleNode.setDataPointDurationNano(cycleNodeJsonNode.get("dataPointDurationNano").asLong());
-				cycleNode.setProbability(cycleNodeJsonNode.get("probability").asDouble());
-				cycleNode.setMyCycle(cycle);
-				cycle.addCycleNode(cycleNode);
-			}
+//			JsonNode cycleNodes = node.get("nodeList");
+//			if (cycleNodes == null)
+//				return cycle;
+//
+//			CycleNode cycleNode = new CycleNode();
+//
+//			Iterator<JsonNode> cycleJsonNodes = cycleNodes.elements();
+//			while (cycleJsonNodes.hasNext()) {
+//				JsonNode cycleNodeJsonNode = cycleJsonNodes.next();
+//
+//				// First, extract the sensor event
+//				sensorEvent = extractSensorEvent(cycleNodeJsonNode);
+//				cycleNode.setSensorEvent(sensorEvent);
+//				cycleNode.setStartTimeOffsetNano(cycleNodeJsonNode.get("cycleStartTimeOffsetNano").asLong());
+//				cycleNode.setDataPointDurationNano(cycleNodeJsonNode.get("dataPointDurationNano").asLong());
+//				cycleNode.setProbability(cycleNodeJsonNode.get("probability").asDouble());
+//				cycleNode.setMyCycle(cycle);
+//				cycle.addCycleNode(cycleNode);
+//			}
 			return cycle;
 		} catch (IOException e) {
 			throw new RepositoryException("IO exception thrown: ", e);

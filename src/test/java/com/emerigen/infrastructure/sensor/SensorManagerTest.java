@@ -12,9 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.learning.CPR_InsertionsTest;
 import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CycleNode;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.MonthlyCycle;
@@ -44,44 +42,44 @@ public class SensorManagerTest {
 			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
-		cycle.setPreviousCycleNodeIndex(0);
-		CycleNode cycleNode;
-
-		for (int i = 0; i < numberOfNodes; i++) {
-			cycleNode = new CycleNode();
-			int minimumDelayBetweenReadings;
-			int reportingMode;
-			boolean wakeUpSensor;
-			SensorEvent sensorEvent = new SensorEvent();
-			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
-			Sensor sensor;
-
-			// Create SensorEvent
-			sensorEvent.setSensorType(sensorType);
-			sensorEvent.setSensorLocation(sensorLocation);
-
-			// Set sensor event values
-			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
-			sensorEvent.setValues(values);
-
-			// create and set event sensor
-			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
-			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
-			wakeUpSensor = false;
-			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
-			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
-			sensor.setWakeUpSensor(wakeUpSensor);
-			sensor.setReportingMode(reportingMode);
-			sensorEvent.setSensor(sensor);
-
-			// Set up the rest of the CycleNode fields
-			cycleNode.setSensorEvent(sensorEvent);
-			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
-			cycleNode.setDataPointDurationNano(1000 * (i + 1));
-			cycleNode.setProbability(0.3);
-			cycleNode.setMyCycle(cycle);
-			cycle.addCycleNode(cycleNode);
-		}
+//		cycle.setPreviousCycleNodeIndex(0);
+//		CycleNode cycleNode;
+//
+//		for (int i = 0; i < numberOfNodes; i++) {
+//			cycleNode = new CycleNode();
+//			int minimumDelayBetweenReadings;
+//			int reportingMode;
+//			boolean wakeUpSensor;
+//			SensorEvent sensorEvent = new SensorEvent();
+//			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
+//			Sensor sensor;
+//
+//			// Create SensorEvent
+//			sensorEvent.setSensorType(sensorType);
+//			sensorEvent.setSensorLocation(sensorLocation);
+//
+//			// Set sensor event values
+//			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
+//			sensorEvent.setValues(values);
+//
+//			// create and set event sensor
+//			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
+//			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
+//			wakeUpSensor = false;
+//			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
+//			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
+//			sensor.setWakeUpSensor(wakeUpSensor);
+//			sensor.setReportingMode(reportingMode);
+//			sensorEvent.setSensor(sensor);
+//
+//			// Set up the rest of the CycleNode fields
+//			cycleNode.setSensorEvent(sensorEvent);
+//			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
+//			cycleNode.setDataPointDurationNano(1000 * (i + 1));
+//			cycleNode.setProbability(0.3);
+//			cycleNode.setMyCycle(cycle);
+//			cycle.addCycleNode(cycleNode);
+//		}
 		return cycle;
 	}
 
@@ -121,13 +119,12 @@ public class SensorManagerTest {
 	@Test
 	public final void givenPatternRecognizerRegistrationsExist_whenNewCycleRegistered_thenIsRegisteredIsTrue() {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
-
-		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle(),
-				new PredictionService(accSensor));
-		sensorManager.registerListenerForSensor(cpr, accSensor);
-		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		sensorManager.registerListenerForSensor(cpr, gpsSensor);
+		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, gpsSensor)).isTrue();
 	}
 
 	@Test
@@ -136,7 +133,7 @@ public class SensorManagerTest {
 		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
 				Sensor.LOCATION_PHONE);
 
-		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle(),
+		PatternRecognizer cpr = new CyclePatternRecognizer(new DailyCycle(), accSensor,
 				new PredictionService(accSensor));
 		sensorManager.registerListenerForSensor(cpr, accSensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
@@ -183,22 +180,22 @@ public class SensorManagerTest {
 		SensorManager sm = SensorManager.getInstance();
 		sm.reset();
 
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor gpsSensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", sensor.getType(), sensor.getLocation(), 1);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(cycle, new PredictionService());
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
-		List<SensorEventListener> origLlisteners = sm.getRegistrationsForSensor(sensor);
+		List<SensorEventListener> origLlisteners = sm.getRegistrationsForSensor(gpsSensor);
 		int origSize = origLlisteners.size();
 
-		sm.registerListenerForSensor(cpr, sensor);
+		sm.registerListenerForSensor(cpr, gpsSensor);
 
-		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(sensor);
+		List<SensorEventListener> listeners = sm.getRegistrationsForSensor(gpsSensor);
 		assertThat(listeners).isNotNull();
 		assertThat(listeners.size()).isEqualTo(origSize + 1);
 
-		sm.unregisterListenerFromSensor(cpr, sensor);
-		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(sensor);
+		sm.unregisterListenerFromSensor(cpr, gpsSensor);
+		List<SensorEventListener> listeners2 = sm.getRegistrationsForSensor(gpsSensor);
 		assertThat(listeners2).isNotNull();
 		assertThat(listeners2.size()).isEqualTo(origSize);
 	}

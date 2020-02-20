@@ -56,4 +56,10 @@ public class WeeklyCycle extends Cycle {
 				* nanosecondsPerMilliSecond;
 	}
 
+	@Override
+	public String getCycleType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

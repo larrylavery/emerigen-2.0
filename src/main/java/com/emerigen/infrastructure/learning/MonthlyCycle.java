@@ -53,4 +53,10 @@ public class MonthlyCycle extends Cycle {
 		return secondsPerMonth * milliSecondsPerSecond * nanosecondsPerMillisecond;
 	}
 
+	@Override
+	public String getCycleType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

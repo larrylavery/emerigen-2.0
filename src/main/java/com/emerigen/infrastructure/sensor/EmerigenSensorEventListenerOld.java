@@ -89,19 +89,19 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		// If the minimum delay has occurred then process the event
 		Sensor sensor = sensorEvent.getSensor();
 
-		if (sensor.TYPE_HEART_RATE == heartRateSensor.getType()) {
+		if (Sensor.TYPE_HEART_RATE == heartRateSensor.getType()) {
 			return processHeartRateChanged(sensorEvent);
 		}
 
-		if (sensor.TYPE_ACCELEROMETER == accelerometerSensor.getType()) {
+		if (Sensor.TYPE_ACCELEROMETER == accelerometerSensor.getType()) {
 			return processAccelerometerChange(sensorEvent);
 		}
 
-		if (sensor.TYPE_GPS == gpsSensor.getType()) {
+		if (Sensor.TYPE_GPS == gpsSensor.getType()) {
 			return processGpsChange(sensorEvent);
 		}
 
-		if (sensor.TYPE_TEMPERATURE == temperatureSensor.getType()) {
+		if (Sensor.TYPE_TEMPERATURE == temperatureSensor.getType()) {
 			return processTemperatureChange(sensorEvent);
 		}
 

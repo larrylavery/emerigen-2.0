@@ -2,6 +2,7 @@ package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.time.LocalDate;
@@ -18,7 +19,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.Utils;
 
 public class CycleConstraintsTest {
@@ -93,38 +96,52 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenCycleStartTimeMustBe12am() {
 		DailyCycle dc = new DailyCycle(1, 1);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
 
-		assertThat(dc.getCycleStartTimeNano()).isEqualTo(todayStart.toEpochSecond() * 1000 * 1000000l);
+		fail("rewrite test");
+		assertThat(cpr.getCycleStartTimeNano()).isEqualTo(todayStart.toEpochSecond() * 1000 * 1000000l);
 	}
 
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenDurationMustBe24Hours() {
 		DailyCycle dc = new DailyCycle(1, 1);
 		long duration = 24 * 60 * 60 * 1000 * 1000000l;
-		assertThat(dc.getCycleDurationTimeNano()).isEqualTo(duration);
+		fail("rewrite test");
+
+//		assertThat(dc.getCycleDurationTimeNano()).isEqualTo(duration);
 	}
 
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
 		WeeklyCycle dc = new WeeklyCycle(1, 1);
-		assertThat(dc.getCycleDurationTimeNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
+		fail("rewrite test");
+		// assertThat(dc.getCycleDurationTimeNano()).isEqualTo(7l * 24 * 60 * 60 * 1000
+		// * 1000000l);
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenCycleStartTimeMustBe12amFirstDayOfMonth() {
 //		Utils.equals(time, yrCycle.getCycleDurationMillis());
 		MonthlyCycle mc = new MonthlyCycle(1, 1);
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(mc, gpsSensor, new PredictionService());
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		LocalDate today = LocalDate.now();
 		LocalDate firstDayOfCurrentMonth = today.with(TemporalAdjusters.firstDayOfMonth());
 
+		fail("rewrite");
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		assertThat((firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == mc.getCycleStartTimeNano())
+		assertThat((firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == cpr.getCycleStartTimeNano())
 				.isTrue();
 
 	}
@@ -132,12 +149,17 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
 		MonthlyCycle dc = new MonthlyCycle(1, 1);
-		System.out.println("monthly duration is: " + dc.getCycleDurationTimeNano());
-		assertThat(Utils.equals(dc.getCycleDurationTimeNano(), 2629746000000000f, 10.0)).isTrue();
+		fail("rewrite test");
+//		System.out.println("monthly duration is: " + dc.getCycleDurationTimeNano());
+//		assertThat(Utils.equals(dc.getCycleDurationTimeNano(), 2629746000000000f, 10.0)).isTrue();
 	}
 
 	@Test
 	public final void givenYearlyCycle_whenCycleCreated_thenCycleStartTimeMustBeJan1_12am() {
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
 		Calendar cal = GregorianCalendar.getInstance();
 		cal.set(Calendar.DAY_OF_MONTH, 1);// I might have the wrong Calendar constant...
 		cal.set(Calendar.MONTH, 0);// -1 as month is zero-based
@@ -146,8 +168,10 @@ public class CycleConstraintsTest {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		long time = cal.getTimeInMillis();
+
+		fail("rewrite test");
 		YearlyCycle yrCycle = new YearlyCycle(1, 1);
-		Utils.equals(time, yrCycle.getCycleDurationTimeNano());
+		Utils.equals(time, cpr.getCycleDurationTimeNano());
 
 	}
 
