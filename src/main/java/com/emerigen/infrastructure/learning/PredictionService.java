@@ -250,4 +250,13 @@ public class PredictionService {
 		currentPredictions = currentPredictions;
 	}
 
+	public List<SensorEvent> getPriorEventsThatPredictSensorEvent(SensorEvent currentSensorEvent) {
+		CouchbaseRepository repo = CouchbaseRepository.getInstance();
+		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE " + "firstSensorEventKey = \""
+				+ currentSensorEvent.getKey() + "\"";
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
+				N1qlQuery.simple(statement));
+		return null;
+	}
+
 }

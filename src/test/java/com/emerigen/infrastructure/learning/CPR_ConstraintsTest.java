@@ -2,9 +2,9 @@ package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
+import java.util.List;
 import java.util.Random;
 
 import org.junit.After;
@@ -130,7 +130,8 @@ public class CPR_ConstraintsTest {
 	}
 
 	@Test
-	public final void givenNonEmptyCycleAndNewEventExistingPriorToCycleStart_whenOnSensorChangedCalled_thenEventOutOfOrderException() {
+	public final void givenValidCycleAndNewEventExistingPriorToCycleStart_whenOnSensorChangedCalled_thenCorrectTransitionCreated()
+			throws InterruptedException {
 
 		// Given
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
@@ -142,41 +143,15 @@ public class CPR_ConstraintsTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() - cpr.cycleDurationTimeNano - 1000);
 
 		cpr.onSensorChanged(event1);
-		event2.setTimestamp(event2.getTimestamp() - cpr.cycleDurationTimeNano);
-
-		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
-
-		then(throwable).as("An event prior to cycle start IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public final void givenEmptyCycleAndNewEventExistingPriorToCycleStart_whenOnSensorChangedCalled_thenEventOutOfOrderException() {
-
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
-
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event2.getTimestamp() - cpr.cycleDurationTimeNano);
-
-		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
-
-		then(throwable).as("An event prior to cycle start IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
+//		Thread.sleep(1000);
+		List<Prediction> predictions = cpr.onSensorChanged(event2);
+		assertThat(predictions.size()).isGreaterThan(0);
 	}
 
 	@Test
@@ -242,33 +217,7 @@ public class CPR_ConstraintsTest {
 	}
 
 	@Test
-	public final void givenNewEventExistingPriorToPreviousEvent_whenOnSensorChangedCalled_thenIllegalArgumentException() {
-
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
-
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values);
-		event2.setTimestamp(event1.getTimestamp() - 500);
-
-		cpr.onSensorChanged(event1);
-		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
-
-		assertThat(throwable).as("An event out of order throws an  IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-	}
-
-	@Test
-	public final void givenValidCycleNodes_whenDurationsAdded_thenLastEventDurationMustBeDiffence() {
+	public final void givenNewEventExistingPriorToPreviousEvent_whenOnSensorChangedCalled_thenTransitionCreated() {
 
 		// Given
 		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
@@ -282,15 +231,41 @@ public class CPR_ConstraintsTest {
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() + 20000);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		event2.setTimestamp(event1.getTimestamp() - 500);
 
 		cpr.onSensorChanged(event1);
-		cpr.onSensorChanged(event2);
-		fail("fail");
-//		long difference = Math.abs(gpsCycle.nodeList.get(0).getStartTimeOffsetNano()
-//				- gpsCycle.nodeList.get(1).getStartTimeOffsetNano());
-//		assertThat(difference).isEqualTo(20000);
+		List<Prediction> predictions = cpr.onSensorChanged(event2);
+		predictions.contains(event1);
+
+	}
+
+	@Test
+	public final void givenValidSensorEvents_whenDurationsAdded_thenLastEventDurationMustBeDiffence() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		event2.setDataPointDurationNano(event1.getDataPointDurationNano() + 20000);
+
+		cpr.onSensorChanged(event1);
+		long beforeDuration = event1.getDataPointDurationNano();
+		List<Prediction> predictions = cpr.onSensorChanged(event1);
+		predictions = cpr.onSensorChanged(event2);
+		long afterDuration = event2.getDataPointDurationNano();
+
+		long difference = Math.abs(afterDuration - beforeDuration);
+		assertThat(difference).isEqualTo(20000);
 	}
 
 	@Test
@@ -305,36 +280,10 @@ public class CPR_ConstraintsTest {
 		float[] values = { 1.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(hrSensor, values);
-//		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-//		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, new PredictionService());
 
 		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event2));
 
 		assertThat(throwable).as("A different sensor type event  throws an  IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-	}
-
-	@Test
-	public final void givenNonEmptyCycle_whenNewEventArrivesWithTimestampBeforePreviousEvent_thenIllegalArgumentException() {
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
-
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		event1.setTimestamp(event1.getTimestamp() - 1000);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		cpr.onSensorChanged(event2);
-		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event1));
-
-		assertThat(throwable).as("An out of order sensor event throws  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}

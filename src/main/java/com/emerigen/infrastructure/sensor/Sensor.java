@@ -57,9 +57,8 @@ public abstract class Sensor implements Serializable {
 	public static final int DELAY_NORMAL = 0;
 	public static final long nanoSecondsPerMilliSeconds = 1000000;
 
-	private long minimumDelayBetweenReadings = Long
-			.parseLong(EmerigenProperties.getInstance()
-					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+	private long minimumDelayBetweenReadings = Long.parseLong(
+			EmerigenProperties.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"))
 			* nanoSecondsPerMilliSeconds;
 
 	private int reportingMode;
@@ -76,19 +75,16 @@ public abstract class Sensor implements Serializable {
 
 	}
 
-	public Sensor(int sensorType, int sensorLocation, int reportingMode,
-			int minimumDelayBetweenReadings, boolean isWakeUpSensor) {
+	public Sensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelayBetweenReadings,
+			boolean isWakeUpSensor) {
 		if (sensorType <= 0)
 			throw new IllegalArgumentException("type must be positive");
 		if (sensorLocation <= 0)
 			throw new IllegalArgumentException("location must be positive");
-		if ((reportingMode != REPORTING_MODE_CONTINUOUS)
-				&& (reportingMode != REPORTING_MODE_ON_CHANGE))
-			throw new IllegalArgumentException(
-					"Reporting mode (" + reportingMode + ") is not valid");
+		if ((reportingMode != REPORTING_MODE_CONTINUOUS) && (reportingMode != REPORTING_MODE_ON_CHANGE))
+			throw new IllegalArgumentException("Reporting mode (" + reportingMode + ") is not valid");
 		if (minimumDelayBetweenReadings < 0)
-			throw new IllegalArgumentException(
-					"MinimumDelayBetweenReadings must not be negative");
+			throw new IllegalArgumentException("MinimumDelayBetweenReadings must not be negative");
 
 		this.type = sensorType;
 		this.location = sensorLocation;
@@ -102,12 +98,9 @@ public abstract class Sensor implements Serializable {
 		activate();
 	}
 
-	public Sensor(int sensorType, int sensorLocation, int reportingMode,
-			boolean isWakeUpSensor) {
-		this(sensorType, sensorLocation, reportingMode,
-				Integer.parseInt(EmerigenProperties.getInstance().getValue(
-						"sensor.default.minimum.delay.between.readings.millis")),
-				isWakeUpSensor);
+	public Sensor(int sensorType, int sensorLocation, int reportingMode, boolean isWakeUpSensor) {
+		this(sensorType, sensorLocation, reportingMode, Integer.parseInt(EmerigenProperties.getInstance()
+				.getValue("sensor.default.minimum.delay.between.readings.millis")), isWakeUpSensor);
 	}
 
 	/**
@@ -136,7 +129,7 @@ public abstract class Sensor implements Serializable {
 
 			long currentTime = currentSensorEvent.getTimestamp();
 			long previousTime = previousSensorEvent.getTimestamp();
-			long elapsedTime = currentTime - previousTime;
+			long elapsedTime = Math.abs(currentTime - previousTime);
 			return elapsedTime >= minimumDelayBetweenReadings;
 		} else
 			return true;
@@ -298,14 +291,13 @@ public abstract class Sensor implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Sensor [minimumDelayBetweenReadings=" + minimumDelayBetweenReadings
-				+ ", reportingMode=" + reportingMode + ", wakeUpSensor=" + wakeUpSensor
-				+ ", activated=" + activated + ", type=" + type + ", location=" + location
-				+ ", locationName=" + locationName + ", typeName=" + typeName + "]";
+		return "Sensor [minimumDelayBetweenReadings=" + minimumDelayBetweenReadings + ", reportingMode="
+				+ reportingMode + ", wakeUpSensor=" + wakeUpSensor + ", activated=" + activated + ", type="
+				+ type + ", location=" + location + ", locationName=" + locationName + ", typeName="
+				+ typeName + "]";
 	}
 
-	public abstract boolean equals(SensorEvent firstSensorEvent,
-			SensorEvent secondSensorEvent);
+	public abstract boolean equals(SensorEvent firstSensorEvent, SensorEvent secondSensorEvent);
 
 	/**
 	 * @param minimumDelayBetweenReadings the minimumDelayBetweenReadings to set

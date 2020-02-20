@@ -3,6 +3,7 @@ package com.emerigen.infrastructure.sensor;
 import java.util.Arrays;
 
 import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.Utils;
 
 /**
@@ -65,6 +66,9 @@ public class SensorEvent {
 	 */
 	private float[] values = null;
 
+	private long defaultDataPointDurationNano = Long
+			.parseLong(EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
+
 	public SensorEvent() {
 	}
 
@@ -79,6 +83,7 @@ public class SensorEvent {
 		this.sensorType = sensor.getType();
 		this.sensorLocation = sensor.getLocation();
 		this.values = values;
+		this.dataPointDurationNano = defaultDataPointDurationNano;
 	}
 
 	@JsonIgnore

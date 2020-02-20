@@ -141,13 +141,26 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 				adjustCycleStartTimeToClosestEnclosingCycle(currentSensorEvent);
 
 				if (previousSensorEvent == null) {
-
-					// No previous event? save current event and return
+					// Locate prior
+//					List<SensorEvent> priorEvents = predictionService
+//							.getPriorEventsThatPredictSensorEvent(currentSensorEvent);
+//
+//					if (priorEvents == null || priorEvents.isEmpty()) {
 					previousSensorEvent = currentSensorEvent;
 					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
-				} else if (currentEventIsGreaterThanPreviousEvent(currentSensorEvent)) {
+//					} else {
+//
+//						/**
+//						 * Choose the first prior event where the currentEvent is predicted. TODO We may
+//						 * want to choose the one with the highest probability
+//						 */
+//						previousSensorEvent = priorEvents.get(0);
+//					}
+				}
+
+				if (currentEventIsGreaterThanPreviousEvent(currentSensorEvent)) {
 
 					// Previous event occurs after current event? create new Transition
 					predictionService.createPredictionFromSensorEvents(previousSensorEvent,
@@ -160,7 +173,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					// Current event prior to previous event? create backward Transition
 					predictionService.createPredictionFromSensorEvents(currentSensorEvent,
 							previousSensorEvent);
-					predictions = predictionService.getPredictionsForSensorEvent(previousSensorEvent);
+					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
 				} else if (currentEventEqualsPreviousEvent(currentSensorEvent)) {
@@ -170,6 +183,14 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
 				}
+//				else if (previousSensorEvent == null) {
+//
+//					// No previous event? save current event and return
+//					previousSensorEvent = currentSensorEvent;
+//					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
+//					predictionService.setCurrentPredictions(predictions);
+//					return predictions;
+//				}
 
 			} // end data has changed significantly
 		} // end minimum delay has occurred
