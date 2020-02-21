@@ -30,8 +30,9 @@ public abstract class Cycle {
 	private int sensorLocation;
 	private int sensorType;
 
-	private double allowablePercentDifferenceForEquality = Double.parseDouble(
-			EmerigenProperties.getInstance().getValue("cycle.allowable.percent.difference.for.equality"));
+	private double allowablePercentDifferenceForEquality = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("cycle.allowable.percent.difference.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
@@ -72,8 +73,9 @@ public abstract class Cycle {
 
 	@Override
 	public String toString() {
-		return "Cycle [cycleType=" + cycleType + ", sensorLocation=" + sensorLocation + ", sensorType="
-				+ sensorType + ", allowablePercentDifferenceForEquality="
+		return "Cycle [cycleType=" + cycleType + ", sensorLocation=" + sensorLocation
+				+ ", sensorType=" + sensorType
+				+ ", allowablePercentDifferenceForEquality="
 				+ allowablePercentDifferenceForEquality + "]";
 	}
 
@@ -121,7 +123,8 @@ public abstract class Cycle {
 		return cycleType;
 	}
 
-	public void setAllowablePercentDifferenceForEquality(double allowablePercentDifferenceForEquality) {
+	public void setAllowablePercentDifferenceForEquality(
+			double allowablePercentDifferenceForEquality) {
 		this.allowablePercentDifferenceForEquality = allowablePercentDifferenceForEquality;
 	}
 

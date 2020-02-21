@@ -37,6 +37,7 @@ public class FrequencyAnnotationExample {
 //		logger.debug(" logging level change back to warning: This debug entry should NOT occur");
 //		logger.warn("This warning should occur even after change back to warning");
 	}
+
 	@LowEventFrequencyHandler(threshold = 3, minimumTimeBelowThreshold = 2, frequencyEventName = "Exception")
 	public void LowExceptionFrequencyHandler() {
 		++lowExceptionFrequencyHandlerCount;
@@ -72,14 +73,16 @@ public class FrequencyAnnotationExample {
 	}
 
 	// Prediction accuracy lower than min specified
-	//@LowEventFrequencyHandler(threshold = 2, minimumTimeBelowThreshold = 2, frequencyEventName = "PredictionAccuracyEvent")
+	// @LowEventFrequencyHandler(threshold = 2, minimumTimeBelowThreshold = 2,
+	// frequencyEventName = "PredictionAccuracyEvent")
 	public void lowPredictionAccuracyHandler() {
 		++lowPredictionAccuracyHandlerCount;
 	}
 
 	// Exception frequency below acceptable frequency. Raise logging level to
 	// WARNING
-	//@LowEventFrequencyHandler(threshold = 2, minimumTimeBelowThreshold = 2, frequencyEventName = "Exception")
+	// @LowEventFrequencyHandler(threshold = 2, minimumTimeBelowThreshold = 2,
+	// frequencyEventName = "Exception")
 	public void lowExceptionFrequencyHandler() {
 		++lowExceptionFrequencyHandlerCount;
 	}

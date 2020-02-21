@@ -12,10 +12,14 @@ import java.util.concurrent.TimeUnit;
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface FrequencyMeasurement {
-	
+
 	TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+
 	int highThreshold() default 1;
+
 	int lowThreshold() default 0;
+
 	int minimumTimeOutsideThreshold() default 1;
+
 	String frequencyEventClassName();
 }

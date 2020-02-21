@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
-
 /**
  * @author Larry
  * @param <T>
@@ -130,9 +129,10 @@ public class NeighborhoodImpl implements Neighborhood {
 			throw new IllegalArgumentException("Agent must not be null");
 		if (newLocation == null)
 			throw new IllegalArgumentException("newLocation must not be null");
-		if ((newLocation.getxCoordinate() > size - 1) || (newLocation.getyCoordinate() > size - 1))
-			throw new IllegalArgumentException("newLocation out of bounds: size=" 
-					+ size + ", location: " + newLocation);
+		if ((newLocation.getxCoordinate() > size - 1)
+				|| (newLocation.getyCoordinate() > size - 1))
+			throw new IllegalArgumentException("newLocation out of bounds: size=" + size
+					+ ", location: " + newLocation);
 
 		// If there are agents at the new location then add to that list
 		if (locationIsOccupied(newLocation)) {
@@ -174,13 +174,13 @@ public class NeighborhoodImpl implements Neighborhood {
 	private List<Agent> getLeftSideNeighbors(Agent agent, int neighborRadius) {
 		List<Agent> agents = new ArrayList<>();
 		Location loc = agent.getLocation();
-		logger.info(" - Supplied agent location: "+ loc);
+		logger.info(" - Supplied agent location: " + loc);
 
 		// Calculate loop start and end variables
 		int loopStart = loc.getyCoordinate() - neighborRadius; // TODO fix error if minus
 		loopStart = loopStart < 0 ? 0 : loopStart; // Ensure within range
 		int loopEnd = (loc.getyCoordinate() + neighborRadius + 1) % size;
-		logger.info(" - loopStart: " + loopStart + ", loopEnd: " +loopEnd);
+		logger.info(" - loopStart: " + loopStart + ", loopEnd: " + loopEnd);
 
 		int xCoordinate = (loc.getxCoordinate() - neighborRadius + size) % size;
 		xCoordinate = xCoordinate < 0 ? 0 : xCoordinate;
@@ -191,8 +191,7 @@ public class NeighborhoodImpl implements Neighborhood {
 			// If there are agents at this location
 			location = new Location(xCoordinate, y);
 			if (locationIsOccupied(location)) {
-				logger.info("- Agents are at location: x - " 
-			+ xCoordinate + "y - " + y);
+				logger.info("- Agents are at location: x - " + xCoordinate + "y - " + y);
 
 				// Add them to the list to be returned
 				agents.addAll(occupiedLocations.get(location));
@@ -200,7 +199,7 @@ public class NeighborhoodImpl implements Neighborhood {
 
 			}
 		}
-		logger.info(" - returning agents " +  agents);
+		logger.info(" - returning agents " + agents);
 		return agents;
 	}
 
@@ -214,14 +213,13 @@ public class NeighborhoodImpl implements Neighborhood {
 	private List<Agent> getRightSideNeighbors(Agent agent, int neighborRadius) {
 		List<Agent> agents = new ArrayList<>();
 		Location loc = agent.getLocation();
-		logger.info(" - Supplied agent location: " +  loc);
+		logger.info(" - Supplied agent location: " + loc);
 
 		// Calculate loop start and end variables
 		int loopStart = loc.getyCoordinate() - neighborRadius;
 		loopStart = loopStart < 0 ? 0 : loopStart;
 		int loopEnd = (loc.getyCoordinate() + neighborRadius + 1) % size;
-		logger.info(" - loopStart: "
-				+ loopStart + ", loopend: " + loopEnd);
+		logger.info(" - loopStart: " + loopStart + ", loopend: " + loopEnd);
 
 		int xCoordinate = (loc.getxCoordinate() + neighborRadius) % size;
 		Location location;
@@ -231,12 +229,12 @@ public class NeighborhoodImpl implements Neighborhood {
 			// If there are agents at this location
 			location = new Location(xCoordinate, y);
 			if (locationIsOccupied(location)) {
-				logger.info(" - Agents are at location: x - " + xCoordinate
-						+ ", y - " +  y);
+				logger.info(
+						" - Agents are at location: x - " + xCoordinate + ", y - " + y);
 
 				// Add them to the list to be returned
 				agents.addAll(occupiedLocations.get(location));
-				logger.info(" - Agents added to return list: "+ agents);
+				logger.info(" - Agents added to return list: " + agents);
 
 			}
 		}
@@ -270,8 +268,8 @@ public class NeighborhoodImpl implements Neighborhood {
 			// If there are agents at this location
 			location = new Location(x, yCoordinate);
 			if (locationIsOccupied(location)) {
-				logger.info(" - Agents are at location: x - " 
-						+ x + ", y - " + yCoordinate);
+				logger.info(
+						" - Agents are at location: x - " + x + ", y - " + yCoordinate);
 
 				// Add them to the list to be returned
 				agents.addAll(occupiedLocations.get(location));
@@ -293,15 +291,16 @@ public class NeighborhoodImpl implements Neighborhood {
 	private List<Agent> getBottomSideNeighbors(Agent agent, int neighborRadius) {
 		List<Agent> agents = new ArrayList<>();
 		Location loc = agent.getLocation();
-		logger.info(" - Supplied agent location: "+ loc);
+		logger.info(" - Supplied agent location: " + loc);
 
 		// Calculate loop start and end variables
 		int loopStart = loc.getxCoordinate() - neighborRadius;
 		loopStart = loopStart < 0 ? 0 : loopStart;
 		int loopEnd = (loc.getxCoordinate() + neighborRadius + 1) % size;
-		logger.info(" - loopStart: " + loopStart + ", loopEnd: " +  loopEnd);
+		logger.info(" - loopStart: " + loopStart + ", loopEnd: " + loopEnd);
 
-		int yCoordinate = loc.getyCoordinate() >= size - 1 ? 0 : (loc.getyCoordinate() - neighborRadius + size) % size;
+		int yCoordinate = loc.getyCoordinate() >= size - 1 ? 0
+				: (loc.getyCoordinate() - neighborRadius + size) % size;
 		Location location;
 		for (int x = loopStart; x < loopEnd; x++) {
 			logger.info(" - looping, x: " + x);
@@ -309,19 +308,17 @@ public class NeighborhoodImpl implements Neighborhood {
 			// If there are agents at this location
 			location = new Location(x, yCoordinate);
 			if (locationIsOccupied(location)) {
-				logger.info(" - Agents are at location: x - " + x
-						+ ", y - " + yCoordinate);
+				logger.info(
+						" - Agents are at location: x - " + x + ", y - " + yCoordinate);
 
 				// Add them to the list to be returned
 				agents.addAll(occupiedLocations.get(location));
-				logger.info(" - Agents added to return list: "+ agents);
+				logger.info(" - Agents added to return list: " + agents);
 
 			}
 		}
 		logger.info(" - returning agents " + agents);
 		return agents;
 	}
-	
-
 
 }

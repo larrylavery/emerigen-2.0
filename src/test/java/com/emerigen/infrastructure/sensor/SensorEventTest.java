@@ -31,8 +31,8 @@ public class SensorEventTest {
 	public final void givenValidSensorEvent_whenLogged_thenItshouldBeTheSameWhenRetrieved() {
 		SoftAssertions softly = new SoftAssertions();
 		// Given
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		sensor.setMinimumDelayBetweenReadings(1000);
 		sensor.setReportingMode(Sensor.DELAY_NORMAL);
 		sensor.setWakeUpSensor(false);
@@ -44,9 +44,13 @@ public class SensorEventTest {
 		SensorEvent event = new SensorEvent(sensor, values);
 		event.setTimestamp(timestamp);
 
-		JsonObject sensorEventJsonDoc = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH).put("timestamp", "" + timestamp)
-				.put("values", JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(), "" + rd.nextFloat()))
+		JsonObject sensorEventJsonDoc = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
+				.put("timestamp", "" + timestamp)
+				.put("values",
+						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
+								"" + rd.nextFloat()))
 				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
 				.put("wakeUpSensor", false);
 
@@ -56,17 +60,23 @@ public class SensorEventTest {
 //		KnowledgeRepository.getInstance().newSensorEvent(event);
 		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc);
 
-		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance().getSensorEvent(uuid);
+		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance()
+				.getSensorEvent(uuid);
 		assertThat(retrievedSensorEvent).isNotNull();
 		assertThat(retrievedSensorEvent.getTimestamp()).isEqualTo(timestamp);
-		assertThat(retrievedSensorEvent.getSensorType()).isEqualTo(Sensor.TYPE_HEART_RATE);
-		assertThat(retrievedSensorEvent.getSensorLocation()).isEqualTo(Sensor.LOCATION_WATCH);
+		assertThat(retrievedSensorEvent.getSensorType())
+				.isEqualTo(Sensor.TYPE_HEART_RATE);
+		assertThat(retrievedSensorEvent.getSensorLocation())
+				.isEqualTo(Sensor.LOCATION_WATCH);
 		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(3);
 
 		assertThat(retrievedSensorEvent.getSensor()).isNotNull();
-		assertThat(retrievedSensorEvent.getSensor().getType()).isEqualTo(Sensor.TYPE_HEART_RATE);
-		assertThat(retrievedSensorEvent.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_WATCH);
-		assertThat(retrievedSensorEvent.getSensor().getMinimumDelayBetweenReadings()).isEqualTo(1000);
+		assertThat(retrievedSensorEvent.getSensor().getType())
+				.isEqualTo(Sensor.TYPE_HEART_RATE);
+		assertThat(retrievedSensorEvent.getSensor().getLocation())
+				.isEqualTo(Sensor.LOCATION_WATCH);
+		assertThat(retrievedSensorEvent.getSensor().getMinimumDelayBetweenReadings())
+				.isEqualTo(1000);
 		assertThat(retrievedSensorEvent.getSensor().getReportingMode()).isEqualTo(1);
 		assertThat(retrievedSensorEvent.getSensor().isWakeUpSensor()).isFalse();
 		softly.assertAll();
@@ -81,16 +91,18 @@ public class SensorEventTest {
 		InputStream invalidSensorEventJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/sensor-event-invalid-empty-values.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(sensorEventSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidSensorEventJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(sensorEventSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidSensorEventJsonFileReader));
 		Schema schema = SchemaLoader.load(jsonSchema);
 
 		// When the instance is validated
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable)
-				.as("A invalidly structured Json sensor event document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensor event document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 
 	}
@@ -104,8 +116,10 @@ public class SensorEventTest {
 		InputStream invalidSensorEventJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/sensor-event-valid.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(sensorEventSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidSensorEventJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(sensorEventSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidSensorEventJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -113,8 +127,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable)
-				.as("A validly structured Json sensorEvent document should not throw a ValidationException")
+		then(throwable).as(
+				"A validly structured Json sensorEvent document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -128,8 +142,10 @@ public class SensorEventTest {
 		InputStream invalidSensorEventJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/sensor-event-invalid-empty-values.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(sensorEventSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidSensorEventJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(sensorEventSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidSensorEventJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -137,8 +153,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable)
-				.as("A invalidly structured Json sensorEvent document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensorEvent document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 	}
 
@@ -151,8 +167,10 @@ public class SensorEventTest {
 		InputStream invalidSensorEventJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/sensor-event-invalid-no-timestamp.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(sensorEventSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidSensorEventJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(sensorEventSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidSensorEventJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -160,8 +178,8 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable)
-				.as("A invalidly structured Json sensorEvent document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensorEvent document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 	}
 
@@ -174,8 +192,10 @@ public class SensorEventTest {
 		InputStream invalidSensorEventJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/sensor-event-invalid-no-sensor-type.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(sensorEventSchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidSensorEventJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(sensorEventSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidSensorEventJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -183,15 +203,15 @@ public class SensorEventTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable)
-				.as("A invalidly structured Json sensorEvent document should throw a ValidationException")
+		then(throwable).as(
+				"A invalidly structured Json sensorEvent document should throw a ValidationException")
 				.isInstanceOf(ValidationException.class);
 	}
 
 	@Test
 	public final void givenJsonSensorEventWithEmptyValues_whenCreated_thenIllegalArgumentException() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		float[] values = {};
 		final Throwable throwable = catchThrowable(() -> new SensorEvent(sensor, values));
@@ -202,8 +222,8 @@ public class SensorEventTest {
 
 	@Test
 	public final void givenNullValues_whenCreated_thenIllegalArgumentException() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		float[] values = { 10.1f, 20.2f, 30.3f };
 		final Throwable throwable = catchThrowable(() -> new SensorEvent(sensor, null));

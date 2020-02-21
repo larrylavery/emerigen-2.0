@@ -29,7 +29,8 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 			// Write the Sensor event fields
 			jsonGenerator.writeStartObject();
 			jsonGenerator.writeNumberField("sensorType", sensorEvent.getSensorType());
-			jsonGenerator.writeNumberField("sensorLocation", sensorEvent.getSensorLocation());
+			jsonGenerator.writeNumberField("sensorLocation",
+					sensorEvent.getSensorLocation());
 			jsonGenerator.writeNumberField("timestamp", sensorEvent.getTimestamp());
 //			jsonGenerator.writeNumberField("timestamp", sensorEvent.getTimestamp());
 			logger.info("Current json before values parsed: " + jsonGenerator.toString());
@@ -41,8 +42,8 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 				logger.info("next values, float value: " + sensorEvent.getValues()[i]);
 			}
 			jsonGenerator.writeEndArray();
-			logger.info(
-					"Current json after Event related filds parsed: " + jsonGenerator.toString());
+			logger.info("Current json after Event related filds parsed: "
+					+ jsonGenerator.toString());
 
 			// Write sensor related fields
 			jsonGenerator.writeNumberField("minimumDelayBetweenReadings",
@@ -52,7 +53,8 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 			jsonGenerator.writeBooleanField("wakeUpSensor",
 					sensorEvent.getSensor().isWakeUpSensor());
 			jsonGenerator.writeEndObject(); // End of all SensorEvent fields
-			logger.info("final json after all fields serialized: " + jsonGenerator.toString());
+			logger.info("final json after all fields serialized: "
+					+ jsonGenerator.toString());
 		} catch (IOException e) {
 			throw new RepositoryException("IO exception thrown: ", e);
 		}

@@ -41,13 +41,18 @@ public class Transition {
 	public Transition() {
 	}
 
-	public Transition(final SensorEvent firstSensorEvent, final SensorEvent predictedSensorEvent) {
+	public Transition(final SensorEvent firstSensorEvent,
+			final SensorEvent predictedSensorEvent) {
 		if (firstSensorEvent == null || predictedSensorEvent == null)
-			throw new IllegalArgumentException("firstSensorEvent or predictedSensorEvent must not be null");
+			throw new IllegalArgumentException(
+					"firstSensorEvent or predictedSensorEvent must not be null");
 		if (firstSensorEvent.getSensorType() != predictedSensorEvent.getSensorType()) {
-			throw new IllegalArgumentException("Transition patterns must belong to the same sensor."
-					+ " firstPattern sensorType: " + firstSensorEvent.getSensorType()
-					+ ", predictedPattern sensorType: " + predictedSensorEvent.getSensorType());
+			throw new IllegalArgumentException(
+					"Transition patterns must belong to the same sensor."
+							+ " firstPattern sensorType: "
+							+ firstSensorEvent.getSensorType()
+							+ ", predictedPattern sensorType: "
+							+ predictedSensorEvent.getSensorType());
 		}
 		this.sensorType = firstSensorEvent.getSensorType();
 		this.sensorLocation = firstSensorEvent.getSensorLocation();
@@ -67,9 +72,12 @@ public class Transition {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + cashOnHand;
-		result = prime * result + (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
-		result = prime * result + ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
-		result = prime * result + ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
+		result = prime * result
+				+ (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
+		result = prime * result
+				+ ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
+		result = prime * result
+				+ ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(probability);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -102,7 +110,8 @@ public class Transition {
 				return false;
 		} else if (!predictedSensorEvent.equals(other.predictedSensorEvent))
 			return false;
-		if (Double.doubleToLongBits(probability) != Double.doubleToLongBits(other.probability))
+		if (Double.doubleToLongBits(probability) != Double
+				.doubleToLongBits(other.probability))
 			return false;
 		if (sensorLocation != other.sensorLocation)
 			return false;
@@ -115,9 +124,10 @@ public class Transition {
 
 	@Override
 	public String toString() {
-		return "Transition [timestamp=" + timestamp + ", firstSensorEventKey=" + firstSensorEventKey
-				+ ", predictedSensorEvent=" + predictedSensorEvent + ", sensorType=" + sensorType
-				+ ", sensorLocation=" + sensorLocation + "]";
+		return "Transition [timestamp=" + timestamp + ", firstSensorEventKey="
+				+ firstSensorEventKey + ", predictedSensorEvent=" + predictedSensorEvent
+				+ ", sensorType=" + sensorType + ", sensorLocation=" + sensorLocation
+				+ "]";
 	}
 
 	/**

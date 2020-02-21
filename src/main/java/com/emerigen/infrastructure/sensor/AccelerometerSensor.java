@@ -8,9 +8,10 @@ public class AccelerometerSensor extends Sensor {
 
 	private static final Logger logger = Logger.getLogger(AccelerometerSensor.class);
 
-	public AccelerometerSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE, reportingMode, minimumDelay,
-				isWakeUpSensor);
+	public AccelerometerSensor(int reportingMode, int minimumDelay,
+			boolean isWakeUpSensor) {
+		super(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE, reportingMode,
+				minimumDelay, isWakeUpSensor);
 	}
 
 	public AccelerometerSensor(int sensorLocation, int reportingMode, int minimumDelay,
@@ -58,10 +59,12 @@ public class AccelerometerSensor extends Sensor {
 		float lastY = previousSensorEvent.getValues()[1];
 		float lastZ = previousSensorEvent.getValues()[2];
 
-		long elapseTime = currentSensorEvent.getTimestamp() - previousSensorEvent.getTimestamp();
+		long elapseTime = currentSensorEvent.getTimestamp()
+				- previousSensorEvent.getTimestamp();
 
 		// Calculate the device's speed
-		double speed = Math.abs(currX + currY + currZ - lastX - lastY - lastZ) / elapseTime * 1000;
+		double speed = Math.abs(currX + currY + currZ - lastX - lastY - lastZ)
+				/ elapseTime * 1000;
 		logger.info("The device speed is (" + speed + ")");
 		return speed;
 	}

@@ -27,7 +27,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 
 	private SensorEvent previousSensorEvent;
 
-	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListener.class);
+	private static final Logger logger = Logger
+			.getLogger(EmerigenSensorEventListener.class);
 
 	public EmerigenSensorEventListener() {
 		sensorManager = SensorManager.getInstance();
@@ -48,7 +49,8 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 				.getRegistrationsForSensor(sensorEvent.getSensor());
 		for (SensorEventListener sensorEventListener : listeners) {
 			if (!(sensorEventListener instanceof EmerigenSensorEventListener)) {
-				List<Prediction> newPredictions = sensorEventListener.onSensorChanged(sensorEvent);
+				List<Prediction> newPredictions = sensorEventListener
+						.onSensorChanged(sensorEvent);
 				if (newPredictions != null)
 					distinctPredictions.addAll(newPredictions);
 //				distinctPredictions.addAll(sensorEventListener.onSensorChanged(sensorEvent));

@@ -27,8 +27,10 @@ public class JsonSchemasTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/entity-valid.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -51,8 +53,10 @@ public class JsonSchemasTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/entity-invalid-no-channels.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -75,8 +79,10 @@ public class JsonSchemasTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/entity-invalid-no-timestamp.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -99,8 +105,10 @@ public class JsonSchemasTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/entity-invalid-no-entity-id.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -123,8 +131,10 @@ public class JsonSchemasTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/entity-invalid-empty-channels.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -147,8 +157,10 @@ public class JsonSchemasTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/entity-invalid-no-channel-type.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 

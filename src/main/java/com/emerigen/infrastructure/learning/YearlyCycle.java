@@ -41,7 +41,8 @@ public class YearlyCycle extends Cycle {
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentYear.atStartOfDay(zoneId);
-		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond * nanosecondsPerMillisecond;
+		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond
+				* nanosecondsPerMillisecond;
 	}
 
 	/**

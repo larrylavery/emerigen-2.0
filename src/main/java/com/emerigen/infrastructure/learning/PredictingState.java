@@ -17,11 +17,13 @@ public class PredictingState implements PatternRecognizerState {
 
 	@Override
 	public List<Prediction> onSensorChanged(SensorEvent sensorEvent) {
-		List<Prediction> currentPredictions = predictionService.getPredictionsForSensorEvent(sensorEvent);
+		List<Prediction> currentPredictions = predictionService
+				.getPredictionsForSensorEvent(sensorEvent);
 
 		// Current event matches one of my predictions
 		if (predictionService.getCurrentPredictions().contains(sensorEvent)) {
-			currentPredictions = predictionService.getPredictionsForSensorEvent(sensorEvent);
+			currentPredictions = predictionService
+					.getPredictionsForSensorEvent(sensorEvent);
 
 			// Increment count of successful predictions for my sensor
 			predictionService.incrementPredictionsForSensor();

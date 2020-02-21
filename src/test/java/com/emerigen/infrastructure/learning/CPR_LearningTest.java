@@ -19,7 +19,8 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 
 public class CPR_LearningTest {
 
-	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation, int numberOfNodes) {
+	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
+			int numberOfNodes) {
 		Cycle cycle;
 
 		if ("Daily".equals(cycleType))
@@ -31,7 +32,8 @@ public class CPR_LearningTest {
 		else if ("Yearly".equals(cycleType))
 			cycle = new YearlyCycle(sensorType, sensorLocation);
 		else
-			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
+			throw new IllegalArgumentException(
+					"cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
 //		cycle.setPreviousCycleNodeIndex(0);
@@ -77,15 +79,19 @@ public class CPR_LearningTest {
 
 	@Test
 	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAreRegistered() {
-		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH, 1);
+		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH,
+				1);
 
-		fail("Rewrite test"); // TODO do not make assumption on how many cycles in couchbase
+		fail("Rewrite test"); // TODO do not make assumption on how many cycles in
+								// couchbase
 		String key = UUID.randomUUID().toString();
 		KnowledgeRepository.getInstance().newCycle(key, cycle);
 		SensorManager sm = SensorManager.getInstance();
-		Sensor gpsSensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		assertThat(sm.listenerIsRegisteredToSensor(cpr, gpsSensor)).isTrue();
 		// CouchbaseRepository.getInstance().remove("cycle", key);
@@ -98,10 +104,11 @@ public class CPR_LearningTest {
 
 	@Test
 	public final void givenNonEmptyCycle_whenSignificantlyDifferentEventDataPointArrives_thenNewNodeAddedToEndOfCycle() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats

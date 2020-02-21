@@ -8,7 +8,7 @@ import com.emerigen.infrastructure.repository.RepositoryException;
 public class BucketNotFoundException extends RepositoryException {
 
 	static Logger logger = Logger.getLogger(BucketNotFoundException.class);
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public BucketNotFoundException(String message) {
@@ -26,8 +26,8 @@ public class BucketNotFoundException extends RepositoryException {
 		// TODO Auto-generated constructor stub
 	}
 
-	public BucketNotFoundException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public BucketNotFoundException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		// TODO Auto-generated constructor stub
 	}

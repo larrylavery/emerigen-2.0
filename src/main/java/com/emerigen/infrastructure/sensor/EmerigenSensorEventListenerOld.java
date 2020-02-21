@@ -32,39 +32,45 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	private SensorEvent lastSensorEvent;
 	private List<SensorEvent> predictions = new ArrayList<SensorEvent>();
 	private float last_x, last_y, last_z;
-	private static final float ACCEL_SHAKE_THRESHOLD = Float.parseFloat(
-			EmerigenProperties.getInstance().getValue("sensor.accelerometer.shake.threshold.millis"));
+	private static final float ACCEL_SHAKE_THRESHOLD = Float.parseFloat(EmerigenProperties
+			.getInstance().getValue("sensor.accelerometer.shake.threshold.millis"));
 
-	private static final Logger logger = Logger.getLogger(EmerigenSensorEventListenerOld.class);
+	private static final Logger logger = Logger
+			.getLogger(EmerigenSensorEventListenerOld.class);
 	private static final double GPS_DISTANCE_THRESHOLD = Double
-			.parseDouble(EmerigenProperties.getInstance().getValue("sensor.gps.distance.threshold.meters"));
-	private static final float TEMPERATURE_DIFFERENCE_THRESHOLD = Float.parseFloat(
-			EmerigenProperties.getInstance().getValue("sensor.temperature.difference.threshold.degrees"));
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("sensor.gps.distance.threshold.meters"));
+	private static final float TEMPERATURE_DIFFERENCE_THRESHOLD = Float
+			.parseFloat(EmerigenProperties.getInstance()
+					.getValue("sensor.temperature.difference.threshold.degrees"));
 
-	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties.getInstance()
-			.getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private final int minDelayBetweenReadingsMillis = Integer
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 	private float[] lastGpsCoordinates;
 	private float lastUpdateTemperature;
 	private float currentHr;
 	private float lastUpdateHr;
-	private float HEARTRATE_DIFFERENCE_THRESHOLD = Float
-			.parseFloat(EmerigenProperties.getInstance().getValue("sensor.heartrate.difference.threshold"));
+	private float HEARTRATE_DIFFERENCE_THRESHOLD = Float.parseFloat(EmerigenProperties
+			.getInstance().getValue("sensor.heartrate.difference.threshold"));
 
 	public EmerigenSensorEventListenerOld() {
 		sensorManager = SensorManager.getInstance();
 
 		// TODO Should I create default sensors for all locations?
 		// Create all sensors
-		heartRateSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+		heartRateSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		accelerometerSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
+		temperatureSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_TEMPERATURE, Sensor.LOCATION_PHONE);
+		gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);
-		accelerometerSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
-		temperatureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_TEMPERATURE,
-				Sensor.LOCATION_PHONE);
-		gpsSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		sleepSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_SLEEP, Sensor.LOCATION_MACHINE);
-		bloodPressureSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_BLOOD_PRESSURE,
+		sleepSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_SLEEP,
 				Sensor.LOCATION_MACHINE);
+		bloodPressureSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_BLOOD_PRESSURE, Sensor.LOCATION_MACHINE);
 		glucoseSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GLUCOSE,
 				Sensor.LOCATION_MACHINE);
 
@@ -114,7 +120,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapsedTime()
-					+ ") since the last sensor change has occurred. Processing event: " + sensorEvent);
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
 
 			// minimum delay elapse time has occurred, extract temperature
 			float currentTemparature = sensorEvent.getValues()[0];
@@ -123,8 +130,9 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 			float temperatureDifference = currentTemparature - lastUpdateTemperature;
 			logger.info("The temperature difference is (" + temperatureDifference + ")");
 			if (temperatureDifference > TEMPERATURE_DIFFERENCE_THRESHOLD) {
-				logger.info("The temperature difference exceeds the 'difference threshold' of "
-						+ TEMPERATURE_DIFFERENCE_THRESHOLD);
+				logger.info(
+						"The temperature difference exceeds the 'difference threshold' of "
+								+ TEMPERATURE_DIFFERENCE_THRESHOLD);
 
 				// TODO sample code for processing a significant temperature change
 
@@ -148,7 +156,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapsedTime()
-					+ ") since the last sensor change has occurred. Processing event: " + sensorEvent);
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
 
 			// minimum delay elapse time has occurred, extract coordinates
 			float x = sensorEvent.getValues()[0];
@@ -156,11 +165,13 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 			float z = sensorEvent.getValues()[2];
 
 			// Calculate the device's speed
-			float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapsedTime() * 1000000;
+			float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapsedTime()
+					* 1000000;
 //				float speed = Math.abs(x + y + z - last_x - last_y - last_z) / elapseTime * 1000;
 			logger.info("The device speed is (" + speed + ")");
 			if (speed > ACCEL_SHAKE_THRESHOLD) {
-				logger.info("The speed exceeds the 'shake threshold' of " + ACCEL_SHAKE_THRESHOLD);
+				logger.info("The speed exceeds the 'shake threshold' of "
+						+ ACCEL_SHAKE_THRESHOLD);
 
 				// TODO sample code for processing a significant accelerometer move/shake
 
@@ -170,7 +181,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 				last_z = z;
 				return new ArrayList<Prediction>();
 			} else {
-				logger.info("The speed did not exceed the 'shake threshold' of " + ACCEL_SHAKE_THRESHOLD);
+				logger.info("The speed did not exceed the 'shake threshold' of "
+						+ ACCEL_SHAKE_THRESHOLD);
 				return new ArrayList<Prediction>();
 			}
 		} else {
@@ -185,14 +197,17 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		// determine the elapse time since the last onChanged processed
 		if (elapsedTime() > minDelayBetweenReadingsMillis) {
 			logger.info("The minimum elapse time millis (" + elapsedTime()
-					+ ") since the last sensor change has occurred. Processing event: " + sensorEvent);
+					+ ") since the last sensor change has occurred. Processing event: "
+					+ sensorEvent);
 
 			// Calculate the distance from the last reading
-			double distance = getDistanceBetweenGpsCoordinates(lastGpsCoordinates, sensorEvent.getValues());
+			double distance = getDistanceBetweenGpsCoordinates(lastGpsCoordinates,
+					sensorEvent.getValues());
 			logger.info("The distance since last GPS reading is (" + distance + ")");
 			if (distance > GPS_DISTANCE_THRESHOLD) {
-				logger.info("The distance from last GPS reading exceeds the threshold of ("
-						+ GPS_DISTANCE_THRESHOLD + ")");
+				logger.info(
+						"The distance from last GPS reading exceeds the threshold of ("
+								+ GPS_DISTANCE_THRESHOLD + ")");
 
 				// TODO sample code for processing a significant accelerometer move/shake
 
@@ -219,15 +234,18 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	 * @param currentGpsCoordinates
 	 * @return
 	 */
-	double getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates, float[] currentGpsCoordinates) {
+	double getDistanceBetweenGpsCoordinates(float[] previousGpsCoordinates,
+			float[] currentGpsCoordinates) {
 		if (currentGpsCoordinates == null)
-			throw new IllegalArgumentException("Current gps coordinates must not be null.");
+			throw new IllegalArgumentException(
+					"Current gps coordinates must not be null.");
 
 		// No previous GPS coordinates, return distance 0.0
 		if (currentGpsCoordinates == null)
 			return 0.0;
 
-		double initialLat = previousGpsCoordinates[0], initialLong = previousGpsCoordinates[1],
+		double initialLat = previousGpsCoordinates[0],
+				initialLong = previousGpsCoordinates[1],
 				finalLat = currentGpsCoordinates[0], finalLong = currentGpsCoordinates[1];
 		float earthRadiusInMiles = 3958.8f; // Miles (Earth radius)
 //		int earthRadiusInKilometers = 6371; // Kilometers (Earth radius)
@@ -238,8 +256,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		initialLat = toRadians(initialLat);
 
 		double a = Math.sin(distanceBetweenLat / 2) * Math.sin(distanceBetweenLat / 2)
-				+ Math.sin(distanceBetweenLong / 2) * Math.sin(distanceBetweenLong / 2) * Math.cos(initialLat)
-						* Math.cos(finalLat);
+				+ Math.sin(distanceBetweenLong / 2) * Math.sin(distanceBetweenLong / 2)
+						* Math.cos(initialLat) * Math.cos(finalLat);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		logger.info("returning GPS distance of (" + earthRadiusInMiles * c + ")");
 		return earthRadiusInMiles * c;
@@ -264,8 +282,9 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		// If the minimum delay between readings has elapsed
 		if (minimumDelayBetweenReadingsIsSatisfied(lastUpdateTime, currentTime,
 				minDelayBetweenReadingsMillis)) {
-			logger.info("The minimum elapse time since the last reading has occurred. Processing event: "
-					+ sensorEvent);
+			logger.info(
+					"The minimum elapse time since the last reading has occurred. Processing event: "
+							+ sensorEvent);
 
 			// If the heart rate is significantly different than the previous reading
 
@@ -273,8 +292,9 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 			float hrDifference = currentHr - lastUpdateHr;
 			logger.info("The heart rate difference is (" + hrDifference + ")");
 			if (hrDifference > HEARTRATE_DIFFERENCE_THRESHOLD) {
-				logger.info("The temperature difference exceeds the 'difference threshold' of "
-						+ HEARTRATE_DIFFERENCE_THRESHOLD);
+				logger.info(
+						"The temperature difference exceeds the 'difference threshold' of "
+								+ HEARTRATE_DIFFERENCE_THRESHOLD);
 
 				// Retrieve the current heart rate
 				// int currentHeartRate = (int) sensorEvent.getValues()[0];
@@ -283,11 +303,12 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 				 * TODO Add heart rate learning/prediction code here.
 				 * 
 				 * Possibilities: checking for patterns on prior days near the same time
-				 * periord; locate existing Transitions and make predictions about potential
-				 * next heart rate range; make important predictions about heart rate moving to
-				 * danger zone (tachycardia, SVT, etc). The same learning/prediction that would
-				 * happen for most other sensors exception these may be more important for
-				 * certain types of individuals with heart disease or potential heart disease.
+				 * periord; locate existing Transitions and make predictions about
+				 * potential next heart rate range; make important predictions about heart
+				 * rate moving to danger zone (tachycardia, SVT, etc). The same
+				 * learning/prediction that would happen for most other sensors exception
+				 * these may be more important for certain types of individuals with heart
+				 * disease or potential heart disease.
 				 */
 				processHeartRateEvent(sensorEvent);
 			}
@@ -300,8 +321,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 		}
 	}
 
-	private boolean minimumDelayBetweenReadingsIsSatisfied(long lastUpdateTime, long currentTime,
-			int minDelayBetweenReadingsMillis) {
+	private boolean minimumDelayBetweenReadingsIsSatisfied(long lastUpdateTime,
+			long currentTime, int minDelayBetweenReadingsMillis) {
 
 		currentTime = System.currentTimeMillis();
 		long elapsedTime = currentTime - lastUpdateTime;
@@ -345,7 +366,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	 */
 	private boolean isNewEvent(SensorEvent sensorEvent) {
 
-		SensorEvent event = KnowledgeRepository.getInstance().getSensorEvent(sensorEvent.getKey());
+		SensorEvent event = KnowledgeRepository.getInstance()
+				.getSensorEvent(sensorEvent.getKey());
 		return null == event;
 	}
 

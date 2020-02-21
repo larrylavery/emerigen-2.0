@@ -66,8 +66,8 @@ public class SensorEvent {
 	 */
 	private float[] values = null;
 
-	private long defaultDataPointDurationNano = Long
-			.parseLong(EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
+	private long defaultDataPointDurationNano = Long.parseLong(EmerigenProperties
+			.getInstance().getValue("cycle.default.data.point.duration.nano"));
 
 	public SensorEvent() {
 	}
@@ -101,8 +101,9 @@ public class SensorEvent {
 
 	@Override
 	public String toString() {
-		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType + ", sensorLocation="
-				+ sensorLocation + ", timestamp=" + timestamp + ", values=" + Arrays.toString(values) + "]";
+		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType
+				+ ", sensorLocation=" + sensorLocation + ", timestamp=" + timestamp
+				+ ", values=" + Arrays.toString(values) + "]";
 	}
 
 	/**

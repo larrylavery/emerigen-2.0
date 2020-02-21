@@ -4,9 +4,10 @@ import com.emerigen.infrastructure.utils.Utils;
 
 public class BloodPressureSensor extends Sensor {
 
-	public BloodPressureSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
-		super(Sensor.TYPE_BLOOD_PRESSURE, Sensor.LOCATION_MACHINE, reportingMode, minimumDelay,
-				isWakeUpSensor);
+	public BloodPressureSensor(int reportingMode, int minimumDelay,
+			boolean isWakeUpSensor) {
+		super(Sensor.TYPE_BLOOD_PRESSURE, Sensor.LOCATION_MACHINE, reportingMode,
+				minimumDelay, isWakeUpSensor);
 	}
 
 	public BloodPressureSensor(int sensorLocation, int reportingMode, int minimumDelay,

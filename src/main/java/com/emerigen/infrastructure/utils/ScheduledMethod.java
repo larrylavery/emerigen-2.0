@@ -18,9 +18,12 @@ import java.lang.annotation.Target;
  *
  */
 public @interface ScheduledMethod {
-	
+
 	int start() default 1;
+
 	int interval() default 1;
+
 	ExecutionPriority priority() default ExecutionPriority.MEDIUM;
+
 	String comments() default "No comments";
 }

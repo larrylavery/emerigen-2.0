@@ -14,15 +14,13 @@ import com.emerigen.infrastructure.environment.MessageToSpread;
 
 public class MessageToSpreadTest {
 
-
 	@Test
 	public final void givenValidMessage_whenHopsIncrementedPastMaxHops_thenHopsExceededReturnsTrue() {
-		
-		// Given 
-		MessageToSpread msg = new MessageToSpread(" ", 2,2,
-						(obj1, obj2) -> {
-							return null;
-						});
+
+		// Given
+		MessageToSpread msg = new MessageToSpread(" ", 2, 2, (obj1, obj2) -> {
+			return null;
+		});
 
 		// When hops incremented
 		assertThat(msg.hopsExceeded()).isEqualTo(false);
@@ -32,12 +30,11 @@ public class MessageToSpreadTest {
 
 	@Test
 	public final void givenValidMessage_whenHopsIncremented_thenHopsShouldBeValid() {
-		
-		// Given 
-		MessageToSpread msg = new MessageToSpread(" ", 1,5,
-						(obj1, obj2) -> {
-							return null;
-						});
+
+		// Given
+		MessageToSpread msg = new MessageToSpread(" ", 1, 5, (obj1, obj2) -> {
+			return null;
+		});
 
 		// When hops incremented
 		int hopsBeforeIncrement = msg.getMessageHops();
@@ -47,67 +44,62 @@ public class MessageToSpreadTest {
 
 	@Test
 	public final void givenSpreadMewssageWithNonPositiveHops_whenConstructed_thenIllegalArgumentException() {
-		
-		// When 
-		final Throwable throwable = catchThrowable(() -> new MessageToSpread(
-				null, 0,5,
-						(obj2, obj1) -> {
-							return null;
-						}));
+
+		// When
+		final Throwable throwable = catchThrowable(
+				() -> new MessageToSpread(null, 0, 5, (obj2, obj1) -> {
+					return null;
+				}));
 
 		// Then a IllegalArgumentException should be thrown
 		then(throwable).as("A non-positive Hops should throw a IllegalArgumentException")
-		.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	
 	@Test
 	public final void givenSpreadMewssageWithNonPositiveMaxHops_whenConstructed_thenIllegalArgumentException() {
-		
+
 		// When the message with null content update Content Update function called
-		final Throwable throwable = catchThrowable(() -> new MessageToSpread(
-				null, 2,0,
-						(obj1, obj2) -> {
-							return null;
-						}));
+		final Throwable throwable = catchThrowable(
+				() -> new MessageToSpread(null, 2, 0, (obj1, obj2) -> {
+					return null;
+				}));
 
 		// Then a IllegalArgumentException should be thrown
-		then(throwable).as("A non-positive maxHops should throw a IllegalArgumentException")
-		.isInstanceOf(IllegalArgumentException.class);
+		then(throwable)
+				.as("A non-positive maxHops should throw a IllegalArgumentException")
+				.isInstanceOf(IllegalArgumentException.class);
 	}
-	
+
 	@Test
 	public final void givenSpreadMewssageWithNullMessage_whenConstructed_thenIllegalArgumentException() {
 //		public MessageToSpread(String message, int messageHops, int maxHops, Function<Object, Object> function) {
-		
+
 		// When the message with null content update Content Update function called
-		final Throwable throwable = catchThrowable(() -> new MessageToSpread(
-				null, 2,3,
-						(obj1, obj2) -> {
-							return null;
-						}));
+		final Throwable throwable = catchThrowable(
+				() -> new MessageToSpread(null, 2, 3, (obj1, obj2) -> {
+					return null;
+				}));
 
 		// Then a IllegalArgumentException should be thrown
 		then(throwable).as("A null message should throw a IllegalArgumentException")
-		.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(IllegalArgumentException.class);
 	}
-	
+
 	@Test
 	public final void givenSpreadMewssageIsEmptyMessage_whenConstructed_thenIllegalArgumentException() {
 //		public MessageToSpread(String message, int messageHops, int maxHops, Function<Object, Object> function) {
-		
+
 		// When the message with null content update Content Update function called
-		final Throwable throwable = catchThrowable(() -> new MessageToSpread(
-				"", 2,3,
-						(obj1, obj2) -> {
-							return null;
-						}));
+		final Throwable throwable = catchThrowable(
+				() -> new MessageToSpread("", 2, 3, (obj1, obj2) -> {
+					return null;
+				}));
 
-		// Then 
+		// Then
 		then(throwable).as("A empty message should throw a IllegalArgumentException")
-		.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(IllegalArgumentException.class);
 	}
-
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

@@ -30,7 +30,8 @@ public class NotPredictingState implements PatternRecognizerState {
 
 			// No predictions found, create a new one
 			if (previousSensorEvent != null)
-				predictionService.createPredictionFromSensorEvents(previousSensorEvent, sensorEvent);
+				predictionService.createPredictionFromSensorEvents(previousSensorEvent,
+						sensorEvent);
 		} // end-else no new predictions
 
 		// Save previous event and current predictions

@@ -9,11 +9,12 @@ public class SleepSensor extends Sensor {
 
 	public SleepSensor(int sensorLocation, int reportingMode, int minimumDelay,
 			boolean isWakeUpSensor) {
-		super(Sensor.TYPE_SLEEP, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_SLEEP, sensorLocation, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
-	public SleepSensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelay,
-			boolean isWakeUpSensor) {
+	public SleepSensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelay, boolean isWakeUpSensor) {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 

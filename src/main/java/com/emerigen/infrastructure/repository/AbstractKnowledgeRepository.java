@@ -98,12 +98,15 @@ public abstract class AbstractKnowledgeRepository {
 	// Log a neww SensorEvent
 	public abstract String newSensorEvent(SensorEvent sensorEvent);
 
-	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType, int sensorLocation);
+	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType,
+			int sensorLocation);
 
 	// Get the prediction accuracy fro a specific entity on the channel
-	public double getPredictionAccuracyForSensorTypeAndLocation(int sensorType, int sensorLocation) {
+	public double getPredictionAccuracyForSensorTypeAndLocation(int sensorType,
+			int sensorLocation) {
 
-		int sensorEventCount = getSensorEventCountForSensorTypeAndLocation(sensorType, sensorLocation);
+		int sensorEventCount = getSensorEventCountForSensorTypeAndLocation(sensorType,
+				sensorLocation);
 		/**
 		 * TODO Add code to search for all SensorEvents that are the "predicted Events"
 		 * in all transitions where the firstEventKey = sensorType+sensorLocation+values

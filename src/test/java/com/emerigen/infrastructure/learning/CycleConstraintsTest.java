@@ -49,7 +49,8 @@ public class CycleConstraintsTest {
 		// When the instance is validated
 		final Throwable throwable = catchThrowable(() -> new DailyCycle(1, -1));
 
-		then(throwable).as("A non positive sensorLocation throws an IllegalArgumentException")
+		then(throwable)
+				.as("A non positive sensorLocation throws an IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -60,7 +61,8 @@ public class CycleConstraintsTest {
 		SoftAssertions softly = new SoftAssertions();
 
 		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> new CycleNode(null, new SensorEvent(), 0));
+		final Throwable throwable = catchThrowable(
+				() -> new CycleNode(null, new SensorEvent(), 0));
 
 		then(throwable).as("A null cycle throws a CycleNode  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -75,7 +77,8 @@ public class CycleConstraintsTest {
 		// When the instance is validated
 		final Throwable throwable = catchThrowable(() -> new CycleNode(myCycle, null, 0));
 
-		then(throwable).as("A null sensorEvent throws a CycleNode  IllegalArgumentException")
+		then(throwable)
+				.as("A null sensorEvent throws a CycleNode  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -84,24 +87,28 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenDailyCycle_whenCycleCreated_thenCycleStartTimeMustBe12am() {
 		DailyCycle dc = new DailyCycle(1, 1);
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		ZoneId zoneId = ZoneId.systemDefault();
-		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate().atStartOfDay(zoneId);
+		ZonedDateTime todayStart = ZonedDateTime.now(zoneId).toLocalDate()
+				.atStartOfDay(zoneId);
 
-		assertThat(cpr.getCycleStartTimeNano()).isEqualTo(todayStart.toEpochSecond() * 1000 * 1000000l);
+		assertThat(cpr.getCycleStartTimeNano())
+				.isEqualTo(todayStart.toEpochSecond() * 1000 * 1000000l);
 	}
 
 	@Test
 	public final void givenDailyCycle_whenCreated_thenDurationMustBe24Hours() {
 
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		long duration = 24 * 60 * 60 * 1000 * 1000000l;
 		assertThat(cpr.getCycleDurationTimeNano()).isEqualTo(duration);
@@ -109,50 +116,57 @@ public class CycleConstraintsTest {
 
 	@Test
 	public final void givenWeeklyCycle_whenCycleCreated_thenDurationMustBe168Hours() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new WeeklyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
-		assertThat(cpr.getCycleDurationTimeNano()).isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
+		assertThat(cpr.getCycleDurationTimeNano())
+				.isEqualTo(7l * 24 * 60 * 60 * 1000 * 1000000l);
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenCycleStartTimeMustBe12amFirstDayOfMonth() {
 //		Utils.equals(time, yrCycle.getCycleDurationMillis());
 		MonthlyCycle mc = new MonthlyCycle(1, 1);
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new MonthlyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(mc, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(mc, gpsSensor,
+				new PredictionService());
 
 		ZoneId zoneId = ZoneId.systemDefault();
 		LocalDate today = LocalDate.now();
-		LocalDate firstDayOfCurrentMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+		LocalDate firstDayOfCurrentMonth = today
+				.with(TemporalAdjusters.firstDayOfMonth());
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		assertThat((firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == cpr.getCycleStartTimeNano())
-				.isTrue();
+		assertThat((firtDayStartTime.toEpochSecond() * 1000 * 1000000l) == cpr
+				.getCycleStartTimeNano()).isTrue();
 
 	}
 
 	@Test
 	public final void givenMonthlyCycle_whenCycleCreated_thenDurationMustBeApproximately30Days() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new MonthlyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 		MonthlyCycle dc = new MonthlyCycle(1, 1);
 //		System.out.println("monthly duration is: " + dc.getCycleDurationTimeNano());
-		assertThat(Utils.equals(cpr.getCycleDurationTimeNano(), 2629746000000000f, 10.0)).isTrue();
+		assertThat(Utils.equals(cpr.getCycleDurationTimeNano(), 2629746000000000f, 10.0))
+				.isTrue();
 	}
 
 	@Test
 	public final void givenYearlyCycle_whenCycleCreated_thenCycleStartTimeMustBeJan1_12am() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new YearlyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 		Calendar cal = GregorianCalendar.getInstance();
 		cal.set(Calendar.DAY_OF_MONTH, 1);// I might have the wrong Calendar constant...
 		cal.set(Calendar.MONTH, 0);// -1 as month is zero-based
@@ -168,9 +182,11 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenNonPositiveDataPointDuration_whenCycleNodeCreated_thenIllegalArgurmentException() {
 
-		final Throwable throwable = catchThrowable(() -> new CycleNode(myCycle, new SensorEvent(), -1));
+		final Throwable throwable = catchThrowable(
+				() -> new CycleNode(myCycle, new SensorEvent(), -1));
 
-		then(throwable).as("A non positive data point duration throws a  IllegalArgumentException")
+		then(throwable).as(
+				"A non positive data point duration throws a  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -193,7 +209,8 @@ public class CycleConstraintsTest {
 	@Test
 	public final void givenNullCycleNode_whenCreated_thenIllegalArgumentException() {
 
-		final Throwable throwable = catchThrowable(() -> new CyclePrediction((CycleNode) null));
+		final Throwable throwable = catchThrowable(
+				() -> new CyclePrediction((CycleNode) null));
 
 		then(throwable).as("Null cycle node on creation throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -206,7 +223,8 @@ public class CycleConstraintsTest {
 
 		final Throwable throwable = catchThrowable(() -> node.merge(null));
 
-		then(throwable).as("A null Cycle node during merge throws IllegalArgumentException")
+		then(throwable)
+				.as("A null Cycle node during merge throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		// public CycleNode merge(CycleNode nodeToMergeWith) {

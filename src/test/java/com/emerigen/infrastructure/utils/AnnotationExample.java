@@ -2,8 +2,8 @@ package com.emerigen.infrastructure.utils;
 
 public class AnnotationExample {
 
-	public static int doSomething1Count = 0, doSomething2Count = 0, doSomething3Count = 0, doSomethingElseCount = 0,
-			doSomething4Count = 0;
+	public static int doSomething1Count = 0, doSomething2Count = 0, doSomething3Count = 0,
+			doSomethingElseCount = 0, doSomething4Count = 0;
 
 	public AnnotationExample() {
 	}

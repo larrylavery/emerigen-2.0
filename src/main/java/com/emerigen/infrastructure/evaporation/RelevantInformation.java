@@ -1,7 +1,7 @@
 package com.emerigen.infrastructure.evaporation;
 
 public class RelevantInformation {
-	
+
 	final static double DEFAULT_RELEVANCE = 1.0;
 	private Object information;
 	private double relevance;
@@ -10,6 +10,7 @@ public class RelevantInformation {
 		this.information = info;
 		this.relevance = DEFAULT_RELEVANCE;
 	}
+
 	public RelevantInformation(Object info, double relevance) {
 		this.information = info;
 		this.relevance = relevance;

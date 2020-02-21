@@ -31,12 +31,14 @@ public class CouchbaseRepositoryConfig {
 	public String getConnectionString() {
 		return connectionString;
 	}
+
 	/**
 	 * @return the userID
 	 */
 	public String getUserID() {
 		return userID;
 	}
+
 	/**
 	 * @return the password
 	 */

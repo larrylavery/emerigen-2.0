@@ -7,8 +7,8 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.emerigen.infrastructure.utils.KnowledgePropertiesTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ JsonSchemasTest.class, 
-	//KnowledgeRepositoryLoadTest.class,
+@SuiteClasses({ JsonSchemasTest.class,
+		// KnowledgeRepositoryLoadTest.class,
 		KnowledgeRepositoryTest.class })
 public class AllTests {
 

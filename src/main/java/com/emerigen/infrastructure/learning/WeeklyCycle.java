@@ -40,11 +40,13 @@ public class WeeklyCycle extends Cycle {
 
 		// Get the first day of this week
 		LocalDate today = LocalDate.now();
-		LocalDate firstDayOfCurrentWeek = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+		LocalDate firstDayOfCurrentWeek = today
+				.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentWeek.atStartOfDay(zoneId);
-		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond * nanosecondsPerMilliSecond;
+		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond
+				* nanosecondsPerMilliSecond;
 	}
 
 	/**
@@ -52,8 +54,8 @@ public class WeeklyCycle extends Cycle {
 	 */
 	@Override
 	public long calculateCycleDurationNano() {
-		return daysPerWeek * hoursPerDay * minutesPerHour * secondsPerMinute * milliSecondsPerSecond
-				* nanosecondsPerMilliSecond;
+		return daysPerWeek * hoursPerDay * minutesPerHour * secondsPerMinute
+				* milliSecondsPerSecond * nanosecondsPerMilliSecond;
 	}
 
 	@Override

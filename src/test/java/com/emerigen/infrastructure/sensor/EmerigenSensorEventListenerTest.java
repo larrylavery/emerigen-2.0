@@ -21,8 +21,9 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public class EmerigenSensorEventListenerTest {
 
 	int invokedCount = 0;
-	private long minimumDelayBetweenReadings = Long.parseLong(
-			EmerigenProperties.getInstance().getValue("sensor.default.minimum.delay.between.readings.millis"))
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
 			* 1000000;
 
 	public class EventListener implements SensorEventListener {
@@ -33,8 +34,8 @@ public class EmerigenSensorEventListenerTest {
 			long timestamp = System.currentTimeMillis();
 
 			// Required elapse time has passed since last event?
-			if (sensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent,
-					sensorEvent)) {
+			if (sensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
+					previousSensorEvent, sensorEvent)) {
 
 				invokedCount++;
 				System.out.println("invoked count is " + invokedCount);
@@ -49,13 +50,15 @@ public class EmerigenSensorEventListenerTest {
 	public void givenValidPatternRecognizers_whenRegistered_thenThePatternRecognizerReceivesAllEvents()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		SensorEventListener listener2 = new EventListener();
 		float[] values = { 1.2f };
 
 		sensorManager.registerListenerForSensor(listener2, sensor);
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener2, sensor)).isTrue();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener2, sensor))
+				.isTrue();
 
 		listener.onSensorChanged(new SensorEvent(sensor, values));
 		assertThat(invokedCount).isEqualTo(1);
@@ -66,11 +69,12 @@ public class EmerigenSensorEventListenerTest {
 	public void givenCycleWithInvalidSensorType_whenRegistered_thenIllegalArgumentException()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor accSensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor accSensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, accSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, accSensor,
+				new PredictionService());
 
 		sensorManager.registerListenerForSensor(cpr, accSensor);
 		assertThat(sensorManager.listenerIsRegisteredToSensor(cpr, accSensor)).isTrue();
@@ -81,7 +85,8 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 		SensorEventListener listener2 = new EventListener();
 		sm.registerListenerForSensor(listener2, sensor);
 		float[] values = { 1.2f, 2.3f };
@@ -102,7 +107,8 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
+				Sensor.LOCATION_PHONE);
 		SensorEventListener listener2 = new EventListener();
 		sm.registerListenerForSensor(listener2, sensor);
 		float[] values = { 1.2f, 2.3f };
@@ -127,7 +133,8 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 		SensorEventListener listener2 = new EventListener();
 		sm.registerListenerForSensor(listener2, sensor);
 		float[] values = { 1.2f, 2.3f };
@@ -147,7 +154,8 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 		SensorEventListener listener2 = new EventListener();
 		sm.registerListenerForSensor(listener2, sensor);
 		float[] values = { 1.2f, 2.3f };
@@ -171,7 +179,8 @@ public class EmerigenSensorEventListenerTest {
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+				Sensor.LOCATION_WATCH);
 
 		List<SensorEventListener> origListeners = sm.getRegistrationsForSensor(sensor);
 		int origSize = origListeners.size();

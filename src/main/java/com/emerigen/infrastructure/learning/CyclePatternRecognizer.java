@@ -61,12 +61,14 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	private SensorEvent previousSensorEvent = null;
 	private PredictionService predictionService;
 
-	private double allowablePercentDifferenceForEquality = Double.parseDouble(
-			EmerigenProperties.getInstance().getValue("cycle.allowable.percent.difference.for.equality"));
+	private double allowablePercentDifferenceForEquality = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("cycle.allowable.percent.difference.for.equality"));
 
 	private static final Logger logger = Logger.getLogger(CyclePatternRecognizer.class);
 
-	public CyclePatternRecognizer(Cycle cycle, Sensor sensor, PredictionService predictionService) {
+	public CyclePatternRecognizer(Cycle cycle, Sensor sensor,
+			PredictionService predictionService) {
 		super(predictionService);
 		if (cycle == null)
 			throw new IllegalArgumentException("cycle must not be null");
@@ -87,11 +89,15 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		if ((sensorEvent.getTimestamp() - cycleStartTimeNano) > cycleDurationTimeNano) {
 
 			// Calculate closest enclosing cycle
-			long cyclesToSkip = (sensorEvent.getTimestamp() - cycleStartTimeNano) / cycleDurationTimeNano;
+			long cyclesToSkip = (sensorEvent.getTimestamp() - cycleStartTimeNano)
+					/ cycleDurationTimeNano;
 
-			cycleStartTimeNano = cycleStartTimeNano + (cyclesToSkip * cycleDurationTimeNano);
-			logger.info("Incoming event was past our current cycle duration so the new cycleStartTime ("
-					+ cycleStartTimeNano + "), sensor event timestamp (" + sensorEvent.getTimestamp() + ")");
+			cycleStartTimeNano = cycleStartTimeNano
+					+ (cyclesToSkip * cycleDurationTimeNano);
+			logger.info(
+					"Incoming event was past our current cycle duration so the new cycleStartTime ("
+							+ cycleStartTimeNano + "), sensor event timestamp ("
+							+ sensorEvent.getTimestamp() + ")");
 		}
 	}
 
@@ -121,21 +127,23 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 			throw new IllegalArgumentException("currentSensorEvent must not be null");
 
 		if (!(sensor.getType() == currentSensorEvent.getSensorType()))
-			throw new IllegalArgumentException("given sensor type (" + currentSensorEvent.getSensorType()
+			throw new IllegalArgumentException("given sensor type ("
+					+ currentSensorEvent.getSensorType()
 					+ "), does not match my sensor type (" + sensor.getType() + ")");
 		if (!(sensor.getLocation() == currentSensorEvent.getSensorLocation()))
 			throw new IllegalArgumentException(
 					"given sensor location (" + currentSensorEvent.getSensorLocation()
-							+ "), does not match cycle sensor location (" + sensor.getLocation() + ")");
+							+ "), does not match cycle sensor location ("
+							+ sensor.getLocation() + ")");
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Required elapse time has passed since last event?
-		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent,
-				currentSensorEvent)) {
+		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
+				previousSensorEvent, currentSensorEvent)) {
 
 			// Data has significantly changed?
-			if (currentSensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
-					currentSensorEvent)) {
+			if (currentSensorEvent.getSensor().significantChangeHasOccurred(
+					previousSensorEvent, currentSensorEvent)) {
 
 				// Roll over n cycles if the event timestamp is past our current end time
 				adjustCycleStartTimeToClosestEnclosingCycle(currentSensorEvent);
@@ -147,7 +155,8 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 //
 //					if (priorEvents == null || priorEvents.isEmpty()) {
 					previousSensorEvent = currentSensorEvent;
-					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
+					predictions = predictionService
+							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
 //					} else {
@@ -160,12 +169,20 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 //					}
 				}
 
-				if (currentEventIsGreaterThanPreviousEvent(currentSensorEvent)) {
+				if (currentEventEqualsPreviousEvent(currentSensorEvent)) {
+
+					// Sensor events equal? Merge, discard current, return predictions
+					predictions = mergeAndReplacePreviousEvent(currentSensorEvent);
+					predictionService.setCurrentPredictions(predictions);
+					return predictions;
+				} else if (currentEventIsGreaterThanPreviousEvent(currentSensorEvent)) {
 
 					// Previous event occurs after current event? create new Transition
-					predictionService.createPredictionFromSensorEvents(previousSensorEvent,
-							currentSensorEvent);
-					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
+					predictionService.createPredictionFromSensorEvents(
+							previousSensorEvent, currentSensorEvent);
+					Utils.allowDataUpdatesTimeToCatchUp();
+					predictions = predictionService
+							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
 				} else if (currentEventIsLessThanPreviousEvent(currentSensorEvent)) {
@@ -173,24 +190,12 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					// Current event prior to previous event? create backward Transition
 					predictionService.createPredictionFromSensorEvents(currentSensorEvent,
 							previousSensorEvent);
-					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
-					predictionService.setCurrentPredictions(predictions);
-					return predictions;
-				} else if (currentEventEqualsPreviousEvent(currentSensorEvent)) {
-
-					// Sensor events equal? Merge, discard current, return predictions
-					predictions = mergeAndReplacePreviousEvent(currentSensorEvent);
+					Utils.allowDataUpdatesTimeToCatchUp();
+					predictions = predictionService
+							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
 				}
-//				else if (previousSensorEvent == null) {
-//
-//					// No previous event? save current event and return
-//					previousSensorEvent = currentSensorEvent;
-//					predictions = predictionService.getPredictionsForSensorEvent(currentSensorEvent);
-//					predictionService.setCurrentPredictions(predictions);
-//					return predictions;
-//				}
 
 			} // end data has changed significantly
 		} // end minimum delay has occurred
@@ -201,11 +206,13 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	}
 
 	private boolean currentEventEqualsPreviousEvent(SensorEvent currentSensorEvent) {
-		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
-		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
-		boolean timeOffsetsEqual = currentEventTimestampOffset == previousEvcentTimestampOffset;
-		boolean valuesEqual = Utils.equals(currentSensorEvent.hashCode(), previousSensorEvent.hashCode());
-		return timeOffsetsEqual && valuesEqual;
+//		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
+//		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
+//		boolean timeOffsetsEqual = currentEventTimestampOffset == previousEvcentTimestampOffset;
+		boolean valuesEqual = Utils.equals(currentSensorEvent.hashCode(),
+				previousSensorEvent.hashCode());
+//		return timeOffsetsEqual && valuesEqual;
+		return valuesEqual;
 	}
 
 	/**
@@ -218,8 +225,6 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		long mergedDuration = previousSensorEvent.getDataPointDurationNano()
 				+ newSensorEvent.getDataPointDurationNano();
 		previousSensorEvent.setDataPointDurationNano(mergedDuration);
-
-		// TODO update the previous event with the new merged event
 		logger.info("New sensor event merged with previous event, merged event: "
 				+ previousSensorEvent.toString());
 
@@ -227,23 +232,29 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		return predictions;
 	}
 
-	private boolean currentEventIsGreaterThanPreviousEvent(SensorEvent currentSensorEvent) {
-		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
-		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
+	private boolean currentEventIsGreaterThanPreviousEvent(
+			SensorEvent currentSensorEvent) {
+		long currentEventTimestampOffset = currentSensorEvent.getTimestamp()
+				% cycleDurationTimeNano;
+		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp()
+				% cycleDurationTimeNano;
 		return currentEventTimestampOffset > previousEvcentTimestampOffset;
 	}
 
 	private boolean currentEventIsLessThanPreviousEvent(SensorEvent currentSensorEvent) {
-		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
-		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
+		long currentEventTimestampOffset = currentSensorEvent.getTimestamp()
+				% cycleDurationTimeNano;
+		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp()
+				% cycleDurationTimeNano;
 		return currentEventTimestampOffset < previousEvcentTimestampOffset;
 	}
 
 	@Override
 	public String toString() {
-		return "CyclePatternRecognizer [cycleStartTimeNano=" + cycleStartTimeNano + ", cycleDurationTimeNano="
-				+ cycleDurationTimeNano + ", sensor=" + sensor + ", previousSensorEvent="
-				+ previousSensorEvent + ", predictionService=" + predictionService + "]";
+		return "CyclePatternRecognizer [cycleStartTimeNano=" + cycleStartTimeNano
+				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", sensor="
+				+ sensor + ", previousSensorEvent=" + previousSensorEvent
+				+ ", predictionService=" + predictionService + "]";
 	}
 
 	@Override
@@ -251,10 +262,14 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((cycle == null) ? 0 : cycle.hashCode());
-		result = prime * result + (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
-		result = prime * result + (int) (cycleStartTimeNano ^ (cycleStartTimeNano >>> 32));
-		result = prime * result + ((predictionService == null) ? 0 : predictionService.hashCode());
-		result = prime * result + ((previousSensorEvent == null) ? 0 : previousSensorEvent.hashCode());
+		result = prime * result
+				+ (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
+		result = prime * result
+				+ (int) (cycleStartTimeNano ^ (cycleStartTimeNano >>> 32));
+		result = prime * result
+				+ ((predictionService == null) ? 0 : predictionService.hashCode());
+		result = prime * result
+				+ ((previousSensorEvent == null) ? 0 : previousSensorEvent.hashCode());
 		result = prime * result + ((sensor == null) ? 0 : sensor.hashCode());
 		return result;
 	}
@@ -373,7 +388,8 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	 *                                              allowablePercentDifferenceForEquality
 	 *                                              to set
 	 */
-	public void setAllowablePercentDifferenceForEquality(double allowablePercentDifferenceForEquality) {
+	public void setAllowablePercentDifferenceForEquality(
+			double allowablePercentDifferenceForEquality) {
 		this.allowablePercentDifferenceForEquality = allowablePercentDifferenceForEquality;
 	}
 

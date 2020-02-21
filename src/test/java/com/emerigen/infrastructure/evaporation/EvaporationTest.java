@@ -19,20 +19,22 @@ public class EvaporationTest {
 		// Given
 
 		// When
-		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey", "relevant info");
+		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey",
+				"relevant info");
 
 		Thread.sleep(2000);
 
 		// Then
-		assertThat(Environment.getInstance().getInformationWithMinimumRelevance("uniqueInfoKey",
-				1.0)).isNull();
+		assertThat(Environment.getInstance()
+				.getInformationWithMinimumRelevance("uniqueInfoKey", 1.0)).isNull();
 	}
 
 	@Test
 	public void givenObjectWithRelevance_whenCreatedAndGotAgain_thenRelevanceShouldBeGreatorThanOriginal() {
 
 		// Given
-		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey", "relevant info");
+		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey",
+				"relevant info");
 
 		try {
 			Thread.sleep(500);
@@ -42,15 +44,15 @@ public class EvaporationTest {
 		}
 
 		// Then
-		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey")).isNotNull()
-				.hasSameHashCodeAs("relevant info");
+		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
+				.isNotNull().hasSameHashCodeAs("relevant info");
 
 		// Increment relevance via couple of retrieves
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
 
-		assertThat(Environment.getInstance().getInformationWithMinimumRelevance("uniqueInfoKey",
-				.94)).isNotNull();
+		assertThat(Environment.getInstance()
+				.getInformationWithMinimumRelevance("uniqueInfoKey", .94)).isNotNull();
 	}
 
 	@Test
@@ -58,20 +60,21 @@ public class EvaporationTest {
 			throws InterruptedException {
 
 		// Given
-		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey", "relevant info");
-		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey")).isNotNull();
+		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey",
+				"relevant info");
+		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
+				.isNotNull();
 
 		// Then
-		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey")).isNotNull();
+		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
+				.isNotNull();
 		Thread.sleep(1000);
-		
-		assertThat(Environment.getInstance()
-				.getInformationWithMinimumRelevance("uniqueInfoKey",
-						.99)).isNull();
 
 		assertThat(Environment.getInstance()
-				.getInformationWithMinimumRelevance("uniqueInfoKey",.97)).isNull();
+				.getInformationWithMinimumRelevance("uniqueInfoKey", .99)).isNull();
 
+		assertThat(Environment.getInstance()
+				.getInformationWithMinimumRelevance("uniqueInfoKey", .97)).isNull();
 
 		assertThat(Environment.getInstance()
 				.getInformationWithMinimumRelevance("uniqueInfoKey", .50)).isNotNull();
@@ -83,13 +86,16 @@ public class EvaporationTest {
 			throws InterruptedException {
 
 		// Given
-		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey", "relevant info");
-		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey")).isNotNull();
+		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey",
+				"relevant info");
+		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
+				.isNotNull();
 
 		// Then
-		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey")).isNotNull();
+		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
+				.isNotNull();
 		Thread.sleep(1000);
-		
+
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
@@ -102,8 +108,7 @@ public class EvaporationTest {
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
 
 		assertThat(Environment.getInstance()
-				.getInformationWithMinimumRelevance("uniqueInfoKey",
-						1.02)).isNotNull();
+				.getInformationWithMinimumRelevance("uniqueInfoKey", 1.02)).isNotNull();
 	}
 
 	@BeforeClass

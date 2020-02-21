@@ -16,7 +16,7 @@ public class Location {
 			throw new IllegalArgumentException("x coordinate must be zero or more");
 		if (yCoordinate < 0)
 			throw new IllegalArgumentException("y coordinate must be zero or more");
-		
+
 		this.xCoordinate = xCoordinate;
 		this.yCoordinate = yCoordinate;
 	}
@@ -62,7 +62,8 @@ public class Location {
 
 	@Override
 	public String toString() {
-		return "Location [xCoordinate=" + xCoordinate + ", yCoordinate=" + yCoordinate + "]";
+		return "Location [xCoordinate=" + xCoordinate + ", yCoordinate=" + yCoordinate
+				+ "]";
 	}
 
 }

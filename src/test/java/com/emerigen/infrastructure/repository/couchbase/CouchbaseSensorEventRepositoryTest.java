@@ -43,8 +43,8 @@ public class CouchbaseSensorEventRepositoryTest {
 		// Given
 		// Create two JSON Documents
 		long timestamp = System.currentTimeMillis();
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH, Sensor.REPORTING_MODE_CONTINUOUS,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 
@@ -61,10 +61,12 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		String uuid1 = UUID.randomUUID().toString();
 		String uuid2 = UUID.randomUUID().toString();
-		JsonObject sensorEventJsonDoc = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
+		JsonObject sensorEventJsonDoc = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
 				.put("timestamp", "" + timestamp).put("values", jsonArray1);
 
-		JsonObject sensorEventJsonDoc2 = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
+		JsonObject sensorEventJsonDoc2 = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE)
 				.put("timestamp", "" + timestamp).put("values", jsonArray1);
 
 		// Log using our repository under test
@@ -72,12 +74,15 @@ public class CouchbaseSensorEventRepositoryTest {
 		CouchbaseRepository.getInstance().log("sensor-event", uuid2, sensorEventJsonDoc);
 
 		// Perform a N1QL Query
-		JsonObject placeholderValues = JsonObject.create().put("sensorType", sensor.getType())
+		JsonObject placeholderValues = JsonObject.create()
+				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
-				N1qlQuery.parameterized("SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = $sensorType"
-						+ " AND sensorLocation = $sensorLocation", placeholderValues));
+				N1qlQuery.parameterized(
+						"SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = $sensorType"
+								+ " AND sensorLocation = $sensorLocation",
+						placeholderValues));
 
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 2);
@@ -96,8 +101,8 @@ public class CouchbaseSensorEventRepositoryTest {
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH, Sensor.REPORTING_MODE_CONTINUOUS,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
 
@@ -107,8 +112,9 @@ public class CouchbaseSensorEventRepositoryTest {
 			jsonArray2.add(event1.getValues()[i]);
 		}
 
-		JsonObject sensorEvent = JsonObject.create().put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("timestamp", timestamp).put("values", jsonArray2);
+		JsonObject sensorEvent = JsonObject.create()
+				.put("sensorType", Sensor.TYPE_HEART_RATE).put("timestamp", timestamp)
+				.put("values", jsonArray2);
 
 		// Store the Document
 		String uuid = UUID.randomUUID().toString();
@@ -119,8 +125,10 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		assertThat(getDoc).isNotNull();
 		softly.assertThat(getDoc.content().getString("timestamp")).isEqualTo(timestamp);
-		softly.assertThat(getDoc.content().getInt("sensorType")).isEqualTo(Sensor.TYPE_HEART_RATE);
-		softly.assertThat(getDoc.content().get("values").equals(JsonArray.from("4.1", "4.2", "4.3")));
+		softly.assertThat(getDoc.content().getInt("sensorType"))
+				.isEqualTo(Sensor.TYPE_HEART_RATE);
+		softly.assertThat(getDoc.content().get("values")
+				.equals(JsonArray.from("4.1", "4.2", "4.3")));
 
 		softly.assertAll();
 

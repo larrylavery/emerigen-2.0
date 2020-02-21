@@ -11,11 +11,10 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 
-
-public class KeyedJsonObject  {
+public class KeyedJsonObject {
 	final private JsonObject jsonObject;
 	final private String objectKey;
-	
+
 	public KeyedJsonObject(JsonObject jsonObject, String objectKey) {
 		this.jsonObject = jsonObject;
 		this.objectKey = objectKey;
@@ -34,6 +33,5 @@ public class KeyedJsonObject  {
 	public String getObjectKey() {
 		return objectKey;
 	}
-	
 
 }

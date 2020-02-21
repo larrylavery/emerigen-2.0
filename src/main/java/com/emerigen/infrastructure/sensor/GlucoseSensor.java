@@ -11,11 +11,12 @@ public class GlucoseSensor extends Sensor {
 
 	public GlucoseSensor(int sensorLocation, int reportingMode, int minimumDelay,
 			boolean isWakeUpSensor) {
-		super(Sensor.TYPE_GLUCOSE, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
+		super(Sensor.TYPE_GLUCOSE, sensorLocation, reportingMode, minimumDelay,
+				isWakeUpSensor);
 	}
 
-	public GlucoseSensor(int sensorType, int sensorLocation, int reportingMode, int minimumDelay,
-			boolean isWakeUpSensor) {
+	public GlucoseSensor(int sensorType, int sensorLocation, int reportingMode,
+			int minimumDelay, boolean isWakeUpSensor) {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 
@@ -56,7 +57,8 @@ public class GlucoseSensor extends Sensor {
 		if (secondSensorEvent == null)
 			throw new IllegalArgumentException("second glucose must not be null.");
 
-		if (Utils.equals(firstSensorEvent.getValues()[0], secondSensorEvent.getValues()[0])) {
+		if (Utils.equals(firstSensorEvent.getValues()[0],
+				secondSensorEvent.getValues()[0])) {
 			return true;
 		} else {
 			return false;

@@ -24,7 +24,8 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 	}
 
 	@Override
-	public void serialize(Cycle cycle, JsonGenerator jsonGenerator, SerializerProvider serializer) {
+	public void serialize(Cycle cycle, JsonGenerator jsonGenerator,
+			SerializerProvider serializer) {
 		try {
 
 			// create cycle-specific fields
@@ -69,11 +70,13 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 	 * @param cycleNode
 	 * @throws IOException
 	 */
-	private void writeCycleNodeAttributes(JsonGenerator jsonGenerator, CycleNode cycleNode)
-			throws IOException {
-		jsonGenerator.writeNumberField("dataPointDurationNano", cycleNode.getDataPointDurationNano());
+	private void writeCycleNodeAttributes(JsonGenerator jsonGenerator,
+			CycleNode cycleNode) throws IOException {
+		jsonGenerator.writeNumberField("dataPointDurationNano",
+				cycleNode.getDataPointDurationNano());
 		jsonGenerator.writeNumberField("probability", cycleNode.getProbability());
-		jsonGenerator.writeNumberField("cycleStartTimeOffsetNano", cycleNode.getStartTimeOffsetNano());
+		jsonGenerator.writeNumberField("cycleStartTimeOffsetNano",
+				cycleNode.getStartTimeOffsetNano());
 
 	}
 
@@ -84,16 +87,18 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 	 * @param sensorEvent
 	 * @throws IOException
 	 */
-	private void writeCycleNodeSensorEvent(JsonGenerator jsonGenerator, SensorEvent sensorEvent)
-			throws IOException {
+	private void writeCycleNodeSensorEvent(JsonGenerator jsonGenerator,
+			SensorEvent sensorEvent) throws IOException {
 
 		jsonGenerator.writeNumberField("sensorType", sensorEvent.getSensorType());
 		jsonGenerator.writeNumberField("sensorLocation", sensorEvent.getSensorLocation());
 		jsonGenerator.writeNumberField("timestamp", sensorEvent.getTimestamp());
 		jsonGenerator.writeNumberField("minimumDelayBetweenReadings",
 				sensorEvent.getSensor().getMinimumDelayBetweenReadings());
-		jsonGenerator.writeNumberField("reportingMode", sensorEvent.getSensor().getReportingMode());
-		jsonGenerator.writeBooleanField("wakeUpSensor", sensorEvent.getSensor().isWakeUpSensor());
+		jsonGenerator.writeNumberField("reportingMode",
+				sensorEvent.getSensor().getReportingMode());
+		jsonGenerator.writeBooleanField("wakeUpSensor",
+				sensorEvent.getSensor().isWakeUpSensor());
 
 		logger.info("Current json before values parsed: " + jsonGenerator.toString());
 
@@ -105,7 +110,8 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 			logger.info("next values, float value: " + sensorEvent.getValues()[i]);
 		}
 		jsonGenerator.writeEndArray();
-		logger.info("Current json after Event related filds parsed: " + jsonGenerator.toString());
+		logger.info("Current json after Event related filds parsed: "
+				+ jsonGenerator.toString());
 
 	}
 

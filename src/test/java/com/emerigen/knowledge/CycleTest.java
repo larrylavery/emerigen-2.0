@@ -35,10 +35,11 @@ public class CycleTest {
 	public final void givenValidCycle_whenLogged_thenItshouldBeTheSameWhenRetrieved() {
 		SoftAssertions softly = new SoftAssertions();
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// Create sensorEvent with these parms
 		long timestamp = System.currentTimeMillis() * 1000000;
@@ -48,12 +49,14 @@ public class CycleTest {
 		event.setTimestamp(timestamp);
 
 		// Create new cycle
-		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", gpsSensor.getType(), gpsSensor.getLocation(),
-				1);
+		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", gpsSensor.getType(),
+				gpsSensor.getLocation(), 1);
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
-				.put("sensorType", Sensor.TYPE_GPS).put("sensorLocation", Sensor.LOCATION_PHONE)
-				.put("allowablePercentDifferenceForEquality", cpr.getAllowablePercentDifferenceForEquality());
+				.put("sensorType", Sensor.TYPE_GPS)
+				.put("sensorLocation", Sensor.LOCATION_PHONE)
+				.put("allowablePercentDifferenceForEquality",
+						cpr.getAllowablePercentDifferenceForEquality());
 
 		// when logged then retrieved ok
 		String uuid = UUID.randomUUID().toString();
@@ -82,8 +85,10 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-valid.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -91,7 +96,8 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as(
+				"A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -105,8 +111,10 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-invalid-no-sensor-type.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -114,7 +122,8 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as(
+				"A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 	}
 
@@ -127,8 +136,10 @@ public class CycleTest {
 		InputStream invalidEntityJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/cycle-invalid-no-cycle-type.json");
 
-		JSONObject jsonSchema = new JSONObject(new JSONTokener(entitySchemaJsonFileReader));
-		JSONObject jsonSubject = new JSONObject(new JSONTokener(invalidEntityJsonFileReader));
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(entitySchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidEntityJsonFileReader));
 
 		Schema schema = SchemaLoader.load(jsonSchema);
 
@@ -136,7 +147,8 @@ public class CycleTest {
 		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
 
 		// Then a ValidationException should be thrown
-		then(throwable).as("A validly structured Json entity document should not throw a ValidationException")
+		then(throwable).as(
+				"A validly structured Json entity document should not throw a ValidationException")
 				.isNull();
 
 	}
@@ -152,7 +164,8 @@ public class CycleTest {
 				() -> knowledgeRepository.getCycle("invalidCycleTypeName", "xxx"));
 
 		// Then
-		then(throwable).as("A IllegalArgumentException should be thrown for invalid cycle type name")
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for invalid cycle type name")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -163,8 +176,8 @@ public class CycleTest {
 		// Given valid cycle
 		Cycle cycle = new DailyCycle(Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.1f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH, Sensor.REPORTING_MODE_CONTINUOUS,
-				false);
+		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
+				Sensor.REPORTING_MODE_CONTINUOUS, false);
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		String uuid = UUID.randomUUID().toString();
@@ -172,8 +185,8 @@ public class CycleTest {
 
 		// Give the bucket a chance to catch up after the log
 		try {
-			Thread.sleep(Long.parseLong(
-					EmerigenProperties.getInstance().getValue("couchbase.server.logging.catchup.timer")));
+			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("couchbase.server.logging.catchup.timer")));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

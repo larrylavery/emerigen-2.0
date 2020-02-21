@@ -27,7 +27,8 @@ public class EntityTest {
 		final Throwable throwable = catchThrowable(() -> new Entity(null, channels));
 
 		// Then
-		then(throwable).as("A IllegalArgumentException should be thrown for a null entityID")
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for a null entityID")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -45,7 +46,8 @@ public class EntityTest {
 		final Throwable throwable = catchThrowable(() -> new Entity("", channels));
 
 		// Then
-		then(throwable).as("A IllegalArgumentException should be thrown for an empty entityID")
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for an empty entityID")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -58,10 +60,12 @@ public class EntityTest {
 		List<ChannelType> channels = new ArrayList<ChannelType>();
 
 		// When
-		final Throwable throwable = catchThrowable(() -> new Entity(entityUuid, channels));
+		final Throwable throwable = catchThrowable(
+				() -> new Entity(entityUuid, channels));
 
 		// Then
-		then(throwable).as("A IllegalArgumentException should be thrown for an empty channels")
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for an empty channels")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
@@ -76,7 +80,8 @@ public class EntityTest {
 		final Throwable throwable = catchThrowable(() -> new Entity(entityUuid, null));
 
 		// Then
-		then(throwable).as("A IllegalArgumentException should be thrown for a null channels")
+		then(throwable)
+				.as("A IllegalArgumentException should be thrown for a null channels")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}

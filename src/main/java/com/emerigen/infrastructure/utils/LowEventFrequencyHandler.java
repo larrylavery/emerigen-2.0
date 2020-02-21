@@ -12,9 +12,12 @@ import java.util.concurrent.TimeUnit;
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface LowEventFrequencyHandler {
-	
+
 	TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+
 	int threshold() default 1;
+
 	int minimumTimeBelowThreshold() default 1;
+
 	String frequencyEventName();
 }

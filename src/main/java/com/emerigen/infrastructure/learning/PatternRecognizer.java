@@ -93,7 +93,8 @@ public abstract class PatternRecognizer implements SensorEventListener {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((currentPredictions == null) ? 0 : currentPredictions.hashCode());
+		result = prime * result
+				+ ((currentPredictions == null) ? 0 : currentPredictions.hashCode());
 		return result;
 	}
 

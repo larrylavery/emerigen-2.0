@@ -36,11 +36,13 @@ public class MonthlyCycle extends Cycle {
 
 		// Get the first day of this month
 		LocalDate today = LocalDate.now();
-		LocalDate firstDayOfCurrentMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+		LocalDate firstDayOfCurrentMonth = today
+				.with(TemporalAdjusters.firstDayOfMonth());
 
 		// Get the start of that day
 		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
-		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond * nanosecondsPerMillisecond;
+		return firtDayStartTime.toEpochSecond() * milliSecondsPerSecond
+				* nanosecondsPerMillisecond;
 	}
 
 	/**

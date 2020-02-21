@@ -23,8 +23,8 @@ public class SensorMock {
 
 	private static Logger logger = Logger.getLogger(SensorMock.class);
 
-	public SensorMock(Sensor sensor, SensorEventListener listener, int minimumDelayBetweenReadings,
-			int pauseResumeInterval) {
+	public SensorMock(Sensor sensor, SensorEventListener listener,
+			int minimumDelayBetweenReadings, int pauseResumeInterval) {
 		this.sensor = sensor;
 		this.listener = listener;
 		this.minimumDelayBetweenReadings = minimumDelayBetweenReadings;
@@ -38,15 +38,16 @@ public class SensorMock {
 	public void prepareSensorEventStream(Sensor sensor) {
 
 		// filename pattern example: "/Phone-HeartRate-sensor-events.csv"
-		String sensorEventFile = sensor.getLocationName() + "-" + sensor.getTypeName() + "-"
-				+ "sensor-events.csv";
+		String sensorEventFile = sensor.getLocationName() + "-" + sensor.getTypeName()
+				+ "-" + "sensor-events.csv";
 		try {
 			reader = new CSVReader(new FileReader(sensorEventFile));
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Unable to initialize sensor event stream with filename ("
-					+ sensorEventFile + "), ex: " + e + ". exiting.");
+			throw new RuntimeException(
+					"Unable to initialize sensor event stream with filename ("
+							+ sensorEventFile + "), ex: " + e + ". exiting.");
 		}
 	}
 

@@ -22,14 +22,14 @@ public class LeakyBucketTest {
 
 	static private int highExecuteCount;
 	static private int lowExecuteCount;
-	
+
 	Runnable normalFrequency = new Runnable() {
 		@Override
 		public void run() {
 			lowExecuteCount++;
 		}
 	};
-	
+
 	Runnable highFrequency = new Runnable() {
 		@Override
 		public void run() {
@@ -37,12 +37,9 @@ public class LeakyBucketTest {
 		}
 	};
 
-	
-
 	@Test
 	public final void givenFullBucket_whenLeakedThenFilled_thenValidates() {
-		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1),
-				2, 2,
+		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, normalFrequency);
 		leakyBucket.leak();
 		assertThat(leakyBucket.isFull()).isFalse();
@@ -52,63 +49,55 @@ public class LeakyBucketTest {
 
 	@Test
 	public final void givenFullBucket_whenLeaked_thenIsFullIsFalse() {
-		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1),
-				2, 2,
+		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
 		leakyBucket.leak();
 		assertThat(leakyBucket.isFull()).isFalse();
 	}
 
-
 	@Test
 	public final void givenNewFullLeakyBucket_whencheckingFull_thenTrue() {
-		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1),
-				2, 2,
+		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
 		assertThat(leakyBucket.isFull()).isTrue();
 	}
 
 	@Test
 	public final void givenFullLeakyBucket_whenCheckingIsEmpty_thenFalse() {
-		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1),
-				2, 2,
+		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
 		assertThat(leakyBucket.isEmpty()).isFalse();
 	}
 
-
-
 	@Test
 	public final void givenHighEventFrequencyHandler_whenOccurancesExceedThreshold_thenHandlerInvoked() {
-		//Given
+		// Given
 
-		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1),
-				2, 2,
+		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
-		//When high threshold exceeded
+		// When high threshold exceeded
 		for (int i = 0; i < 5; i++) {
-			leakyBucket.fill();			
+			leakyBucket.fill();
 		}
-		
-		//Then
+
+		// Then
 		then(highExecuteCount).isGreaterThan(0);
 
 	}
 
 	@Test
 	public final void givenLowEventFrequencyHandler_whenOccurancesBelowThreshold_thenHandlerInvoked() {
-		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1),
-				2, 2,
-				null, normalFrequency);
-		//When low threshold exceeded by sleeping
+		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2, null,
+				normalFrequency);
+		// When low threshold exceeded by sleeping
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//Then
+
+		// Then
 		then(lowExecuteCount).isGreaterThan(0);
 
 	}
@@ -116,9 +105,7 @@ public class LeakyBucketTest {
 	@Test
 	public final void givenTheOtherhHandlerNull_whenCreated_thenNoException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				Duration.ofSeconds(2), 1,
-				1,
-				null, normalFrequency));
+				Duration.ofSeconds(2), 1, 1, null, normalFrequency));
 
 		then(throwable).isNull();
 
@@ -127,9 +114,7 @@ public class LeakyBucketTest {
 	@Test
 	public final void givenOnehHandlerNull_whenCreated_thenNoException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				Duration.ofSeconds(2), 1,
-				1, highFrequency,
-				null));
+				Duration.ofSeconds(2), 1, 1, highFrequency, null));
 
 		then(throwable).isNull();
 
@@ -137,9 +122,8 @@ public class LeakyBucketTest {
 
 	@Test
 	public final void givenBothHandlersNull_whenCreated_thenIllegalArgumentException() {
-		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				Duration.ofSeconds(2), 1, 1,
-				null, null));
+		final Throwable throwable = catchThrowable(
+				() -> new LeakyBucket(1, Duration.ofSeconds(2), 1, 1, null, null));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 
@@ -148,8 +132,7 @@ public class LeakyBucketTest {
 	@Test
 	public final void givenNonPositiveNumOccurancesAtFull_whenCreated_thenIllegalArgumentException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				Duration.ofSeconds(2), 1, 0,
-				highFrequency, normalFrequency));
+				Duration.ofSeconds(2), 1, 0, highFrequency, normalFrequency));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 
@@ -158,8 +141,7 @@ public class LeakyBucketTest {
 	@Test
 	public final void givenNonPositiveNumOccurancesAtEmpty_whenCreated_thenIllegalArgumentException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				Duration.ofSeconds(2), 0, 1,
-				highFrequency, normalFrequency));
+				Duration.ofSeconds(2), 0, 1, highFrequency, normalFrequency));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 
@@ -168,8 +150,7 @@ public class LeakyBucketTest {
 	@Test
 	public final void givenZeroDuration_whenCreated_thenIllegalArgumentException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				Duration.ofSeconds(0), 1, 1,
-				highFrequency, normalFrequency));
+				Duration.ofSeconds(0), 1, 1, highFrequency, normalFrequency));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 
@@ -177,9 +158,8 @@ public class LeakyBucketTest {
 
 	@Test
 	public final void givenNullDuration_whenCreated_thenIllegalArgumentException() {
-		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
-				null, 1, 1,
-				highFrequency, normalFrequency));
+		final Throwable throwable = catchThrowable(
+				() -> new LeakyBucket(1, null, 1, 1, highFrequency, normalFrequency));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 
@@ -188,12 +168,12 @@ public class LeakyBucketTest {
 	@Test
 	public final void givenNonPositiveNumOccurances_whenCreated_thenIllegalArgumentException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(-1,
-				Duration.ofMinutes(1), 1, 1,
-				highFrequency, normalFrequency));
+				Duration.ofMinutes(1), 1, 1, highFrequency, normalFrequency));
 
 		then(throwable).isInstanceOf(IllegalArgumentException.class);
 
 	}
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -208,7 +188,7 @@ public class LeakyBucketTest {
 		FrequencyAnnotationExample.lowExceptionFrequencyHandlerCount = 0;
 		highExecuteCount = 0;
 		lowExecuteCount = 0;
-		
+
 	}
 
 	@After

@@ -20,10 +20,11 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class CPR_PredictionTest {
-	private static long defaultCycleNodeDurationNano = Long
-			.parseLong(EmerigenProperties.getInstance().getValue("cycle.default.data.point.duration.nano"));
+	private static long defaultCycleNodeDurationNano = Long.parseLong(EmerigenProperties
+			.getInstance().getValue("cycle.default.data.point.duration.nano"));
 
-	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation, int numberOfNodes) {
+	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
+			int numberOfNodes) {
 		Cycle cycle;
 
 		if ("Daily".equals(cycleType))
@@ -35,7 +36,8 @@ public class CPR_PredictionTest {
 		else if ("Yearly".equals(cycleType))
 			cycle = new YearlyCycle(sensorType, sensorLocation);
 		else
-			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
+			throw new IllegalArgumentException(
+					"cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
 //		cycle.setPreviousCycleNodeIndex(0);
@@ -99,10 +101,11 @@ public class CPR_PredictionTest {
 
 	@Test
 	public final void givenNewEventOnExistingCycle_whenOnSensorChangedCalled_thenEventAddedAt1stPositionAndFollowingEventIsReturnedAsPrediction() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -136,10 +139,11 @@ public class CPR_PredictionTest {
 
 	@Test
 	public final void givenNewEventOnExistingCycle_whenOnSensorChangedCalled_thenEventAddedAtAppropriatePositionAndFollowingEventIsReturnedAsPrediction() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -175,10 +179,11 @@ public class CPR_PredictionTest {
 	public final void givenPreviousEventAndCurrentEventLastInOrder_whenOnSensorChangedCalled_thenEventAddedToCycleAndEmptyPredictionListReturned() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -205,10 +210,11 @@ public class CPR_PredictionTest {
 	public final void givenPreviousEventAndCurrentEventInOrder_whenOnSensorChangedCalled_thenEventAddedToEndAndNoPredictionReturned() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -234,10 +240,11 @@ public class CPR_PredictionTest {
 	public final void givenPreviousEventAndEventToGoAtEndOfCycle_whenOnSensorChangedCalled_thenEventAddedToCycleEndCycleRolledOverAndFirstPredictionListReturned() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -266,10 +273,11 @@ public class CPR_PredictionTest {
 	public final void givenNonEmptyCycle_whenOnSensorChangedCalledWithRolloverTime_thenEventAddedToCycleEndAndEmptyPredictionListReturned() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -300,10 +308,11 @@ public class CPR_PredictionTest {
 	public final void givenNewCycle_whenOnSensorChangedCalled_thenEventAddedToCycleAndEmptyPredictionListReturned() {
 		// Given
 
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		SensorManager.getInstance().registerListenerForSensor(cpr, gpsSensor);
 		// When
@@ -318,7 +327,8 @@ public class CPR_PredictionTest {
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		long currentCycleStartTime = cpr.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(cpr.cycleDurationTimeNano);
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(cpr.cycleDurationTimeNano);
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
@@ -327,8 +337,8 @@ public class CPR_PredictionTest {
 		// Given
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
@@ -336,14 +346,16 @@ public class CPR_PredictionTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
 
 		long previousCycleStartTime = cpr.getCycleStartTimeNano();
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		long currentCycleStartTime = cpr.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(cpr.cycleDurationTimeNano);
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(cpr.cycleDurationTimeNano);
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
@@ -351,10 +363,11 @@ public class CPR_PredictionTest {
 	public final void givenMultipleCycleRollovers_whenCurrentSensorEventMatchesPriorInRollover_thenMergedAndFollowingNodeIsPredicted() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -382,10 +395,11 @@ public class CPR_PredictionTest {
 	@Test
 	public final void givenOneCycleNode_whenCurrentSensorEventMatches_thenDataPointDurationsMergedAndEventDiscardedNoPredictions() {
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -410,10 +424,11 @@ public class CPR_PredictionTest {
 
 	@Test
 	public final void givenNonEmptyCycle_whenSignificantlyDifferentEventDataPointArrives_thenNewNodeAddedToEndOfCycle() {
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -440,6 +455,7 @@ public class CPR_PredictionTest {
 
 	@Before
 	public void setUp() throws Exception {
+//		CouchbaseRepository.getInstance().removeAllDocuments("transition");
 	}
 
 	@After

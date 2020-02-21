@@ -15,14 +15,13 @@ public class Agent implements Comparable<Agent> {
 	private Location location;
 
 	private static Logger logger = Logger.getLogger(Agent.class);
-	
 
 	public Agent(Location location) {
 		this.location = location;
 	}
 
 	public Agent() {
-		this(new Location(0,0));
+		this(new Location(0, 0));
 	}
 
 	public void broadcastMessage(MessageToSpread message, List<Agent> recipients) {
@@ -60,7 +59,8 @@ public class Agent implements Comparable<Agent> {
 		logger.info(" Max hops not exceeded");
 
 		// Apply the content update function to my content
-		setContent(message.getContentUpdateFunction().apply(getContent(), message.getMessage()));
+		setContent(message.getContentUpdateFunction().apply(getContent(),
+				message.getMessage()));
 		logger.info(" content updated: " + content);
 
 		// Increment to number of hops
@@ -84,7 +84,8 @@ public class Agent implements Comparable<Agent> {
 
 	@Override
 	public String toString() {
-		return "Agent [content=" + content + ", priorContent=" + priorContent + ", location=" + location + "]";
+		return "Agent [content=" + content + ", priorContent=" + priorContent
+				+ ", location=" + location + "]";
 	}
 
 	/**

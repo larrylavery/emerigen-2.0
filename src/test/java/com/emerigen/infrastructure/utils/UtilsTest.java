@@ -55,8 +55,8 @@ public class UtilsTest {
 
 	@Test
 	public final void givenNodesWithinWithinEqualityBounds_whenCheckedForEquality_thenTrue() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.18f, 2.28f };
 		float[] values2 = { 1.17f, 2.26f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
@@ -68,8 +68,8 @@ public class UtilsTest {
 
 	@Test
 	public final void givenNodesWithinEqualityBounds_whenCheckedForEquality_thenFalse() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };
 		float[] values2 = { 1.12f, 2.23f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
@@ -81,8 +81,8 @@ public class UtilsTest {
 
 	@Test
 	public final void givenNodesNotWithinEqualityBounds_whenCheckedForEquality_thenFalse() {
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };
 		float[] values2 = { 11.11f, 12.21f };
 		SensorEvent event1 = new SensorEvent(sensor, values);

@@ -21,7 +21,8 @@ public class RepositoryException extends RuntimeException {
 		super(message, cause);
 	}
 
-	public RepositoryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public RepositoryException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 

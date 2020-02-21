@@ -8,10 +8,10 @@ import org.apache.log4j.Logger;
 
 public class LeakyBucket {
 
-	private static int leakInterval = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("leakybucket.leak.interval"));
-	private static int leakDelayInterval = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("leakybucket.leak.delay.interval"));
+	private static int leakInterval = Integer.parseInt(
+			EmerigenProperties.getInstance().getValue("leakybucket.leak.interval"));
+	private static int leakDelayInterval = Integer.parseInt(
+			EmerigenProperties.getInstance().getValue("leakybucket.leak.delay.interval"));
 	private Timer timer;
 	private static Logger logger = Logger.getLogger(LeakyBucket.class);
 
@@ -45,8 +45,9 @@ public class LeakyBucket {
 	 * @param numOccurances is the number of occurances per interval
 	 * @param interval      is the time required to fill the bucket
 	 */
-	public LeakyBucket(int numOccurances, Duration interval, long minOccurancesAtEmpty, long minOccurancesAtFull,
-			Runnable frequencyAboveThresholdHandler, Runnable frequencyBelowThresholdHandler) {
+	public LeakyBucket(int numOccurances, Duration interval, long minOccurancesAtEmpty,
+			long minOccurancesAtFull, Runnable frequencyAboveThresholdHandler,
+			Runnable frequencyBelowThresholdHandler) {
 
 		if (minOccurancesAtEmpty <= 0)
 			throw new IllegalArgumentException("minOccurancesAtEmpty must be positive.");
@@ -55,8 +56,10 @@ public class LeakyBucket {
 		if (numOccurances <= 0)
 			throw new IllegalArgumentException("numOccurances must be positive.");
 		if (interval == null || interval.isZero())
-			throw new IllegalArgumentException("interval must not be null and must be positive.");
-		if (frequencyAboveThresholdHandler == null && frequencyBelowThresholdHandler == null)
+			throw new IllegalArgumentException(
+					"interval must not be null and must be positive.");
+		if (frequencyAboveThresholdHandler == null
+				&& frequencyBelowThresholdHandler == null)
 			throw new IllegalArgumentException(
 					"Either or both of 'exceded' and 'below' threshold handlers must be specified.");
 
@@ -85,7 +88,7 @@ public class LeakyBucket {
 				logger.info("In timer loop. About to invoke leak()");
 				leak();
 			}
-		}, leakDelayInterval, interval.toMillis()/numOccurances);
+		}, leakDelayInterval, interval.toMillis() / numOccurances);
 	}
 
 	private void invokeLowFrequencyHandler() {

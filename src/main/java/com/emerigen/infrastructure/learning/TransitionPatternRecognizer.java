@@ -32,9 +32,11 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	private SensorEvent previousSensorEvent;
 
 	private int accuratePredictionCount;
-	private static final Logger logger = Logger.getLogger(TransitionPatternRecognizer.class);
+	private static final Logger logger = Logger
+			.getLogger(TransitionPatternRecognizer.class);
 
-	public TransitionPatternRecognizer(Sensor sensor, PredictionService predictionService) {
+	public TransitionPatternRecognizer(Sensor sensor,
+			PredictionService predictionService) {
 		super(predictionService);
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
@@ -75,12 +77,12 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// Required elapse time has passed since last event?
-		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(previousSensorEvent,
-				currentSensorEvent)) {
+		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
+				previousSensorEvent, currentSensorEvent)) {
 
 			// Data has significantly changed?
-			if (currentSensorEvent.getSensor().significantChangeHasOccurred(previousSensorEvent,
-					currentSensorEvent)) {
+			if (currentSensorEvent.getSensor().significantChangeHasOccurred(
+					previousSensorEvent, currentSensorEvent)) {
 
 				predictions = getState().onSensorChanged(currentSensorEvent);
 			}
@@ -168,8 +170,8 @@ public class TransitionPatternRecognizer extends PatternRecognizer {
 	protected boolean eventHasPredictions(SensorEvent sensorEvent) {
 
 		// Retrieve the count of predictions for this sensor event
-		return predictionService.getPredictionCountForSensorTypeAndLocation(sensorEvent.getSensorType(),
-				sensorEvent.getSensorLocation()) > 0;
+		return predictionService.getPredictionCountForSensorTypeAndLocation(
+				sensorEvent.getSensorType(), sensorEvent.getSensorLocation()) > 0;
 	}
 
 	@Override

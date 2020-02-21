@@ -45,18 +45,21 @@ public class PredictionService {
 
 		// Validate parms
 		if (firstSensorEvent == null || predictedSensorEvent == null)
-			throw new IllegalArgumentException("firstSensorEvent and predictedSensorEvent must not be null");
+			throw new IllegalArgumentException(
+					"firstSensorEvent and predictedSensorEvent must not be null");
 
 		if (!(firstSensorEvent.getSensorType() == predictedSensorEvent.getSensorType()))
 			throw new IllegalArgumentException(
 					"firstSensorEvent and predictedSensorEvent sensor locations  must be the same");
 
-		if (!(firstSensorEvent.getSensorLocation() == predictedSensorEvent.getSensorLocation()))
+		if (!(firstSensorEvent.getSensorLocation() == predictedSensorEvent
+				.getSensorLocation()))
 			throw new IllegalArgumentException(
 					"firstSensorEvent and predictedSensorEvent sensor locations must be the same");
 
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				firstSensorEvent.getSensor().getType(), firstSensorEvent.getSensor().getLocation());
+				firstSensorEvent.getSensor().getType(),
+				firstSensorEvent.getSensor().getLocation());
 
 		// Create ti mestamp and id
 		long timestamp = System.currentTimeMillis() * 1000000;
@@ -68,13 +71,18 @@ public class PredictionService {
 			jsonArray2.add(predictedSensorEvent.getValues()[i]);
 		}
 
-		JsonObject predictedEventJsonDoc = JsonObject.create().put("sensorType", sensor.getType())
+		JsonObject predictedEventJsonDoc = JsonObject.create()
+				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation())
-				.put("timestamp", predictedSensorEvent.getTimestamp()).put("values", jsonArray2)
-				.put("minimumDelayBetweenReadings", sensor.getMinimumDelayBetweenReadings())
-				.put("reportingMode", sensor.getReportingMode()).put("wakeUpSensor", sensor.isWakeUpSensor());
+				.put("timestamp", predictedSensorEvent.getTimestamp())
+				.put("values", jsonArray2)
+				.put("minimumDelayBetweenReadings",
+						sensor.getMinimumDelayBetweenReadings())
+				.put("reportingMode", sensor.getReportingMode())
+				.put("wakeUpSensor", sensor.isWakeUpSensor());
 
-		JsonObject transitionJsonObject = JsonObject.create().put("sensorType", sensor.getType())
+		JsonObject transitionJsonObject = JsonObject.create()
+				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation()).put("timestamp", timestamp)
 				.put("firstSensorEventKey", firstSensorEvent.getKey())
 				.put("predictedSensorEvent", predictedEventJsonDoc);
@@ -87,10 +95,11 @@ public class PredictionService {
 	public PredictionService() {
 	}
 
-	public int getPredictionCountForSensorTypeAndLocation(int sensorType, int sensorLocation) {
+	public int getPredictionCountForSensorTypeAndLocation(int sensorType,
+			int sensorLocation) {
 
-		String queryString = "SELECT COUNT(*) FROM `transition` WHERE sensorType = " + sensorType
-				+ " AND sensorLocation = " + sensorLocation;
+		String queryString = "SELECT COUNT(*) FROM `transition` WHERE sensorType = "
+				+ sensorType + " AND sensorLocation = " + sensorLocation;
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
 				N1qlQuery.simple(queryString));
 
@@ -107,8 +116,8 @@ public class PredictionService {
 	 * @param sensorEvent
 	 * @return
 	 */
-	public List<Prediction> getPredictionsForSensorEventBeforeTimestamp(SensorEvent sensorEvent,
-			long timestamp) {
+	public List<Prediction> getPredictionsForSensorEventBeforeTimestamp(
+			SensorEvent sensorEvent, long timestamp) {
 		if (sensorEvent == null)
 			throw new IllegalArgumentException("sensorEvent must not be null or empty");
 		if (timestamp < 1)
@@ -118,10 +127,11 @@ public class PredictionService {
 		ObjectMapper mapper = new ObjectMapper();
 
 		registerCustomDeserializer(mapper);
-		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecordsBeforeTimestamp(sensorEvent,
-				timestamp);
+		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecordsBeforeTimestamp(
+				sensorEvent, timestamp);
 //		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecords(sensorEvent);
-		List<SensorEvent> predictedSensorEvents = convertFromJsonToSensorEvents(mapper, result);
+		List<SensorEvent> predictedSensorEvents = convertFromJsonToSensorEvents(mapper,
+				result);
 		predictions = convertToPredictions(predictedSensorEvents);
 		setProbabilitiesForEachPrediction(predictions);
 		return predictions;
@@ -140,8 +150,10 @@ public class PredictionService {
 		ObjectMapper mapper = new ObjectMapper();
 
 		registerCustomDeserializer(mapper);
-		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecords(sensorEvent);
-		List<SensorEvent> predictedSensorEvents = convertFromJsonToSensorEvents(mapper, result);
+		N1qlQueryResult result = retrievePredictedEventsFromTransitionRecords(
+				sensorEvent);
+		List<SensorEvent> predictedSensorEvents = convertFromJsonToSensorEvents(mapper,
+				result);
 		predictions = convertToPredictions(predictedSensorEvents);
 		setProbabilitiesForEachPrediction(predictions);
 		return predictions;
@@ -153,7 +165,8 @@ public class PredictionService {
 	 * @param predictions
 	 * @return
 	 */
-	private List<Prediction> setProbabilitiesForEachPrediction(List<Prediction> predictions) {
+	private List<Prediction> setProbabilitiesForEachPrediction(
+			List<Prediction> predictions) {
 		if (predictions != null && predictions.size() > 0) {
 			double probability = 1.0 / predictions.size();
 			predictions.forEach(prediction -> prediction.setProbability(probability));
@@ -161,26 +174,30 @@ public class PredictionService {
 		return predictions;
 	}
 
-	private List<Prediction> convertToPredictions(List<SensorEvent> predictedSensorEvents) {
+	private List<Prediction> convertToPredictions(
+			List<SensorEvent> predictedSensorEvents) {
 		List<Prediction> newPredictions = predictedSensorEvents.stream()
-				.map(event -> new TransitionPrediction(event)).collect(Collectors.toList());
+				.map(event -> new TransitionPrediction(event))
+				.collect(Collectors.toList());
 		return newPredictions;
 	}
 
 	private N1qlQueryResult retrievePredictedEventsFromTransitionRecordsBeforeTimestamp(
 			SensorEvent sensorEvent, long timestamp) {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
-		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE " + "firstSensorEventKey = \""
-				+ sensorEvent.getKey() + "\"" + "AND timestamp < " + timestamp;
+		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
+				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\""
+				+ "AND timestamp < " + timestamp;
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
 				N1qlQuery.simple(statement));
 		return result;
 	}
 
-	private N1qlQueryResult retrievePredictedEventsFromTransitionRecords(SensorEvent sensorEvent) {
+	private N1qlQueryResult retrievePredictedEventsFromTransitionRecords(
+			SensorEvent sensorEvent) {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
-		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE " + "firstSensorEventKey = \""
-				+ sensorEvent.getKey() + "\"";
+		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
+				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\"";
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
 				N1qlQuery.simple(statement));
 		return result;
@@ -193,12 +210,14 @@ public class PredictionService {
 		mapper.registerModule(module);
 	}
 
-	private List<SensorEvent> convertFromJsonToSensorEvents(ObjectMapper mapper, N1qlQueryResult result) {
+	private List<SensorEvent> convertFromJsonToSensorEvents(ObjectMapper mapper,
+			N1qlQueryResult result) {
 		SensorEvent sensorEvent;
 		List<SensorEvent> predictedSensorEvents = new ArrayList<SensorEvent>();
 		try {
 			for (N1qlQueryRow row : result) {
-				logger.debug("Adding sensorEvent to predicted sensorEvents: " + row.value());
+				logger.debug(
+						"Adding sensorEvent to predicted sensorEvents: " + row.value());
 				sensorEvent = mapper.readValue(row.value().toString(), SensorEvent.class);
 				predictedSensorEvents.add(sensorEvent);
 			}
@@ -250,10 +269,11 @@ public class PredictionService {
 		currentPredictions = currentPredictions;
 	}
 
-	public List<SensorEvent> getPriorEventsThatPredictSensorEvent(SensorEvent currentSensorEvent) {
+	public List<SensorEvent> getPriorEventsThatPredictSensorEvent(
+			SensorEvent currentSensorEvent) {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
-		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE " + "firstSensorEventKey = \""
-				+ currentSensorEvent.getKey() + "\"";
+		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
+				+ "firstSensorEventKey = \"" + currentSensorEvent.getKey() + "\"";
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
 				N1qlQuery.simple(statement));
 		return null;

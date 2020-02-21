@@ -20,8 +20,8 @@ public class TransitionPredictionTest {
 
 		final Throwable throwable = catchThrowable(() -> prediction.setProbability(0));
 
-		then(throwable)
-				.as("Zero prediction countfor setProbability throws IllegalArgumentException")
+		then(throwable).as(
+				"Zero prediction countfor setProbability throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

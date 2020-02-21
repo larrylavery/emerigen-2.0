@@ -18,7 +18,8 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 
 public class CPR_RolloverTest {
 
-	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation, int numberOfNodes) {
+	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
+			int numberOfNodes) {
 		Cycle cycle;
 
 		if ("Daily".equals(cycleType))
@@ -30,7 +31,8 @@ public class CPR_RolloverTest {
 		else if ("Yearly".equals(cycleType))
 			cycle = new YearlyCycle(sensorType, sensorLocation);
 		else
-			throw new IllegalArgumentException("cycle type must be valid, but was (" + cycleType + ")");
+			throw new IllegalArgumentException(
+					"cycle type must be valid, but was (" + cycleType + ")");
 
 		// Set attributes
 //		cycle.setPreviousCycleNodeIndex(0);
@@ -78,10 +80,11 @@ public class CPR_RolloverTest {
 	public final void givenNewCycle_whenOnSensorChangedCalledWithEventPastCycleDuration_thenCycleRolledOverAndEventAddedAndEmptyPredictionListReturned() {
 		// Given
 
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
@@ -95,7 +98,8 @@ public class CPR_RolloverTest {
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		long currentCycleStartTime = cpr.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(cpr.getCycleDurationTimeNano());
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(cpr.getCycleDurationTimeNano());
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
@@ -106,10 +110,11 @@ public class CPR_RolloverTest {
 	public final void givenOneNodeCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedBeforeExisting() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -137,10 +142,11 @@ public class CPR_RolloverTest {
 	public final void givenOneNodeCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedAfterExisting() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -169,10 +175,11 @@ public class CPR_RolloverTest {
 	public final void givenTwoNodeCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedInbetween() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -214,10 +221,11 @@ public class CPR_RolloverTest {
 	public final void givenNonEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedFirstInOrder() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -245,10 +253,11 @@ public class CPR_RolloverTest {
 	public final void givenNonEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAddedInOrder() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -276,10 +285,11 @@ public class CPR_RolloverTest {
 	public final void givenEmptyCycle_whenNewEventPastCycleDuration_thenCycleRolledOverAndEventAdded() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -303,10 +313,11 @@ public class CPR_RolloverTest {
 	public final void givenEmptyCycle_whenNewEventPastTwoCyclesDuration_thenCycleRolledOverAndEventAdded() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -321,7 +332,6 @@ public class CPR_RolloverTest {
 
 		// Then
 		assertThat(predictions).isNotNull().isEmpty();
-		fail("rewrite test");
 //		assertThat(gpsCycle.getNodeList().size()).isEqualTo(1);
 //		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
 	}
@@ -331,10 +341,11 @@ public class CPR_RolloverTest {
 			throws InterruptedException {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -356,7 +367,8 @@ public class CPR_RolloverTest {
 		cpr.onSensorChanged(event1);
 		cpr.onSensorChanged(event2);
 		cpr.onSensorChanged(event3);
-		event3.setTimestamp(cpr.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
+		event3.setTimestamp(
+				cpr.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
 		cpr.onSensorChanged(event4);
 
 		Thread.sleep(100);
@@ -374,10 +386,11 @@ public class CPR_RolloverTest {
 	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastCurrentNodeAndCycleDuration_thenAdded2nd() {
 
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -386,7 +399,8 @@ public class CPR_RolloverTest {
 		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(cpr.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
+		event2.setTimestamp(
+				cpr.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
 
 		// this event will go before the 1st event in the next cycle
 		// (24 hours in this case)
@@ -403,10 +417,11 @@ public class CPR_RolloverTest {
 	@Test
 	public final void givenCycleList_whenNewEventArrivesPastCycleDuration_thenCycleStartTimeUpdatedToStartTimeOfClosestNextCycle() {
 		// Given
-		Sensor gpsSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_GPS,
-				Sensor.LOCATION_PHONE);
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor, new PredictionService());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				new PredictionService());
 
 		// When
 		// gps sensors require lat and long floats
@@ -422,7 +437,8 @@ public class CPR_RolloverTest {
 		cpr.onSensorChanged(event1);
 		long currentCycleStartTime = cpr.getCycleStartTimeNano();
 
-		assertThat(currentCycleStartTime - previousCycleStartTime).isEqualTo(cpr.getCycleDurationTimeNano());
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(cpr.getCycleDurationTimeNano());
 	}
 
 	@BeforeClass

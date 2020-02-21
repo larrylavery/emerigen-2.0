@@ -39,7 +39,8 @@ public class AgentTest {
 		agents.get(0).spreadMessage(msg2);
 		agents.get(0).spreadMessage(msg3);
 
-		then(agents.get(0).getContent()).as("Content should change to concat agent.content + message.content 2 times")
+		then(agents.get(0).getContent()).as(
+				"Content should change to concat agent.content + message.content 2 times")
 				.isEqualTo("yyyxxx");
 
 	}
@@ -56,8 +57,7 @@ public class AgentTest {
 		Agent a6 = Environment.getInstance().createAgentAtLocation(new Location(5, 4));
 		Agent a7 = Environment.getInstance().createAgentAtLocation(new Location(5, 5));
 
-		MessageToSpread msg = new MessageToSpread("xxx", 1,
-				3, (obj1, obj2) -> {
+		MessageToSpread msg = new MessageToSpread("xxx", 1, 3, (obj1, obj2) -> {
 			return (String) obj1 + (String) obj2;
 		});
 
@@ -66,8 +66,8 @@ public class AgentTest {
 
 		// Wait for all agents to propagate the spreadMessage
 		try {
-			Thread.sleep(500 + Long.parseLong(
-					EmerigenProperties.getInstance().getValue("environment.message.spreading.catchup.timer")));
+			Thread.sleep(500 + Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("environment.message.spreading.catchup.timer")));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -82,7 +82,7 @@ public class AgentTest {
 		assertThat((String) a5.getContent()).isEqualTo("xxx");
 		assertThat((String) a6.getContent()).isEqualTo("xxx");
 		assertThat((String) a7.getContent()).isEqualTo("xxx");
-		//softly.assertAll();
+		// softly.assertAll();
 	}
 
 	@Test
@@ -100,11 +100,10 @@ public class AgentTest {
 		Agent a6 = Environment.getInstance().createAgentAtLocation(new Location(8, 4));
 		Agent a7 = Environment.getInstance().createAgentAtLocation(new Location(9, 5));
 
-		MessageToSpread msg = new MessageToSpread("xxx", 1, 
-				3, (obj1, obj2) -> {
+		MessageToSpread msg = new MessageToSpread("xxx", 1, 3, (obj1, obj2) -> {
 			return (String) obj1 + (String) obj2;
 		});
-		//TODO				(hashedContent, keyedContent) -> {
+		// TODO (hashedContent, keyedContent) -> {
 //		return (((HashMap<String, Object>) hashedContent)
 //				.put(((KeyedContent) keyedContent).getKey(), keyedContent));
 
@@ -113,8 +112,8 @@ public class AgentTest {
 
 		// Wait for all agents to propagate the spreadMessage
 		try {
-			Thread.sleep(Long.parseLong(
-					EmerigenProperties.getInstance().getValue("environment.message.spreading.catchup.timer")));
+			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("environment.message.spreading.catchup.timer")));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -144,7 +143,6 @@ public class AgentTest {
 		// Agent a7 = Environment.getInstance().createAgentAtLocation( new Location(5,
 		// 5));
 
-
 		MessageToSpread msg = new MessageToSpread("xxx", 1, 5, (obj1, obj2) -> {
 			return (String) obj1 + (String) obj2;
 		});
@@ -154,8 +152,8 @@ public class AgentTest {
 
 		// Wait for all agents to propagate the spreadMessage
 		try {
-			Thread.sleep(Long.parseLong(
-					EmerigenProperties.getInstance().getValue("environment.message.spreading.catchup.timer")));
+			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+					.getValue("environment.message.spreading.catchup.timer")));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -176,9 +174,9 @@ public class AgentTest {
 		// Given agent and spreadMessage
 		List<Agent> agents = Environment.getInstance().createAgents(1);
 
-
 		// When broadcast invoked
-		final Throwable throwable = catchThrowable(() -> agents.get(0).spreadMessage(null));
+		final Throwable throwable = catchThrowable(
+				() -> agents.get(0).spreadMessage(null));
 
 		then(throwable).as("A null message should throw a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -196,7 +194,8 @@ public class AgentTest {
 		});
 
 		// When broadcast invoked
-		final Throwable throwable = catchThrowable(() -> agents.get(0).broadcastMessage(msg, new ArrayList()));
+		final Throwable throwable = catchThrowable(
+				() -> agents.get(0).broadcastMessage(msg, new ArrayList()));
 
 		then(throwable).as("A empty recipients should throw a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -214,7 +213,8 @@ public class AgentTest {
 		});
 
 		// When broadcast invoked
-		final Throwable throwable = catchThrowable(() -> agents.get(0).broadcastMessage(msg, null));
+		final Throwable throwable = catchThrowable(
+				() -> agents.get(0).broadcastMessage(msg, null));
 
 		then(throwable).as("A null recipients should throw a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -228,12 +228,14 @@ public class AgentTest {
 		List<Agent> agents = Environment.getInstance().createAgents(1);
 
 		// When broadcast invoked
-		final Throwable throwable = catchThrowable(() -> agents.get(0).broadcastMessage(null, agents));
+		final Throwable throwable = catchThrowable(
+				() -> agents.get(0).broadcastMessage(null, agents));
 
 		then(throwable).as("A null message should throw a IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
-		// public void broadcastMessage(MessageToSpread message, List<Agent> recipients) {
+		// public void broadcastMessage(MessageToSpread message, List<Agent> recipients)
+		// {
 	}
 
 	@Test
@@ -249,7 +251,8 @@ public class AgentTest {
 		// When spreadMessage invoked
 		agents.get(0).spreadMessage(msg);
 
-		then(agents.get(0).getContent()).as("Content should change to concat agent.content + message.content")
+		then(agents.get(0).getContent())
+				.as("Content should change to concat agent.content + message.content")
 				.isEqualTo("xxx");
 
 	}
@@ -269,7 +272,8 @@ public class AgentTest {
 		agents.get(0).spreadMessage(msg);
 		agents.get(0).spreadMessage(msg);
 
-		then(agents.get(0).getContent()).as("Content should change to concat agent.content + message.content one time")
+		then(agents.get(0).getContent()).as(
+				"Content should change to concat agent.content + message.content one time")
 				.isEqualTo("xxx");
 
 	}
@@ -297,7 +301,8 @@ public class AgentTest {
 		agents.get(0).spreadMessage(msg2);
 		agents.get(0).spreadMessage(msg3);
 
-		then(agents.get(0).getContent()).as("Content should change to concat agent.content + message.content 2 times")
+		then(agents.get(0).getContent()).as(
+				"Content should change to concat agent.content + message.content 2 times")
 				.isEqualTo("yyyxxx");
 
 	}
@@ -316,7 +321,8 @@ public class AgentTest {
 		// When spreadMessage invoked
 		agents.get(0).spreadMessage(msg);
 
-		then(agents.get(0).getContent()).as("Content should change to concat agent.content + message.content one time")
+		then(agents.get(0).getContent()).as(
+				"Content should change to concat agent.content + message.content one time")
 				.isEqualTo("xxx");
 	}
 
@@ -334,15 +340,14 @@ public class AgentTest {
 		// When spreadMessage invoked
 		agents.get(0).spreadMessage(msg);
 
-		then(agents.get(0).getContent()).as("Content should NOT change if hops exceeded").isEqualTo("");
+		then(agents.get(0).getContent()).as("Content should NOT change if hops exceeded")
+				.isEqualTo("");
 
 	}
-	
 
 	@Before
 	public void setUp() throws Exception {
 		Environment.getInstance().initializeData();
 	}
-
 
 }

@@ -6,7 +6,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ SensorEventListenerTest.class, SensorEventTest.class, SensorTest.class,
-		EmerigenSensorEventListenerTest.class, GpsSensorTest.class, SensorManagerTest.class })
+		EmerigenSensorEventListenerTest.class, GpsSensorTest.class,
+		SensorManagerTest.class })
 public class AllTests {
 
 }

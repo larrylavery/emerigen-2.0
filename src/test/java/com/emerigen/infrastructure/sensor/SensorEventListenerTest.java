@@ -22,8 +22,9 @@ public class SensorEventListenerTest {
 	public static int eventListenerOnResume = 0;
 	public static int eventListenerOnAccuracyChanged = 0;
 
-	private final int minDelayBetweenReadingsMillis = Integer.parseInt(EmerigenProperties.getInstance()
-			.getValue("sensor.default.minimum.delay.between.readings.millis"));
+	private final int minDelayBetweenReadingsMillis = Integer
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"));
 
 	public class EventListener implements SensorEventListener {
 
@@ -61,14 +62,16 @@ public class SensorEventListenerTest {
 				Sensor.LOCATION_PHONE);
 
 		// Create sensor mock with the sensor and listener that will receive events
-		SensorMock sensorMock = new SensorMock(sensor, listener, minDelayBetweenReadingsMillis, 0);
+		SensorMock sensorMock = new SensorMock(sensor, listener,
+				minDelayBetweenReadingsMillis, 0);
 
 		// Read from previously built file and feed events to the listener
 		sensorMock.startGeneratingSensorEvents();
 
 		// Verify that 10 HeartRate patterns were logged for those sensor events
 		int patternCount = KnowledgeRepository.getInstance()
-				.getSensorEventCountForSensorTypeAndLocation(sensor.getType(), sensor.getLocation());
+				.getSensorEventCountForSensorTypeAndLocation(sensor.getType(),
+						sensor.getLocation());
 		assertThat(patternCount).isGreaterThan(9);
 	}
 
@@ -76,8 +79,8 @@ public class SensorEventListenerTest {
 	public void gvenValidHeartRateSensorListenerRegistered_whenExecutedMultipleTimes_thenOnSensorChangedThrottled()
 			throws Exception {
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		SensorEventListener myListener = new EventListener();
 		SensorManager.getInstance().registerListenerForSensor(myListener, sensor);
@@ -95,8 +98,8 @@ public class SensorEventListenerTest {
 			throws Exception {
 		SensorManager.reset();
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_PHONE);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
@@ -114,22 +117,23 @@ public class SensorEventListenerTest {
 	public void gvenValidSensorListenerRegistered_whenOnPauseInvoked_thenSensorIsNotRegistered()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 
 		listener.onPause();
 
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
+				.isFalse();
 	}
 
 	@Test
 	public void gvenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
 		SensorManager sensorManager = SensorManager.getInstance();
-		Sensor sensor = sensorManager.getDefaultSensorForLocation(Sensor.TYPE_ACCELEROMETER,
-				Sensor.LOCATION_PHONE);
+		Sensor sensor = sensorManager.getDefaultSensorForLocation(
+				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		sensorManager.registerListenerForSensor(listener, sensor);
@@ -138,7 +142,8 @@ public class SensorEventListenerTest {
 
 		listener.onPause();
 
-		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isFalse();
+		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor))
+				.isFalse();
 
 		listener.onResume();
 		assertThat(sensorManager.listenerIsRegisteredToSensor(listener, sensor)).isTrue();

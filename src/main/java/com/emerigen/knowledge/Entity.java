@@ -3,27 +3,27 @@ package com.emerigen.knowledge;
 import java.time.Instant;
 import java.util.List;
 
-
 public class Entity {
 
-	 private String entityID = null;
-	 private String timestamp = Instant.now().toString();
-	 private List<ChannelType> channels = null;
-	
+	private String entityID = null;
+	private String timestamp = Instant.now().toString();
+	private List<ChannelType> channels = null;
 
-	public Entity() {}
+	public Entity() {
+	}
+
 	public Entity(String entityID, List<ChannelType> channels) {
-		
-		//Validate parms
+
+		// Validate parms
 		if (entityID == null || entityID.isEmpty()) {
 			throw new IllegalArgumentException("entityID must not be null or empty");
-		} if (channels == null || channels.isEmpty()) {
-			throw new IllegalArgumentException("channels must not be null or empty");			
-		} 
+		}
+		if (channels == null || channels.isEmpty()) {
+			throw new IllegalArgumentException("channels must not be null or empty");
+		}
 		this.entityID = entityID;
 		this.channels = channels;
 	}
-
 
 	/**
 	 * @return the entityID
@@ -39,14 +39,12 @@ public class Entity {
 		return timestamp;
 	}
 
-
 	/**
 	 * @return the channels
 	 */
 	public List<ChannelType> getChannels() {
 		return channels;
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -56,7 +54,6 @@ public class Entity {
 		result = prime * result + ((entityID == null) ? 0 : entityID.hashCode());
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {

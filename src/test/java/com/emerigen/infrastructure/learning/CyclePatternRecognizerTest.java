@@ -19,7 +19,7 @@ import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
-public class TransitionPatternRecognizerTest {
+public class CyclePatternRecognizerTest {
 
 	private long minimumDelayBetweenReadings = Long
 			.parseLong(EmerigenProperties.getInstance()

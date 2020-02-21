@@ -52,9 +52,10 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 			// Create the cycle with basic information
 			String cycleType = node.get("cycleType").asText();
 			cycle = createCycle(cycleType);
-			double allowablePercentDifferenceForEquality = node.get("allowablePercentDifferenceForEquality")
-					.asDouble();
-			cycle.setAllowablePercentDifferenceForEquality(allowablePercentDifferenceForEquality);
+			double allowablePercentDifferenceForEquality = node
+					.get("allowablePercentDifferenceForEquality").asDouble();
+			cycle.setAllowablePercentDifferenceForEquality(
+					allowablePercentDifferenceForEquality);
 			int sensorType = node.get("sensorType").asInt();
 			cycle.setSensorType(sensorType);
 			int sensorLocation = node.get("sensorLocation").asInt();
@@ -117,12 +118,14 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 		minimumDelayBetweenReadings = node.get("minimumDelayBetweenReadings").asInt();
 		reportingMode = node.get("reportingMode").asInt();
 		wakeUpSensor = node.get("wakeUpSensor").asBoolean();
-		sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
+		sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType,
+				sensorLocation);
 		sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
 		sensor.setWakeUpSensor(wakeUpSensor);
 		sensor.setReportingMode(reportingMode);
 		sensorEvent.setSensor(sensor);
-		logger.info("Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
+		logger.info(
+				"Sensor created: " + sensor + ", sensorEvent complete: " + sensorEvent);
 		return sensorEvent;
 	}
 
@@ -154,6 +157,7 @@ public class CustomCycleDeserializer extends StdDeserializer<Cycle> {
 		else if ("Yearly".equals(cycleType))
 			return new YearlyCycle();
 		else
-			throw new IllegalArgumentException("Cycle type of (" + cycleType + ") is not valid.");
+			throw new IllegalArgumentException(
+					"Cycle type of (" + cycleType + ") is not valid.");
 	}
 }

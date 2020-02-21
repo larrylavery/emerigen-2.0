@@ -11,13 +11,15 @@ public class MessageToSpread {
 	final private String message;
 	final private BiFunction<Object, Object, Object> contentUpdateFunction;
 
-	public MessageToSpread(String message, int messageHops, BiFunction<Object, Object, Object> function) {
-		this(message, messageHops,
-				Integer.parseInt(EmerigenProperties.getInstance().getValue("spreading.max.broadcast.hops")), function);
+	public MessageToSpread(String message, int messageHops,
+			BiFunction<Object, Object, Object> function) {
+		this(message, messageHops, Integer.parseInt(EmerigenProperties.getInstance()
+				.getValue("spreading.max.broadcast.hops")), function);
 
 	}
 
-	public MessageToSpread(String message, int messageHops, int maxHops, BiFunction<Object, Object, Object> function) {
+	public MessageToSpread(String message, int messageHops, int maxHops,
+			BiFunction<Object, Object, Object> function) {
 
 		if (message == null || message.isEmpty())
 			throw new IllegalArgumentException("Message must not be null or empty.");
@@ -26,7 +28,8 @@ public class MessageToSpread {
 		if (maxHops <= 0)
 			throw new IllegalArgumentException("maxHops must be positive.");
 		if (function == null)
-			throw new IllegalArgumentException("content update function must not be null.");
+			throw new IllegalArgumentException(
+					"content update function must not be null.");
 
 		this.message = message;
 		this.messageHops = messageHops;
@@ -47,7 +50,8 @@ public class MessageToSpread {
 	 *         immutability.
 	 */
 	public MessageToSpread incrementHops() {
-		return new MessageToSpread(getMessage(), messageHops + 1, getMaxHops(), getContentUpdateFunction());
+		return new MessageToSpread(getMessage(), messageHops + 1, getMaxHops(),
+				getContentUpdateFunction());
 	}
 
 	public boolean hopsExceeded() {
@@ -79,7 +83,8 @@ public class MessageToSpread {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((contentUpdateFunction == null) ? 0 : contentUpdateFunction.hashCode());
+		result = prime * result + ((contentUpdateFunction == null) ? 0
+				: contentUpdateFunction.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		return result;
 	}
@@ -103,7 +108,8 @@ public class MessageToSpread {
 
 	@Override
 	public String toString() {
-		return "MessageToSpread [messageHops=" + messageHops + ", maxHops=" + maxHops + ", message=" + message + "]";
+		return "MessageToSpread [messageHops=" + messageHops + ", maxHops=" + maxHops
+				+ ", message=" + message + "]";
 	}
 
 }

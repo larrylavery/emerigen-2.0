@@ -18,14 +18,16 @@ public class ChannelType {
 	public ChannelType() {
 	}
 
-	public ChannelType(String channelType, String sensoryEventsUri, boolean learningComplete) {
+	public ChannelType(String channelType, String sensoryEventsUri,
+			boolean learningComplete) {
 
 		// Validate parms
 		if (channelType == null || channelType.isEmpty()) {
 			throw new IllegalArgumentException("ChannelType must not be null or empty");
 		}
 		if (sensoryEventsUri == null || sensoryEventsUri.isEmpty()) {
-			throw new IllegalArgumentException("sensoryEventsUri must not be null or empty");
+			throw new IllegalArgumentException(
+					"sensoryEventsUri must not be null or empty");
 		}
 
 		this.channelType = channelType;
@@ -59,7 +61,8 @@ public class ChannelType {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((channelType == null) ? 0 : channelType.hashCode());
-		result = prime * result + ((sensoryEventsUri == null) ? 0 : sensoryEventsUri.hashCode());
+		result = prime * result
+				+ ((sensoryEventsUri == null) ? 0 : sensoryEventsUri.hashCode());
 		return result;
 	}
 

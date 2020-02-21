@@ -16,7 +16,8 @@ public class TemperatureSensor extends Sensor {
 		super(sensorType, sensorLocation, reportingMode, minimumDelay, isWakeUpSensor);
 	}
 
-	public TemperatureSensor(int reportingMode, int minimumDelay, boolean isWakeUpSensor) {
+	public TemperatureSensor(int reportingMode, int minimumDelay,
+			boolean isWakeUpSensor) {
 		super(Sensor.TYPE_TEMPERATURE, Sensor.LOCATION_PHONE, reportingMode, minimumDelay,
 				isWakeUpSensor);
 	}
@@ -27,8 +28,8 @@ public class TemperatureSensor extends Sensor {
 	 * A temperature change of at least significantChangeThreshold causes an event
 	 * to be published
 	 */
-	private float significantChangeThreshold = Float.parseFloat(EmerigenProperties.getInstance()
-			.getValue("sensor.temperature.significant.change.threshold"));
+	private float significantChangeThreshold = Float.parseFloat(EmerigenProperties
+			.getInstance().getValue("sensor.temperature.significant.change.threshold"));
 
 	/**
 	 * Use sensor-specific logic to access the current value of this h/w sensor.
@@ -79,7 +80,8 @@ public class TemperatureSensor extends Sensor {
 		if (secondSensorEvent == null)
 			throw new IllegalArgumentException("second temperature must not be null.");
 
-		if (Utils.equals(firstSensorEvent.getValues()[0], secondSensorEvent.getValues()[0])) {
+		if (Utils.equals(firstSensorEvent.getValues()[0],
+				secondSensorEvent.getValues()[0])) {
 			return true;
 		} else {
 			return false;

@@ -11,14 +11,12 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 	private final int start;
 	private final int interval;
 	private final ExecutionPriority priority;
-	private  String comments;
+	private String comments;
 	private final Method methodToExecute;
 	private static Logger logger = Logger.getLogger(ScheduledMethodTask.class);
 
-	public ScheduledMethodTask(Method methodToExecute, 
-			int start, int interval, 
-			ExecutionPriority priority,
-			String comments) {
+	public ScheduledMethodTask(Method methodToExecute, int start, int interval,
+			ExecutionPriority priority, String comments) {
 		this(methodToExecute, start, interval, priority);
 		if (comments == null)
 			throw new IllegalArgumentException("Comments must not be null");
@@ -26,8 +24,7 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 		this.comments = comments;
 	}
 
-	public ScheduledMethodTask(Method methodToExecute, 
-			int start, int frequency, 
+	public ScheduledMethodTask(Method methodToExecute, int start, int frequency,
 			ExecutionPriority priority) {
 		if (start <= 0)
 			throw new IllegalArgumentException("Start must be a positive number");
@@ -35,13 +32,12 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 			throw new IllegalArgumentException("interval must be a positive number");
 		if (methodToExecute == null)
 			throw new IllegalArgumentException("method must not be null");
-		
+
 		this.methodToExecute = methodToExecute;
 		this.interval = frequency;
 		this.priority = priority;
 		this.start = start;
 	}
-
 
 	@Override
 	public void run() {
@@ -51,19 +47,21 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 
 			Class<?> clazz = methodToExecute.getDeclaringClass();
 			Constructor<?> ctor = clazz.getConstructor();
-			Object object = ctor.newInstance(new Object[] { });
-			
+			Object object = ctor.newInstance(new Object[] {});
+
 			methodToExecute.setAccessible(true);
 			methodToExecute.invoke(object, (Object[]) null);
 
 			// Handle any exceptions thrown by method to be invoked.
 		} catch (InvocationTargetException x) {
 			Throwable cause = x.getCause();
-			logger.error("InvocationTargetException thrown, message: " + x.getMessage(), cause);
+			logger.error("InvocationTargetException thrown, message: " + x.getMessage(),
+					cause);
 
 		} catch (IllegalAccessException x) {
 			Throwable cause = x.getCause();
-			logger.error("IllegalAccessException thrown, message: " + x.getMessage(), cause);
+			logger.error("IllegalAccessException thrown, message: " + x.getMessage(),
+					cause);
 
 		} catch (NoSuchMethodException e) {
 			logger.error("NoSuchMethodException thrown, message: " + e.getMessage());
@@ -84,7 +82,6 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 
 	}
 
-	
 	public boolean shouldExecute(int currentStep) {
 
 		// If we should execute at later step return false
@@ -94,9 +91,9 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 		// If we should execute at later step return false
 		if (getStart() == currentStep)
 			return true;
-		
+
 		// If the interval since the last execution has not been reached
-		if ((currentStep-getStart()) % interval == 0)
+		if ((currentStep - getStart()) % interval == 0)
 			return true;
 
 		return false;
@@ -114,7 +111,7 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 	public ExecutionPriority getPriority() {
 		return priority;
 	}
-	
+
 	public int compareTo(ScheduledMethodTask other) {
 		return this.getPriority().compareTo(other.getPriority());
 	}
@@ -124,7 +121,8 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + interval;
-		result = prime * result + ((methodToExecute == null) ? 0 : methodToExecute.hashCode());
+		result = prime * result
+				+ ((methodToExecute == null) ? 0 : methodToExecute.hashCode());
 		result = prime * result + start;
 		return result;
 	}
@@ -154,7 +152,8 @@ public class ScheduledMethodTask implements Runnable, Comparable<ScheduledMethod
 
 	@Override
 	public String toString() {
-		return "ScheduledMethodTask [start=" + start + ", interval=" + interval + ", priority=" + priority
-				+ ", comments=" + comments + ", methodToExecute=" + methodToExecute + "]";
+		return "ScheduledMethodTask [start=" + start + ", interval=" + interval
+				+ ", priority=" + priority + ", comments=" + comments
+				+ ", methodToExecute=" + methodToExecute + "]";
 	}
 }
