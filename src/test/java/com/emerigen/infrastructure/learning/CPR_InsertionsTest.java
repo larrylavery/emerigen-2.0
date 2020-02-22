@@ -202,19 +202,21 @@ public class CPR_InsertionsTest {
 		// gps sensors require lat and long floats
 		Random rd = new Random();
 		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions.size()).isEqualTo(0);
 		predictions = cpr.onSensorChanged(event2);
 
 		// Verify appropriate methods called AND how many times and that no other
 		// methods were called
-		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(2)).getPredictionsForSensorEvent(event1);
 		verify(mockPredictionService, times(2))
 				.setCurrentPredictions(new ArrayList<Prediction>());
-		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+//		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+//		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
 
 		verifyNoMoreInteractions(mockPredictionService);
 
