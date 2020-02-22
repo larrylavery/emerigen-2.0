@@ -184,6 +184,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					predictions = predictionService
 							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
+					previousSensorEvent = currentSensorEvent;
 					return predictions;
 				} else if (currentEventIsLessThanPreviousEvent(currentSensorEvent)) {
 
