@@ -26,7 +26,7 @@ public class Transition {
 
 	/**
 	 * The length of time that the data point [measurement] (as measured by the
-	 * sensor event) is valid. If the event is a GPS measurement, then the
+	 * predicted sensor event) is valid. If the event is a GPS measurement, then the
 	 * dataPointDurationNano is the length of time the GPS coordinates did not
 	 * significantly change (ie how long the user stayed at [visited] this location.
 	 * 
@@ -138,7 +138,9 @@ public class Transition {
 	/**
 	 * @param timestamp the timestamp to set
 	 */
-	void setTimestamp(long timestamp) {
+	public void setTimestamp(long timestamp) {
+		if (timestamp < 0)
+			throw new IllegalArgumentException("timestamp must not be negative");
 		this.timestamp = timestamp;
 	}
 
@@ -153,6 +155,8 @@ public class Transition {
 	 * @param predictedSensorEvent the predictedSensorEvent to set
 	 */
 	public void setPredictedSensorEvent(SensorEvent predictedSensorEvent) {
+		if (predictedSensorEvent == null)
+			throw new IllegalArgumentException("predictedSensorEvent must not be null");
 		this.predictedSensorEvent = predictedSensorEvent;
 	}
 
@@ -167,6 +171,8 @@ public class Transition {
 	 * @param sensorType the sensorType to set
 	 */
 	public void setSensorType(int sensorType) {
+		if (sensorType < 0)
+			throw new IllegalArgumentException("sensorType must be positive");
 		this.sensorType = sensorType;
 	}
 
@@ -181,6 +187,8 @@ public class Transition {
 	 * @param sensorLocation the sensorLocation to set
 	 */
 	public void setSensorLocation(int sensorLocation) {
+		if (sensorLocation < 0)
+			throw new IllegalArgumentException("sensorLocation must be positive");
 		this.sensorLocation = sensorLocation;
 	}
 
@@ -195,6 +203,9 @@ public class Transition {
 	 * @param firstSensorEventKey the firstSensorEventKey to set
 	 */
 	public void setFirstSensorEventKey(String firstSensorEventKey) {
+		if (firstSensorEventKey == null || firstSensorEventKey.isEmpty())
+			throw new IllegalArgumentException(
+					"firstSensorEventKey must not be null or empty");
 		this.firstSensorEventKey = firstSensorEventKey;
 	}
 
@@ -203,13 +214,6 @@ public class Transition {
 	 */
 	public double getCashOnHand() {
 		return cashOnHand;
-	}
-
-	/**
-	 * @param cashOnHand the cashOnHand to set
-	 */
-	public void setCashOnHand(int cashOnHand) {
-		this.cashOnHand = cashOnHand;
 	}
 
 	/**
@@ -223,6 +227,8 @@ public class Transition {
 	 * @param dataPointDurationNano the dataPointDurationNano to set
 	 */
 	public void setDataPointDurationNano(long dataPointDurationNano) {
+		if (dataPointDurationNano <= 0.0)
+			throw new IllegalArgumentException("dataPointDurationNano must be positive");
 		this.dataPointDurationNano = dataPointDurationNano;
 	}
 
@@ -237,6 +243,9 @@ public class Transition {
 	 * @param probability the probability to set
 	 */
 	public void setProbability(double probability) {
+		if (probability > 1.0 || probability < 0.0)
+			throw new IllegalArgumentException("probability must be between 0.0 and 1.0");
+
 		this.probability = probability;
 	}
 
@@ -251,6 +260,9 @@ public class Transition {
 	 * @param cashOnHand the cashOnHand to set
 	 */
 	public void setCashOnHand(double cashOnHand) {
+		if (cashOnHand < 0.0)
+			throw new IllegalArgumentException("cashOnHand must be positive");
+
 		this.cashOnHand = cashOnHand;
 	}
 }

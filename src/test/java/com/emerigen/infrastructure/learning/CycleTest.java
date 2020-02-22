@@ -1,4 +1,4 @@
-package com.emerigen.knowledge;
+package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -17,7 +17,6 @@ import org.json.JSONTokener;
 import org.junit.Test;
 
 import com.couchbase.client.java.document.json.JsonObject;
-import com.emerigen.infrastructure.learning.CPR_InsertionsTest;
 import com.emerigen.infrastructure.learning.Cycle;
 import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.DailyCycle;

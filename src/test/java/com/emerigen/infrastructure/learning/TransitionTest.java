@@ -1,4 +1,4 @@
-package com.emerigen.knowledge;
+package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -15,16 +15,20 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.learning.Prediction;
-import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.Utils;
+import com.emerigen.knowledge.Transition;
 
 public class TransitionTest {
+
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+			* 1000000;
 
 	@Test
 	public void givenValidJsonTransition_whenValidating_thenItShouldValidateSuccessfully() {
@@ -129,7 +133,7 @@ public class TransitionTest {
 	}
 
 	@Test
-	public void givenJsonTransitionWithNoSensorEventn_whenValidating_thenValidationExceptionIsThrown() {
+	public void givenJsonTransitionWithNoSensorEvents_whenValidating_thenValidationExceptionIsThrown() {
 
 		// Given the schema and the instance json docs have been read in
 		InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
@@ -186,26 +190,25 @@ public class TransitionTest {
 
 		Random rd = new Random(); // creating Random object
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 		SensorEvent sensorEvent3 = new SensorEvent(sensor, values3);
+		sensorEvent2
+				.setTimestamp(sensorEvent1.getTimestamp() + minimumDelayBetweenReadings);
+		sensorEvent3
+				.setTimestamp(sensorEvent2.getTimestamp() + minimumDelayBetweenReadings);
 
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
 
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Utils.allowDataUpdatesTimeToCatchUp();
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
@@ -213,6 +216,9 @@ public class TransitionTest {
 
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size() >= 2).isTrue();
+
+//		assertThat(predictions.get(1).getSensorEvent()).isEqualTo(sensorEvent2);
+//		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(sensorEvent3);
 	}
 
 	@Test
@@ -262,16 +268,32 @@ public class TransitionTest {
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
+//
+//		//// perform a set asynchronously; return from set not important now
+//		OperationFuture<Boolean> setOp = client.set(KEY, EXP_TIME, VALUE);
+//		// do something in meantime
+//		// check to see if set successful via get, if not fail
+//		// the get will block application flow
+//		if (setOp.get().booleanValue()) {
+//			System.out.println("Set Succeeded");
+//		} else {
+//			System.err.println("Set failed:" + setOp.getStatus().getMessage());
+//		}
+//
+//		GetFuture getOp = client.asyncGet(KEY);
+//		// do something in meantime
+//		// check to see if get successful
+//		// if not cancel
+//		if ((getObject = getOp.get()) != null) {
+//			System.out.println("Asynchronous get succeeded: " + getObject);
+//
+//		} else {
+//			System.err.println(
+//					"Asynchronous get failed: " + getOp.getStatus().getMessage());
+//		}
 
 		ps = new PredictionService(sensor);
 		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
@@ -313,37 +335,25 @@ public class TransitionTest {
 
 		Random rd = new Random(); // creating Random object
 		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 
 		// Given three valid SensorEvents logged
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		sensorEvent2
+				.setTimestamp(sensorEvent1.getTimestamp() + minimumDelayBetweenReadings);
 		SensorEvent sensorEvent3 = new SensorEvent(sensor, values3);
-
-//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
-//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent3);
-
-		// And given 2 valid transitions with same firstSensorEvents logged
-//		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
-//		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
-//		SensorEvent predictedSensorEvent2 = new SensorEvent(sensor, values3);
+		sensorEvent3
+				.setTimestamp(sensorEvent2.getTimestamp() + minimumDelayBetweenReadings);
 
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
 
-		// Give the bucket a chance to catch up after the log
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Then getPredictionsForSensorEvent() should return the two predicted
 		// sensorEvents
@@ -447,6 +457,222 @@ public class TransitionTest {
 		// Then ValidationException should occur
 		then(throwable).as(
 				"A IllegalArgumentException should be thrown for an invalid schema validation")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeProbability_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 21.1f, 21.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		// When the invalid transition
+
+		PredictionService ps = new PredictionService(sensor);
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setProbability(-1.0));
+
+		// Then ValidationException should occur
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a negative probability")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenOutOfRangeProbability_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 21.1f, 21.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		// When the invalid transition
+
+		PredictionService ps = new PredictionService(sensor);
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setProbability(1.0001));
+
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a probability not between 0.0 and 1.0")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenInvalidFirstEventKey_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 21.1f, 21.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		// When the invalid transition
+
+		PredictionService ps = new PredictionService(sensor);
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setFirstSensorEventKey(null));
+		final Throwable throwable2 = catchThrowable(() -> t1.setFirstSensorEventKey(""));
+
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a null first  event key")
+				.isInstanceOf(IllegalArgumentException.class);
+		then(throwable2).as(
+				"A IllegalArgumentException should be thrown for empty first  event key")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenInvalidPredictedEvent_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 21.1f, 21.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		// When the invalid transition
+
+		PredictionService ps = new PredictionService(sensor);
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(
+				() -> t1.setPredictedSensorEvent(null));
+
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a null first  event key")
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public final void givenNegativeDataPointDuration_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setDataPointDurationNano(-1));
+
+		// Then ValidationException should occur
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a negative data point duration")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeCashOnHand_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setCashOnHand(-0.01));
+
+		// Then ValidationException should occur
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a negative cash on hand")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeTimestamp_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setTimestamp(-1));
+
+		// Then ValidationException should occur
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a negative timestamp")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeSensorType_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setSensorType(-1));
+
+		// Then ValidationException should occur
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a negative sensor type")
+				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeSensorLocation_whenSetOnTransition_thenIlegalArgumentException() {
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+		final Throwable throwable = catchThrowable(() -> t1.setSensorLocation(-1));
+
+		// Then ValidationException should occur
+		then(throwable).as(
+				"A IllegalArgumentException should be thrown for a negative sensor location")
 				.isInstanceOf(IllegalArgumentException.class);
 
 	}
