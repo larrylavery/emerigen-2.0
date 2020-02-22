@@ -436,64 +436,85 @@ public class CPR_RolloverTest {
 
 	}
 
-//	@Test
-//	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastCurrentNodeAndCycleDuration_thenAdded2nd() {
-//
-//		// Given
-//		Sensor gpsSensor = SensorManager.getInstance()
-//				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-//		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-//		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-//				new PredictionService());
-//
-//		// When
-//		// gps sensors require lat and long floats
-//		Random rd = new Random();
-//		float[] values = { rd.nextFloat(), rd.nextFloat() };
-//		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
-//		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-//		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-//		event2.setTimestamp(
-//				cpr.getCycleDurationTimeNano() + System.currentTimeMillis() * 1000000);
-//
-//		// this event will go before the 1st event in the next cycle
-//		// (24 hours in this case)
-//		cpr.onSensorChanged(event1);
-//		cpr.onSensorChanged(event2);
-//
-//		// Then
-//		fail("rewrite");
-////		assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
-////		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-////		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
-//	}
-//
-//	@Test
-//	public final void givenCycleList_whenNewEventArrivesPastCycleDuration_thenCycleStartTimeUpdatedToStartTimeOfClosestNextCycle() {
-//		// Given
-//		Sensor gpsSensor = SensorManager.getInstance()
-//				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-//		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-//		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-//				new PredictionService());
-//
-//		// When
-//		// gps sensors require lat and long floats
-//		Random rd = new Random();
-//		float[] values = { rd.nextFloat(), rd.nextFloat() };
-//		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
-//		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-//
-//		// Set the event timestamp to after the cycle duration
-//		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
-//
-//		long previousCycleStartTime = cpr.getCycleStartTimeNano();
-//		cpr.onSensorChanged(event1);
-//		long currentCycleStartTime = cpr.getCycleStartTimeNano();
-//
-//		assertThat(currentCycleStartTime - previousCycleStartTime)
-//				.isEqualTo(cpr.getCycleDurationTimeNano());
-//	}
+	@Test
+	public final void givenNonEmptyCycle_whenNewSensorEventWithTimePastCurrentEventAndCycleDuration_thenAdded2nd() {
+
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				mockPredictionService);
+
+		// When
+
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(
+				event1.getTimestamp() + 1000 + cpr.getCycleDurationTimeNano());
+
+		// this event will go before the 1st event in the next cycle
+		// (24 hours in this case)
+		cpr.onSensorChanged(event1);
+		cpr.onSensorChanged(event2);
+
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(2))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		// ??? verify(mockPredictionService,
+		// times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+
+		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event1,
+				event2);
+		verifyNoMoreInteractions(mockPredictionService);
+
+	}
+
+	@Test
+	public final void givenCycle_whenNewEventArrivesPastCycleDuration_thenCycleStartTimeUpdatedToStartTimeOfClosestNextCycle() {
+		// Given
+		Sensor gpsSensor = SensorManager.getInstance()
+				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
+				mockPredictionService);
+
+		// When
+		// gps sensors require lat and long floats
+		Random rd = new Random();
+		float[] values = { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		SensorEvent event1 = new SensorEvent(gpsSensor, values);
+
+		// Set the event timestamp to after the cycle duration
+		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
+
+		long previousCycleStartTime = cpr.getCycleStartTimeNano();
+		cpr.onSensorChanged(event1);
+		long currentCycleStartTime = cpr.getCycleStartTimeNano();
+
+		assertThat(currentCycleStartTime - previousCycleStartTime)
+				.isEqualTo(cpr.getCycleDurationTimeNano());
+
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(1))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verifyNoMoreInteractions(mockPredictionService);
+
+	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
