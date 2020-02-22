@@ -49,9 +49,12 @@ public class CustomTransitionDeserializer extends StdDeserializer<Transition> {
 			transition.setSensorType(node.get("sensorType").asInt());
 			transition.setSensorLocation(node.get("sensorLocation").asInt());
 
-			transition.setProbability(node.get("probability").asDouble());
-			transition
-					.setDataPointDurationNano(node.get("datePointDurationNano").asLong());
+			double probability = node.get("probability").asDouble();
+			transition.setProbability(probability);
+//			transition.setProbability(node.get("probability").asDouble());
+
+			long duration = node.get("dataPointDurationNano").asLong();
+			transition.setDataPointDurationNano(duration);
 
 			String firstSensorEventKey = node.get("firstSensorEventKey").asText();
 			transition.setFirstSensorEventKey(firstSensorEventKey);

@@ -22,6 +22,7 @@ import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class TransitionTest {
 
@@ -296,13 +297,7 @@ public class TransitionTest {
 		PredictionService ps = new PredictionService(sensor);
 		String uuid = ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!

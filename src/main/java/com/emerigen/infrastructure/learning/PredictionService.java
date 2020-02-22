@@ -21,6 +21,8 @@ import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.knowledge.Transition;
 
 /**
  * This class provides all prediction-related services for a PatternRecognizer
@@ -30,6 +32,9 @@ public class PredictionService {
 
 	private long predictionCount = 0;
 	private List<Prediction> currentPredictions;
+
+	private double defaultProbability = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("prediction.default.probability"));
 
 	private Sensor sensor;
 	private static final Logger logger = Logger.getLogger(PredictionService.class);
@@ -83,7 +88,9 @@ public class PredictionService {
 
 		JsonObject transitionJsonObject = JsonObject.create()
 				.put("sensorType", sensor.getType())
-				.put("sensorLocation", sensor.getLocation()).put("timestamp", timestamp)
+				.put("sensorLocation", sensor.getLocation())
+				.put("probability", defaultProbability).put("timestamp", timestamp)
+				.put("dataPointDurationNano", Transition.defaultDataPointDurationNano)
 				.put("firstSensorEventKey", firstSensorEvent.getKey())
 				.put("predictedSensorEvent", predictedEventJsonDoc);
 

@@ -3,6 +3,7 @@ package com.emerigen.knowledge;
 import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class Transition {
 
@@ -13,11 +14,15 @@ public class Transition {
 	private int sensorType;
 	private int sensorLocation;
 
+	public static final long defaultDataPointDurationNano = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("cycle.default.data.point.duration.nano"));
+
 	/**
 	 * This value represents a Transition's strength. It is used during the "credit
 	 * assignment" support and for other other reinforcement mechanisms.
 	 */
-	private int cashOnHand;
+	private double cashOnHand;
 
 	/**
 	 * The length of time that the data point [measurement] (as measured by the
@@ -58,6 +63,7 @@ public class Transition {
 		this.sensorLocation = firstSensorEvent.getSensorLocation();
 		this.firstSensorEventKey = firstSensorEvent.getKey();
 		this.predictedSensorEvent = predictedSensorEvent;
+		this.dataPointDurationNano = defaultDataPointDurationNano;
 	}
 
 	/**
@@ -71,19 +77,19 @@ public class Transition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + cashOnHand;
+		long temp;
+		temp = Double.doubleToLongBits(cashOnHand);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result
 				+ (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
 		result = prime * result
 				+ ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
 		result = prime * result
 				+ ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
-		long temp;
 		temp = Double.doubleToLongBits(probability);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + sensorLocation;
 		result = prime * result + sensorType;
-		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
 		return result;
 	}
 
@@ -96,7 +102,8 @@ public class Transition {
 		if (getClass() != obj.getClass())
 			return false;
 		Transition other = (Transition) obj;
-		if (cashOnHand != other.cashOnHand)
+		if (Double.doubleToLongBits(cashOnHand) != Double
+				.doubleToLongBits(other.cashOnHand))
 			return false;
 		if (dataPointDurationNano != other.dataPointDurationNano)
 			return false;
@@ -117,8 +124,6 @@ public class Transition {
 			return false;
 		if (sensorType != other.sensorType)
 			return false;
-//		if (timestamp != other.timestamp)
-//			return false;
 		return true;
 	}
 
@@ -196,7 +201,7 @@ public class Transition {
 	/**
 	 * @return the cashOnHand
 	 */
-	public int getCashOnHand() {
+	public double getCashOnHand() {
 		return cashOnHand;
 	}
 
@@ -233,5 +238,19 @@ public class Transition {
 	 */
 	public void setProbability(double probability) {
 		this.probability = probability;
+	}
+
+	/**
+	 * @return the defaultdatapointdurationnano
+	 */
+	public static long getDefaultdatapointdurationnano() {
+		return defaultDataPointDurationNano;
+	}
+
+	/**
+	 * @param cashOnHand the cashOnHand to set
+	 */
+	public void setCashOnHand(double cashOnHand) {
+		this.cashOnHand = cashOnHand;
 	}
 }

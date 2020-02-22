@@ -5,19 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.UUID;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 //import io.reactivex.Observable;
 
@@ -76,8 +71,7 @@ public class CouchbaseEntityRepositoryTest {
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);
 
-		JsonObject entityJsonObject = ((N1qlQueryRow) result.allRows().get(0)).value()
-				.getObject("entity");
+		JsonObject entityJsonObject = result.allRows().get(0).value().getObject("entity");
 
 		softly.assertThat(entityJsonObject.getString("timestamp")).isEqualTo("1");
 		softly.assertThat(entityJsonObject.getString("entityID")).isEqualTo(entityUuid1);
@@ -109,14 +103,7 @@ public class CouchbaseEntityRepositoryTest {
 		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc);
 
 		// Give the bucket a chance to catch up after the log
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// When the document queried
 		String queryString = "SELECT * FROM `entity` WHERE entityID = \"" + entityUuid1
 				+ "\"";
@@ -127,7 +114,7 @@ public class CouchbaseEntityRepositoryTest {
 		assertThat(result).isNotNull().isNotEmpty();
 		assertThat(result.info().resultCount() > 0);
 
-		JsonObject entity2JsonObject = ((N1qlQueryRow) result.allRows().get(0)).value()
+		JsonObject entity2JsonObject = result.allRows().get(0).value()
 				.getObject("entity");
 
 		softly.assertThat(entity2JsonObject.getString("timestamp")).isEqualTo("1");
