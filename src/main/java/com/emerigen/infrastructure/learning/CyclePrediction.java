@@ -54,4 +54,9 @@ public class CyclePrediction extends Prediction {
 
 	}
 
+	@Override
+	public String toString() {
+		return "CyclePrediction [probability=" + probability + "]";
+	}
+
 }

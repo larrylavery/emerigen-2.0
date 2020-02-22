@@ -1,10 +1,16 @@
+
 package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +18,11 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -22,6 +32,17 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public class CPR_PredictionTest {
 	private static long defaultCycleNodeDurationNano = Long.parseLong(EmerigenProperties
 			.getInstance().getValue("cycle.default.data.point.duration.nano"));
+
+	private long minimumDelayBetweenReadings = Long
+			.parseLong(EmerigenProperties.getInstance()
+					.getValue("sensor.default.minimum.delay.between.readings.millis"))
+			* 1000000;
+
+	@Mock
+	PredictionService mockPredictionService;
+
+	@Rule
+	public MockitoRule mockitoRule = MockitoJUnit.rule();
 
 	public static Cycle createCycle(String cycleType, int sensorType, int sensorLocation,
 			int numberOfNodes) {
@@ -39,45 +60,6 @@ public class CPR_PredictionTest {
 			throw new IllegalArgumentException(
 					"cycle type must be valid, but was (" + cycleType + ")");
 
-		// Set attributes
-//		cycle.setPreviousCycleNodeIndex(0);
-//		CycleNode cycleNode;
-//
-//		for (int i = 0; i < numberOfNodes; i++) {
-//			cycleNode = new CycleNode();
-//			int minimumDelayBetweenReadings;
-//			int reportingMode;
-//			boolean wakeUpSensor;
-//			SensorEvent sensorEvent = new SensorEvent();
-//			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
-//			Sensor sensor;
-//
-//			// Create SensorEvent
-//			sensorEvent.setSensorType(sensorType);
-//			sensorEvent.setSensorLocation(sensorLocation);
-//
-//			// Set sensor event values
-//			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
-//			sensorEvent.setValues(values);
-//
-//			// create and set event sensor
-//			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
-//			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
-//			wakeUpSensor = false;
-//			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
-//			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
-//			sensor.setWakeUpSensor(wakeUpSensor);
-//			sensor.setReportingMode(reportingMode);
-//			sensorEvent.setSensor(sensor);
-//
-//			// Set up the rest of the CycleNode fields
-//			cycleNode.setSensorEvent(sensorEvent);
-//			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
-//			cycleNode.setDataPointDurationNano(1000 * (i + 1));
-//			cycleNode.setProbability(0.3);
-//			cycleNode.setMyCycle(cycle);
-//			cycle.addCycleNode(cycleNode);
-//		}
 		return cycle;
 	}
 
@@ -105,7 +87,7 @@ public class CPR_PredictionTest {
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -132,9 +114,32 @@ public class CPR_PredictionTest {
 		assertThat(predictions).isNotNull().isEmpty();
 
 		predictions = cpr.onSensorChanged(event4);
-		assertThat(predictions).isNotNull().isNotEmpty();
-		assertThat(predictions.size()).isEqualTo(1);
-		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event1);
+
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(4))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event4);
+
+//		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event4);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event2, event3);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event4, event3);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event4);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event1,
+				event2);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event2,
+				event3);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event4,
+				event3);
+		verifyNoMoreInteractions(mockPredictionService);
+
 	}
 
 	@Test
@@ -143,7 +148,7 @@ public class CPR_PredictionTest {
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -154,11 +159,27 @@ public class CPR_PredictionTest {
 		float[] values4 = { rd.nextFloat() + 1000, rd.nextFloat() + 1000 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() + 1500);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-		event3.setTimestamp(event1.getTimestamp() + 2000);
+		event3.setTimestamp(event1.getTimestamp() + 2 * minimumDelayBetweenReadings);
 		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
-		event4.setTimestamp(event1.getTimestamp() + 1000 + cpr.cycleDurationTimeNano);
+		event4.setTimestamp(event1.getTimestamp() + 3 * cpr.cycleDurationTimeNano);
+
+		List<Prediction> mockPredictions = new ArrayList<>();
+		mockPredictions.add(new CyclePrediction(event1));
+		List<Prediction> mockPredictions4 = new ArrayList<>();
+		mockPredictions4.add(new CyclePrediction(event2));
+
+		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
+				.thenReturn("");
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event2))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event3))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event4))
+				.thenReturn(mockPredictions4);
 
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions).isNotNull().isEmpty();
@@ -173,37 +194,33 @@ public class CPR_PredictionTest {
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size()).isEqualTo(1);
 		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event2);
-	}
 
-	@Test
-	public final void givenPreviousEventAndCurrentEventLastInOrder_whenOnSensorChangedCalled_thenEventAddedToCycleAndEmptyPredictionListReturned() {
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(3))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).setCurrentPredictions(mockPredictions4);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event4);
 
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+//		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event4);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event2, event3);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event4, event3);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event4);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event1,
+				event2);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event2,
+				event3);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event4,
+				event3);
+		verifyNoMoreInteractions(mockPredictionService);
 
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
-		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-//		event3.setTimestamp(event1.getTimestamp() - 10000 + gpsCycle.cycleDurationTimeNano);
-
-		List<Prediction> predictions = cpr.onSensorChanged(event1);
-		assertThat(predictions).isNotNull().isEmpty();
-
-		predictions = cpr.onSensorChanged(event2);
-		assertThat(predictions).isNotNull().isEmpty();
-
-		predictions = cpr.onSensorChanged(event3);
-		assertThat(predictions).isNotNull().isEmpty();
 	}
 
 	@Test
@@ -214,7 +231,7 @@ public class CPR_PredictionTest {
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -224,7 +241,21 @@ public class CPR_PredictionTest {
 		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
+		event3.setTimestamp(event1.getTimestamp() + 2 * minimumDelayBetweenReadings);
+
+		List<Prediction> mockPredictions = new ArrayList<>();
+		mockPredictions.add(new CyclePrediction(event1));
+
+		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
+				.thenReturn("");
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event2))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event3))
+				.thenReturn(new ArrayList<Prediction>());
 
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions).isNotNull().isEmpty();
@@ -234,17 +265,39 @@ public class CPR_PredictionTest {
 
 		predictions = cpr.onSensorChanged(event3);
 		assertThat(predictions).isNotNull().isEmpty();
+
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(3))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event3);
+
+//		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event4);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event2, event3);
+
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event1,
+				event2);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event2,
+				event3);
+		verifyNoMoreInteractions(mockPredictionService);
+
 	}
 
 	@Test
-	public final void givenPreviousEventAndEventToGoAtEndOfCycle_whenOnSensorChangedCalled_thenEventAddedToCycleEndCycleRolledOverAndFirstPredictionListReturned() {
+	public final void givenPreviousEventAndEventToGoAtEndOfCycle_whenOnSensorChangedCalled_thenCycleRolledOverEventAddedToCycleEndFirstEventReturnedAsPrediction() {
 
 		// Given
 		Sensor gpsSensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -255,7 +308,22 @@ public class CPR_PredictionTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-		event3.setTimestamp(event1.getTimestamp() - 10000 + cpr.cycleDurationTimeNano);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
+		event3.setTimestamp(event1.getTimestamp() - 100000 + cpr.cycleDurationTimeNano);
+
+		List<Prediction> mockPredictions = new ArrayList<>();
+		mockPredictions.add(new CyclePrediction(event1));
+
+		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
+				.thenReturn("");
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event2))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event3))
+				.thenReturn(mockPredictions);
+//		when(mockPredictionService.setCurrentPredictions(new ArrayList<Prediction>()))
+//		.thenReturn();
 
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions).isNotNull().isEmpty();
@@ -267,41 +335,29 @@ public class CPR_PredictionTest {
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size()).isEqualTo(1);
 		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event1);
-	}
 
-	@Test
-	public final void givenNonEmptyCycle_whenOnSensorChangedCalledWithRolloverTime_thenEventAddedToCycleEndAndEmptyPredictionListReturned() {
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(2))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).setCurrentPredictions(mockPredictions);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event3);
 
-		// Given
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+//		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event4);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event3, event2);
 
-		// When
-		// gps sensors require lat and long floats
-		Random rd = new Random();
-		float[] values = { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
-		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
-//		event3.setTimestamp(event3.getTimestamp() - 1000 + gpsCycle.cycleDurationTimeNano);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event1,
+				event2);
+		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event3,
+				event2);
+		verifyNoMoreInteractions(mockPredictionService);
 
-		List<Prediction> predictions = cpr.onSensorChanged(event1);
-		assertThat(predictions).isNotNull().isEmpty();
-
-		predictions = cpr.onSensorChanged(event2);
-		assertThat(predictions).isNotNull().isEmpty();
-
-		predictions = cpr.onSensorChanged(event3);
-		assertThat(predictions).isNotNull().isEmpty();
-		fail("rewrite test");
-//		assertThat(gpsCycle.getNodeList().get(0).getSensorEvent()).isEqualTo(event1);
-//		assertThat(gpsCycle.getNodeList().get(1).getSensorEvent()).isEqualTo(event2);
-//		assertThat(gpsCycle.getNodeList().get(2).getSensorEvent()).isEqualTo(event3);
 	}
 
 	@Test
@@ -312,7 +368,7 @@ public class CPR_PredictionTest {
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		SensorManager.getInstance().registerListenerForSensor(cpr, gpsSensor);
 		// When
@@ -320,6 +376,9 @@ public class CPR_PredictionTest {
 		float[] values2 = { 5.0f, 2.0f };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
+
 		// Set the event timestamp to after the cycle duration
 		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
 
@@ -330,33 +389,18 @@ public class CPR_PredictionTest {
 		assertThat(currentCycleStartTime - previousCycleStartTime)
 				.isEqualTo(cpr.cycleDurationTimeNano);
 		assertThat(predictions).isNotNull().isEmpty();
-	}
 
-	@Test
-	public final void givenNewCycle_whenOnSensorChangedCalledWithEventPastCycleDuration_thenCycleRolledOverAndEventAddedAndEmptyPredictionListReturned() {
-		// Given
-		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(1))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
 
-		Sensor gpsSensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verifyNoMoreInteractions(mockPredictionService);
 
-		// When
-		float[] values = { 1.0f, 4.0f }; // gps sensors require lat and long floats
-		float[] values2 = { 5.0f, 2.0f };
-		SensorEvent event1 = new SensorEvent(gpsSensor, values);
-
-		// Set the event timestamp to after the cycle duration
-		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
-		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
-
-		long previousCycleStartTime = cpr.getCycleStartTimeNano();
-		List<Prediction> predictions = cpr.onSensorChanged(event1);
-		long currentCycleStartTime = cpr.getCycleStartTimeNano();
-
-		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(cpr.cycleDurationTimeNano);
-		assertThat(predictions).isNotNull().isEmpty();
 	}
 
 	@Test
@@ -367,7 +411,7 @@ public class CPR_PredictionTest {
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -378,10 +422,25 @@ public class CPR_PredictionTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		SensorEvent event3 = new SensorEvent(gpsSensor, values);
-		event3.setTimestamp(event1.getTimestamp() + 2 * cpr.cycleDurationTimeNano);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
+		event3.setTimestamp(
+				event1.getTimestamp() - 10000 + 2 * cpr.cycleDurationTimeNano);
+
+		List<Prediction> mockPredictions = new ArrayList<>();
+		mockPredictions.add(new CyclePrediction(event1));
+
+		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
+				.thenReturn("");
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event2))
+				.thenReturn(new ArrayList<Prediction>());
 
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions).isNotNull().isEmpty();
+
+		when(mockPredictionService.getPredictionsForSensorEvent(event3))
+				.thenReturn(mockPredictions);
 
 		predictions = cpr.onSensorChanged(event2);
 		assertThat(predictions).isNotNull().isEmpty();
@@ -389,17 +448,45 @@ public class CPR_PredictionTest {
 		predictions = cpr.onSensorChanged(event3);
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size()).isEqualTo(1);
-		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event2);
+		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(event1);
+
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(2))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).setCurrentPredictions(mockPredictions);
+		verify(mockPredictionService, times(2)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService, times(2)).getPredictionsForSensorEvent(event3);
+		verify(mockPredictionService, times(2)).createPredictionFromSensorEvents(event1,
+				event2);
+		verify(mockPredictionService, times(2)).createPredictionFromSensorEvents(event3,
+				event2);
+//
+//		verify(mockPredictionService).createPredictionFromSensorEvents(event1
+//				, event2);
+//TODO infinite loop iterating Transitions?
+		// TODO multiple sensor events that are equals causes mockito issues. fix??
+//		verify(mockPredictionService).createPredictionFromSensorEvents(event3
+//				, event2);
+
+//		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+//		verify(mockPredictionService).getPredictionsForSensorEvent(event3);
+//		verify(mockPredictionService, times(1)).createPredictionFromSensorEvents(event3,
+//				event2);
+		verifyNoMoreInteractions(mockPredictionService);
+
 	}
 
 	@Test
-	public final void givenOneCycleNode_whenCurrentSensorEventMatches_thenDataPointDurationsMergedAndEventDiscardedNoPredictions() {
+	public final void givenOneCycleEvent_whenCurrentSensorEventMatches_thenDataPointDurationsMergedAndEventDiscardedNoPredictions() {
 		// Given
 		Sensor gpsSensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -409,17 +496,29 @@ public class CPR_PredictionTest {
 		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values);
+		event2.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
+
+		List<Prediction> mockPredictions = new ArrayList<>();
+		mockPredictions.add(new CyclePrediction(event1));
+
+		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
+				.thenReturn("");
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
 
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions).isNotNull().isEmpty();
 
-//		long duration = gpsCycle.nodeList.get(0).getDataPointDurationNano();
 		predictions = cpr.onSensorChanged(event2);
 		assertThat(predictions).isNotNull().isEmpty();
-//		assertThat(gpsCycle.nodeList.size()).isEqualTo(1);
-//		assertThat(gpsCycle.nodeList.get(0).getDataPointDurationNano())
-//				.isEqualTo(defaultCycleNodeDurationNano + duration);
-//		assertThat(gpsCycle.nodeList.get(0).getSensorEvent()).isEqualTo(event2);
+
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(2))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(2)).getPredictionsForSensorEvent(event1);
+		verifyNoMoreInteractions(mockPredictionService);
+
 	}
 
 	@Test
@@ -428,7 +527,7 @@ public class CPR_PredictionTest {
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		Cycle gpsCycle = new DailyCycle(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
-				new PredictionService());
+				mockPredictionService);
 
 		// When
 		// gps sensors require lat and long floats
@@ -437,12 +536,33 @@ public class CPR_PredictionTest {
 		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
+		event2.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
+
+		List<Prediction> mockPredictions = new ArrayList<>();
+		mockPredictions.add(new CyclePrediction(event1));
+
+		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
+				.thenReturn("");
+		when(mockPredictionService.getPredictionsForSensorEvent(event1))
+				.thenReturn(new ArrayList<Prediction>());
+		when(mockPredictionService.getPredictionsForSensorEvent(event2))
+				.thenReturn(new ArrayList<Prediction>());
+
 		cpr.onSensorChanged(event1);
 		cpr.onSensorChanged(event2);
 
-		fail("rewrite");
-		// Then
-		// assertThat(gpsCycle.getNodeList().size()).isEqualTo(2);
+		// Verify appropriate methods called AND how many times and that no other
+		// methods were called
+		verify(mockPredictionService, times(2))
+				.setCurrentPredictions(new ArrayList<Prediction>());
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
+		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
+
+		verifyNoMoreInteractions(mockPredictionService);
+
 	}
 
 	@BeforeClass

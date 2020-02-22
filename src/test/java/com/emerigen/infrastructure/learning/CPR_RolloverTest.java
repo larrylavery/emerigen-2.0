@@ -409,6 +409,7 @@ public class CPR_RolloverTest {
 
 		// Verify appropriate methods called AND how many times and that no other
 		// methods were called
+
 		verify(mockPredictionService, times(4))
 				.setCurrentPredictions(new ArrayList<Prediction>());
 		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
@@ -416,7 +417,9 @@ public class CPR_RolloverTest {
 		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event3);
 		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event4);
 
-//		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event4);
+		// TODO something stinks about this test
+		// verify(mockPredictionService).createPredictionFromSensorEvents(event1,
+		// event4);
 		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);
 		verify(mockPredictionService).createPredictionFromSensorEvents(event3, event2);
 		verify(mockPredictionService).createPredictionFromSensorEvents(event4, event2);
@@ -466,8 +469,6 @@ public class CPR_RolloverTest {
 		verify(mockPredictionService, times(2))
 				.setCurrentPredictions(new ArrayList<Prediction>());
 		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
-		// ??? verify(mockPredictionService,
-		// times(1)).getPredictionsForSensorEvent(event2);
 		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event2);
 
 		verify(mockPredictionService).createPredictionFromSensorEvents(event1, event2);

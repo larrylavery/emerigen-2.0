@@ -185,6 +185,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					previousSensorEvent = currentSensorEvent;
+
 					return predictions;
 				} else if (currentEventIsLessThanPreviousEvent(currentSensorEvent)) {
 
@@ -253,9 +254,11 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	@Override
 	public String toString() {
 		return "CyclePatternRecognizer [cycleStartTimeNano=" + cycleStartTimeNano
-				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", sensor="
-				+ sensor + ", previousSensorEvent=" + previousSensorEvent
-				+ ", predictionService=" + predictionService + "]";
+				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", cycle=" + cycle
+				+ ", sensor=" + sensor + ", previousSensorEvent=" + previousSensorEvent
+				+ ", predictionService=" + predictionService
+				+ ", allowablePercentDifferenceForEquality="
+				+ allowablePercentDifferenceForEquality + "]";
 	}
 
 	@Override
