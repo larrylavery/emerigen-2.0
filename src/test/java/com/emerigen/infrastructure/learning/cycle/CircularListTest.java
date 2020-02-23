@@ -1,4 +1,4 @@
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

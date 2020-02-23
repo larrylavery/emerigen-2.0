@@ -11,11 +11,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.cycle.DailyCycle;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class EmerigenSensorEventListenerTest {
@@ -178,13 +178,14 @@ public class EmerigenSensorEventListenerTest {
 	public void givenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
 		SensorManager sm = SensorManager.getInstance();
+		sm.reset();
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
 				Sensor.LOCATION_WATCH);
 
 		List<SensorEventListener> origListeners = sm.getRegistrationsForSensor(sensor);
 		int origSize = origListeners.size();
-		assertThat(sm.getRegistrationsForSensor(sensor).size()).isGreaterThan(0);
+		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(6);
 
 		listener.onPause();
 		assertThat(sm.getRegistrationsForSensor(sensor)).isNull();

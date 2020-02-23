@@ -1,4 +1,4 @@
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -17,10 +17,10 @@ import org.json.JSONTokener;
 import org.junit.Test;
 
 import com.couchbase.client.java.document.json.JsonObject;
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.DailyCycle;
 import com.emerigen.infrastructure.learning.PredictionService;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.cycle.DailyCycle;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;

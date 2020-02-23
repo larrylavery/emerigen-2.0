@@ -3,10 +3,10 @@
  */
 package com.emerigen.infrastructure.repository;
 
-import com.emerigen.infrastructure.learning.Cycle;
+import com.emerigen.infrastructure.learning.Transition;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.knowledge.Entity;
-import com.emerigen.knowledge.Transition;
 
 /**
  * @author Larry

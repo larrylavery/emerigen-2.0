@@ -21,7 +21,6 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.Utils;
-import com.emerigen.knowledge.Transition;
 
 public class TransitionTest {
 

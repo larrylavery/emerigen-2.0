@@ -1,4 +1,4 @@
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,6 +11,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.Prediction;
+import com.emerigen.infrastructure.learning.PredictionService;
+import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.Sensor;
@@ -18,6 +21,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class CyclePatternRecognizerTest {
 
@@ -225,8 +229,7 @@ public class CyclePatternRecognizerTest {
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions).isNotNull().isEmpty();
-		Thread.sleep(100);
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 		assertThat(predictions).isNotNull().isNotEmpty();

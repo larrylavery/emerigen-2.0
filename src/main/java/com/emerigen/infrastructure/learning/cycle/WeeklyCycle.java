@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

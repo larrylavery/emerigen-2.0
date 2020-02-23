@@ -26,9 +26,10 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
 import com.emerigen.infrastructure.learning.PredictionService;
+import com.emerigen.infrastructure.learning.Transition;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.CustomCycleDeserializer;
 import com.emerigen.infrastructure.sensor.CustomCycleSerializer;
@@ -40,8 +41,6 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.knowledge.Entity;
-import com.emerigen.knowledge.Transition;
-//import com.github.tomakehurst.wiremock.common.Json;
 
 /**
  * @author Larry

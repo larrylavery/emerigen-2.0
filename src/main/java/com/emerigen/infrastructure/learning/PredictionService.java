@@ -15,6 +15,7 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.emerigen.infrastructure.learning.creditAssignment.PredictionConsumer;
 import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
@@ -22,7 +23,6 @@ import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.knowledge.Transition;
 
 /**
  * This class provides all prediction-related services for a PatternRecognizer
@@ -284,6 +284,55 @@ public class PredictionService {
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
 				N1qlQuery.simple(statement));
 		return null;
+	}
+
+	/**
+	 * Retrieve all Transitions (PredictionConsumers) where the firstSensorEvent is
+	 * equal to the specified sensor event.
+	 * 
+	 * @param sensorEvent The sensorEvent to match transitions on
+	 * @return The potential consumers for the supplied sensor event
+	 */
+	public List<PredictionConsumer> getPredictionConsumersForSensorEvent(
+			SensorEvent sensorEvent) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null or empty");
+
+		List<PredictionConsumer> predictors = new ArrayList<PredictionConsumer>();
+		ObjectMapper mapper = new ObjectMapper();
+
+		registerCustomDeserializer(mapper);
+		N1qlQueryResult result = retrievePredictionConsumersForSensorEvent(sensorEvent);
+		List<PredictionConsumer> predictionConsumers = convertFromJsonToPredictionConsumer(
+				mapper, result);
+		return predictionConsumers;
+	}
+
+	private N1qlQueryResult retrievePredictionConsumersForSensorEvent(
+			SensorEvent sensorEvent) {
+		CouchbaseRepository repo = CouchbaseRepository.getInstance();
+		String statement = "SELECT * FROM `transition` WHERE "
+				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\"";
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
+				N1qlQuery.simple(statement));
+		return result;
+	}
+
+	private List<PredictionConsumer> convertFromJsonToPredictionConsumer(
+			ObjectMapper mapper, N1qlQueryResult result) {
+		PredictionConsumer predictionConsumer;
+		List<PredictionConsumer> predictionConsumers = new ArrayList<PredictionConsumer>();
+		try {
+			for (N1qlQueryRow row : result) {
+				logger.debug("Adding PredictionConsumer to list: " + row.value());
+				predictionConsumer = mapper.readValue(row.value().toString(),
+						PredictionConsumer.class);
+				predictionConsumers.add(predictionConsumer);
+			}
+		} catch (Exception e) {
+			throw new RepositoryException(e);
+		}
+		return predictionConsumers;
 	}
 
 }

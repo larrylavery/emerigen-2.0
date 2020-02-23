@@ -13,11 +13,11 @@ import com.couchbase.client.deps.com.fasterxml.jackson.core.ObjectCodec;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.DeserializationContext;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonNode;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.DailyCycle;
-import com.emerigen.infrastructure.learning.MonthlyCycle;
-import com.emerigen.infrastructure.learning.WeeklyCycle;
-import com.emerigen.infrastructure.learning.YearlyCycle;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.DailyCycle;
+import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
+import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
+import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
 public class CustomCycleDeserializer extends StdDeserializer<Cycle> {

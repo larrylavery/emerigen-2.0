@@ -9,6 +9,11 @@ import org.apache.log4j.Logger;
 
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.cycle.DailyCycle;
+import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
+import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
+import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -125,10 +130,36 @@ public class SensorManager {
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 
-		// Retrieve all cycle pattern recognizers for this sensor type
-//		List<SensorEventListener> patternRecognizers = new ArrayList<>();
 		List<SensorEventListener> patternRecognizers = KnowledgeRepository.getInstance()
 				.getPatternRecognizersForSensor(sensor);
+
+		/**
+		 * Add all cycle pattern recognizer types for each sensor
+		 */
+		// Daily
+		DailyCycle dailyCycle = new DailyCycle(sensor.getType(), sensor.getLocation());
+		CyclePatternRecognizer cpr = new CyclePatternRecognizer(dailyCycle, sensor,
+				new PredictionService(sensor));
+		patternRecognizers.add(cpr);
+
+		// Weekly
+		WeeklyCycle weeklyCycle = new WeeklyCycle(sensor.getType(), sensor.getLocation());
+		cpr = new CyclePatternRecognizer(weeklyCycle, sensor,
+				new PredictionService(sensor));
+		patternRecognizers.add(cpr);
+
+		// Monthly
+		MonthlyCycle monthlyCycle = new MonthlyCycle(sensor.getType(),
+				sensor.getLocation());
+		cpr = new CyclePatternRecognizer(monthlyCycle, sensor,
+				new PredictionService(sensor));
+		patternRecognizers.add(cpr);
+
+		// Yearly
+		YearlyCycle yearlyCycle = new YearlyCycle(sensor.getType(), sensor.getLocation());
+		cpr = new CyclePatternRecognizer(yearlyCycle, sensor,
+				new PredictionService(sensor));
+		patternRecognizers.add(cpr);
 
 		// Add a Transition pattern recognizer to the list for this sensor
 		patternRecognizers.add(
@@ -165,11 +196,12 @@ public class SensorManager {
 	}
 
 	/**
-	 * This is a "factory method" design pattern based on the given sensor type.
-	 * TODO We may want to return one selected from a list of the same type.
+	 * This is a "factory method" design pattern based on the given sensor type and
+	 * location. TODO We may want to return one selected from a list of the same
+	 * type.
 	 * 
 	 * @param sensorType     is the type of sensor to create
-	 * @param sensorLocation TODO
+	 * @param sensorLocation the location of the sensor to be created
 	 * @return the default sensor of the requested type
 	 */
 	public Sensor getDefaultSensorForLocation(int sensorType, int sensorLocation) {

@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonGenerator;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializerProvider;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CycleNode;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CycleNode;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
 public class CustomCycleSerializer extends StdSerializer<Cycle> {

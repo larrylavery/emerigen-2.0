@@ -1,13 +1,16 @@
 /**
  * 
  */
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.PatternRecognizer;
+import com.emerigen.infrastructure.learning.Prediction;
+import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
@@ -43,7 +46,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	long cycleDurationTimeNano;
 
 	/**
-	 * @IDEA - enable cycle data point fuzzines using equality based on std
+	 * @IDEA - enable cycle data point fuzziness using equality based on std
 	 *       deviation. As long as values are within this standard deviation from
 	 *       each other they will be considered to be equal. This allows for
 	 *       fuzziness of the data points associated with the nodes of a cycle;

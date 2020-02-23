@@ -12,16 +12,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.DailyCycle;
-import com.emerigen.infrastructure.learning.MonthlyCycle;
 import com.emerigen.infrastructure.learning.PatternRecognizer;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
-import com.emerigen.infrastructure.learning.WeeklyCycle;
-import com.emerigen.infrastructure.learning.YearlyCycle;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.cycle.DailyCycle;
+import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
+import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
+import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 
 public class SensorManagerTest {
 
@@ -43,45 +43,6 @@ public class SensorManagerTest {
 			throw new IllegalArgumentException(
 					"cycle type must be valid, but was (" + cycleType + ")");
 
-		// Set attributes
-//		cycle.setPreviousCycleNodeIndex(0);
-//		CycleNode cycleNode;
-//
-//		for (int i = 0; i < numberOfNodes; i++) {
-//			cycleNode = new CycleNode();
-//			int minimumDelayBetweenReadings;
-//			int reportingMode;
-//			boolean wakeUpSensor;
-//			SensorEvent sensorEvent = new SensorEvent();
-//			sensorEvent.setTimestamp(i * sensorEvent.getTimestamp());
-//			Sensor sensor;
-//
-//			// Create SensorEvent
-//			sensorEvent.setSensorType(sensorType);
-//			sensorEvent.setSensorLocation(sensorLocation);
-//
-//			// Set sensor event values
-//			float[] values = { 1.0f + (i + 1) * 100.0f, 2.0f + (i + 1) * 100.0f };
-//			sensorEvent.setValues(values);
-//
-//			// create and set event sensor
-//			minimumDelayBetweenReadings = Sensor.DELAY_NORMAL;
-//			reportingMode = Sensor.REPORTING_MODE_ON_CHANGE;
-//			wakeUpSensor = false;
-//			sensor = SensorManager.getInstance().getDefaultSensorForLocation(sensorType, sensorLocation);
-//			sensor.setMinimumDelayBetweenReadings(minimumDelayBetweenReadings);
-//			sensor.setWakeUpSensor(wakeUpSensor);
-//			sensor.setReportingMode(reportingMode);
-//			sensorEvent.setSensor(sensor);
-//
-//			// Set up the rest of the CycleNode fields
-//			cycleNode.setSensorEvent(sensorEvent);
-//			cycleNode.setStartTimeOffsetNano(100 * (i + 1));
-//			cycleNode.setDataPointDurationNano(1000 * (i + 1));
-//			cycleNode.setProbability(0.3);
-//			cycleNode.setMyCycle(cycle);
-//			cycle.addCycleNode(cycleNode);
-//		}
 		return cycle;
 	}
 

@@ -1,4 +1,4 @@
-package com.emerigen.knowledge;
+package com.emerigen.infrastructure.learning;
 
 import org.apache.log4j.Logger;
 

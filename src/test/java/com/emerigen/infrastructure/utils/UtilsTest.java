@@ -8,9 +8,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.learning.Cycle;
-import com.emerigen.infrastructure.learning.CycleNode;
-import com.emerigen.infrastructure.learning.WeeklyCycle;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CycleNode;
+import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;

@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonGenerator;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializerProvider;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.repository.RepositoryException;
-import com.emerigen.knowledge.Transition;
 
 public class CustomTransitionSerializer extends StdSerializer<Transition> {
 

@@ -1,7 +1,8 @@
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 
 /**

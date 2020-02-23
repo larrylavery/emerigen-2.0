@@ -1,5 +1,5 @@
 
-package com.emerigen.infrastructure.learning;
+package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -24,6 +24,16 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import com.emerigen.infrastructure.learning.Prediction;
+import com.emerigen.infrastructure.learning.PredictionService;
+import com.emerigen.infrastructure.learning.cycle.Cycle;
+import com.emerigen.infrastructure.learning.cycle.CycleNode;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.cycle.CyclePrediction;
+import com.emerigen.infrastructure.learning.cycle.DailyCycle;
+import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
+import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
+import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
