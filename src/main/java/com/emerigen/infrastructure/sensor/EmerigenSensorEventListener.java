@@ -23,16 +23,12 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	List<Sensor> sensors = new ArrayList<Sensor>();
 	List<SensorEventListener> listeners = new ArrayList<SensorEventListener>();
 
-	private final SensorManager sensorManager;
-
 	private SensorEvent previousSensorEvent;
 
 	private static final Logger logger = Logger
 			.getLogger(EmerigenSensorEventListener.class);
 
 	public EmerigenSensorEventListener() {
-		sensorManager = SensorManager.getInstance();
-
 	}
 
 	@Override
@@ -45,7 +41,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		 * predictions.
 		 */
 		Set<Prediction> distinctPredictions = new HashSet<Prediction>();
-		List<SensorEventListener> listeners = sensorManager
+		List<SensorEventListener> listeners = SensorManager.getInstance()
 				.getRegistrationsForSensor(sensorEvent.getSensor());
 		for (SensorEventListener sensorEventListener : listeners) {
 			if (!(sensorEventListener instanceof EmerigenSensorEventListener)) {
@@ -68,14 +64,14 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 	public void onPause() {
 
 		// Disable, but save, all current registrations
-		sensorManager.disableListenerRegistrations();
+		SensorManager.getInstance().disableListenerRegistrations();
 	}
 
 	@Override
 	public void onResume() {
 
 		// Restore registrations on resumption
-		sensorManager.enableListenerRegistrations();
+		SensorManager.getInstance().enableListenerRegistrations();
 	}
 
 }

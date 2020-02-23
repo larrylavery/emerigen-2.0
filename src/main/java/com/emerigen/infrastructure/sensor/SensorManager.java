@@ -51,6 +51,9 @@ public class SensorManager {
 	}
 
 	public SensorManager(PredictionService predictionService) {
+		if (predictionService == null)
+			throw new IllegalArgumentException("predictionService must not be null");
+
 		this.predictionService = new PredictionService();
 		eventListenersPerSensor = new HashMap<Sensor, List<SensorEventListener>>();
 		disabledEventListeners = null;
@@ -106,6 +109,11 @@ public class SensorManager {
 	 */
 	public boolean unregisterListenerFromSensor(SensorEventListener listener,
 			Sensor sensor) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		if (listener == null)
+			throw new IllegalArgumentException("listener must not be null");
+
 		List<SensorEventListener> eventListeners = eventListenersPerSensor.get(sensor);
 		if (!eventListeners.contains(listener)) {
 
@@ -297,6 +305,11 @@ public class SensorManager {
 
 	private void registerEventListenersForSensor(List<SensorEventListener> listeners,
 			Sensor sensor) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		if (listeners == null)
+			throw new IllegalArgumentException("listeners must not be null");
+
 		for (SensorEventListener sensorEventListener : listeners) {
 			registerListenerForSensor(sensorEventListener, sensor);
 		}
@@ -306,7 +319,14 @@ public class SensorManager {
 	 * @return the eventListenersPerSensor
 	 */
 	public final List<SensorEventListener> getRegistrationsForSensor(Sensor sensor) {
-		return eventListenersPerSensor.get(sensor);
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+
+		List<SensorEventListener> listeners = eventListenersPerSensor.get(sensor);
+		if (listeners != null)
+			return listeners;
+		else
+			return new ArrayList<SensorEventListener>();
 	}
 
 	public void disableListenerRegistrations() {
@@ -329,6 +349,9 @@ public class SensorManager {
 	 * @param predictionService the predictionService to set
 	 */
 	public void setPredictionService(PredictionService predictionService) {
+		if (predictionService == null)
+			throw new IllegalArgumentException("predictionService must not be null");
+
 		this.predictionService = predictionService;
 	}
 
@@ -342,7 +365,7 @@ public class SensorManager {
 	/**
 	 * @return the disabledEventListeners
 	 */
-	public HashMap<Sensor, List<SensorEventListener>> getDisabledEventListeners() {
+	HashMap<Sensor, List<SensorEventListener>> getDisabledEventListeners() {
 		return disabledEventListeners;
 	}
 

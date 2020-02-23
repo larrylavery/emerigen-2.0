@@ -177,21 +177,25 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
-		SensorManager sm = SensorManager.getInstance();
-		sm.reset();
+//		SensorManager sm = SensorManager.getInstance();
+		SensorManager.getInstance().reset();
 		SensorEventListener listener = new EmerigenSensorEventListener();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
-		List<SensorEventListener> origListeners = sm.getRegistrationsForSensor(sensor);
+		List<SensorEventListener> origListeners = SensorManager.getInstance()
+				.getRegistrationsForSensor(sensor);
 		int origSize = origListeners.size();
-		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(6);
+		assertThat(SensorManager.getInstance().getRegistrationsForSensor(sensor).size())
+				.isEqualTo(6);
 
 		listener.onPause();
-		assertThat(sm.getRegistrationsForSensor(sensor)).isNull();
+		assertThat(SensorManager.getInstance().getRegistrationsForSensor(sensor).size())
+				.isEqualTo(0);
 
 		listener.onResume();
-		assertThat(sm.getRegistrationsForSensor(sensor).size()).isEqualTo(origSize);
+		assertThat(SensorManager.getInstance().getRegistrationsForSensor(sensor).size())
+				.isEqualTo(origSize);
 
 	}
 
