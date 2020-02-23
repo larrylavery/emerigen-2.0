@@ -104,6 +104,7 @@ public class CouchbaseEntityRepositoryTest {
 
 		// Give the bucket a chance to catch up after the log
 		Utils.allowDataUpdatesTimeToCatchUp();
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// When the document queried
 		String queryString = "SELECT * FROM `entity` WHERE entityID = \"" + entityUuid1
 				+ "\"";

@@ -19,16 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.PredictionService;
-import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CycleNode;
-import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.cycle.CyclePrediction;
-import com.emerigen.infrastructure.learning.cycle.DailyCycle;
-import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
-import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
-import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.sensor.Sensor;
-import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.Utils;
 
@@ -60,34 +51,6 @@ public class CycleConstraintsTest {
 
 		then(throwable)
 				.as("A non positive sensorLocation throws an IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-		softly.assertAll();
-	}
-
-	@Test
-	public final void givenNullCycle_whenCycleNodeCreated_thenIllegalArgurmentException() {
-		SoftAssertions softly = new SoftAssertions();
-
-		// When the instance is validated
-		final Throwable throwable = catchThrowable(
-				() -> new CycleNode(null, new SensorEvent(), 0));
-
-		then(throwable).as("A null cycle throws a CycleNode  IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-		softly.assertAll();
-	}
-
-	@Test
-	public final void givenNullSensorEvent_whenCycleNodeCreated_thenIllegalArgurmentException() {
-		SoftAssertions softly = new SoftAssertions();
-
-		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> new CycleNode(myCycle, null, 0));
-
-		then(throwable)
-				.as("A null sensorEvent throws a CycleNode  IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
 
 		softly.assertAll();
@@ -186,57 +149,6 @@ public class CycleConstraintsTest {
 		long time = cal.getTimeInMillis();
 		Utils.equals(time, cpr.getCycleDurationTimeNano());
 
-	}
-
-	@Test
-	public final void givenNonPositiveDataPointDuration_whenCycleNodeCreated_thenIllegalArgurmentException() {
-
-		final Throwable throwable = catchThrowable(
-				() -> new CycleNode(myCycle, new SensorEvent(), -1));
-
-		then(throwable).as(
-				"A non positive data point duration throws a  IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-	}
-
-	public final void givenNonPositiveDataPointDuration_whenSetOnNode_thenIllegalArgumentException() {
-		SoftAssertions softly = new SoftAssertions();
-
-		// public CycleNode(SensorEvent sensorEvent, long originStartTimeMillis) {
-		CycleNode cn = new CycleNode(myCycle, new SensorEvent(), 11);
-
-		// When the instance is validated
-		final Throwable throwable = catchThrowable(() -> cn.setDataPointDurationNano(-1));
-
-		then(throwable).as("A non positive duration throws IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-		softly.assertAll();
-	}
-
-	@Test
-	public final void givenNullCycleNode_whenCreated_thenIllegalArgumentException() {
-
-		final Throwable throwable = catchThrowable(
-				() -> new CyclePrediction((CycleNode) null));
-
-		then(throwable).as("Null cycle node on creation throws IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public final void givenNullCycleNode_whenMerged_thenIllegalArgumentException() {
-		CycleNode node = new CycleNode(myCycle, new SensorEvent(), 1);
-		CycleNode node2 = new CycleNode(myCycle, new SensorEvent(), 1);
-
-		final Throwable throwable = catchThrowable(() -> node.merge(null));
-
-		then(throwable)
-				.as("A null Cycle node during merge throws IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
-		// public CycleNode merge(CycleNode nodeToMergeWith) {
 	}
 
 	@BeforeClass

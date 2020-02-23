@@ -1,4 +1,4 @@
-package com.emerigen.infrastructure.learning.creditAssignment;
+package com.emerigen.infrastructure.learning.creditassignment;
 
 public interface PredictionSupplier {
 

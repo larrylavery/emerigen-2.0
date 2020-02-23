@@ -15,7 +15,7 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
-import com.emerigen.infrastructure.learning.creditAssignment.PredictionConsumer;
+import com.emerigen.infrastructure.learning.creditassignment.PredictionConsumer;
 import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;

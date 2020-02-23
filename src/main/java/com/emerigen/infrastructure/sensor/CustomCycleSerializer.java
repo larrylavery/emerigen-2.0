@@ -8,7 +8,6 @@ import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonGenerator;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializerProvider;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CycleNode;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
 public class CustomCycleSerializer extends StdSerializer<Cycle> {
@@ -37,26 +36,6 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 //			jsonGenerator.writeNumberField("cycleDurationTimeNano", cycle.getCycleDurationTimeNano());
 			jsonGenerator.writeNumberField("allowablePercentDifferenceForEquality",
 					cycle.getAllowablePercentDifferenceForEquality());
-//			jsonGenerator.writeNumberField("previousCycleNodeIndex", cycle.getPreviousCycleNodeIndex());
-//
-//			// Next write the array of cycle nodes
-//			jsonGenerator.writeArrayFieldStart("nodeList");
-//
-//			for (int i = 0; i < cycle.getNodeList().size(); i++) {
-//				CycleNode cycleNode = cycle.getNodeList().get(i);
-//
-//				logger.info("Writing next cycle node: " + cycleNode);
-//
-//				// Write sensorEvent
-//				SensorEvent sensorEvent = cycleNode.getSensorEvent();
-//				jsonGenerator.writeStartObject();
-//				writeCycleNodeSensorEvent(jsonGenerator, cycleNode.getSensorEvent());
-//				writeCycleNodeAttributes(jsonGenerator, cycleNode);
-//				jsonGenerator.writeEndObject();
-//
-//			}
-//
-//			jsonGenerator.writeEndArray();
 			jsonGenerator.writeEndObject(); // End of cycle nodes and all other data
 		} catch (IOException e) {
 			throw new RepositoryException("IO exception thrown: ", e);
@@ -70,15 +49,6 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 	 * @param cycleNode
 	 * @throws IOException
 	 */
-	private void writeCycleNodeAttributes(JsonGenerator jsonGenerator,
-			CycleNode cycleNode) throws IOException {
-		jsonGenerator.writeNumberField("dataPointDurationNano",
-				cycleNode.getDataPointDurationNano());
-		jsonGenerator.writeNumberField("probability", cycleNode.getProbability());
-		jsonGenerator.writeNumberField("cycleStartTimeOffsetNano",
-				cycleNode.getStartTimeOffsetNano());
-
-	}
 
 	/**
 	 * Write the current sensor event to the output stream

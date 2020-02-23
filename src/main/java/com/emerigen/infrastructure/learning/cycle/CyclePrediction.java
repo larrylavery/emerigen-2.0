@@ -17,19 +17,6 @@ public class CyclePrediction extends Prediction {
 
 	private static final Logger logger = Logger.getLogger(CyclePrediction.class);
 
-	/**
-	 * This prediction is based on a cycle node, which contains the given sensor
-	 * event and associated probability parameters.
-	 * 
-	 * @param cycleNode the cycle node for which the predictions will be based.
-	 */
-	public CyclePrediction(CycleNode cycleNode) {
-
-		if (cycleNode == null)
-			throw new IllegalArgumentException("cycleNode must not be null");
-		setSensorEvent(cycleNode.getSensorEvent());
-	}
-
 	public CyclePrediction(SensorEvent sensorEvent) {
 
 		if (sensorEvent == null)

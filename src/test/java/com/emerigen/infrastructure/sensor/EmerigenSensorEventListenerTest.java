@@ -177,7 +177,6 @@ public class EmerigenSensorEventListenerTest {
 	@Test
 	public void givenValidSensorListenerRegistered_whenOnPauseThenOnResumeInvoked_thenRegistrationCorrect()
 			throws Exception {
-//		SensorManager sm = SensorManager.getInstance();
 		SensorManager.getInstance().reset();
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(

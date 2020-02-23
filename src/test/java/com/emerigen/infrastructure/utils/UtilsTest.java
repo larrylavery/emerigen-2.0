@@ -9,7 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CycleNode;
 import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -61,22 +60,9 @@ public class UtilsTest {
 		float[] values2 = { 1.17f, 2.26f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
-		CycleNode node1 = new CycleNode(myCycle, event1, 1);
-		CycleNode node2 = new CycleNode(myCycle, event2, 1);
-		assertThat(node1.equals(node2)).isTrue();
-	}
-
-	@Test
-	public final void givenNodesWithinEqualityBounds_whenCheckedForEquality_thenFalse() {
-		Sensor sensor = SensorManager.getInstance()
-				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
-		float[] values = { 1.1f, 2.2f };
-		float[] values2 = { 1.12f, 2.23f };
-		SensorEvent event1 = new SensorEvent(sensor, values);
-		SensorEvent event2 = new SensorEvent(sensor, values2);
-		CycleNode node1 = new CycleNode(myCycle, event1, 1);
-		CycleNode node2 = new CycleNode(myCycle, event2, 1);
-		assertThat(node1.equals(node2)).isTrue();
+		boolean firstEquals = Utils.equals(values[0], values2[0]);
+		boolean secondEquals = Utils.equals(values[1], values2[1]);
+		assertThat(firstEquals && secondEquals).isTrue();
 	}
 
 	@Test
@@ -84,12 +70,12 @@ public class UtilsTest {
 		Sensor sensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };
-		float[] values2 = { 11.11f, 12.21f };
+		float[] values2 = { 1.11f, 2.21f };
 		SensorEvent event1 = new SensorEvent(sensor, values);
 		SensorEvent event2 = new SensorEvent(sensor, values2);
-		CycleNode node1 = new CycleNode(myCycle, event1, 1);
-		CycleNode node2 = new CycleNode(myCycle, event2, 1);
-		assertThat(node1.equals(node2)).isFalse();
+		boolean firstEquals = Utils.equals(values[0], values2[0]);
+		boolean secondEquals = Utils.equals(values[1], values2[1]);
+		assertThat(firstEquals && secondEquals).isTrue();
 	}
 
 	@Test

@@ -27,7 +27,6 @@ import com.emerigen.infrastructure.evaporation.InformationWithRelevanceHolder;
 import com.emerigen.infrastructure.evaporation.RelevantInformation;
 import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CycleNode;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.ScheduledMethodTaskTest;
 import com.emerigen.infrastructure.utils.ScheduledMethodAspect;

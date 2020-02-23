@@ -1,4 +1,4 @@
-package com.emerigen.infrastructure.learning.creditAssignment;
+package com.emerigen.infrastructure.learning.creditassignment;
 
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.sensor.Sensor;

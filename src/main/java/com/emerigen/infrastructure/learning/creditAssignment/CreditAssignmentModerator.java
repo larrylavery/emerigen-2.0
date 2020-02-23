@@ -1,4 +1,4 @@
-package com.emerigen.infrastructure.learning.creditAssignment;
+package com.emerigen.infrastructure.learning.creditassignment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,10 +12,13 @@ import com.emerigen.infrastructure.sensor.Sensor;
 
 public class CreditAssignmentModerator {
 
-	private PredictionService predictionService = new PredictionService();
+	private PredictionService predictionService;
 	private HashMap<Sensor, List<Prediction>> predictionPool = new HashMap<Sensor, List<Prediction>>();
 
-	public CreditAssignmentModerator() {
+	public CreditAssignmentModerator(PredictionService predictionService) {
+		if (predictionService == null)
+			throw new IllegalArgumentException("prediction service must not be null");
+		this.predictionService = predictionService;
 	}
 
 	public void registerSensorForPredictionConsumers(Sensor sensor) {
@@ -56,7 +59,7 @@ public class CreditAssignmentModerator {
 		return bidders;
 	}
 
-	public void selectWinnerAndNotifyBidder(List<Bid> bidders) {
+	void selectAndNotifyWinningBidder(List<Bid> bidders) {
 //		Optional<Integer> maxNumber = list.stream().max((i, j) -> i.compareTo(j));
 //		System.out.println(maxNumber.get());
 

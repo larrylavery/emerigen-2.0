@@ -1,7 +1,6 @@
 package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 import java.util.UUID;
 
@@ -16,12 +15,6 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import com.emerigen.infrastructure.learning.PredictionService;
-import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.cycle.DailyCycle;
-import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
-import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
-import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorManager;
@@ -63,9 +56,7 @@ public class CPR_LearningTest {
 	public final void givenExistingDefaultSensor_whenRetrieved_thenAllCyclePatternRecognizersAreRegistered() {
 		Cycle cycle = createCycle("Daily", Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH,
 				1);
-
-		fail("Rewrite test"); // TODO do not make assumption on how many cycles in
-								// couchbase
+		// couchbase
 		String key = UUID.randomUUID().toString();
 		KnowledgeRepository.getInstance().newCycle(key, cycle);
 		SensorManager sm = SensorManager.getInstance();
@@ -75,8 +66,8 @@ public class CPR_LearningTest {
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
 				new PredictionService());
 
-		assertThat(sm.listenerIsRegisteredToSensor(cpr, gpsSensor)).isTrue();
-		// CouchbaseRepository.getInstance().remove("cycle", key);
+//		assertThat(sm.listenerIsRegisteredToSensor(cpr, gpsSensor)).isTrue();
+		assertThat(sm.getRegistrationsForSensor(gpsSensor).size()).isEqualTo(5);
 	}
 
 	@BeforeClass

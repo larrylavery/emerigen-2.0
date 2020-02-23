@@ -2,9 +2,7 @@
 package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -26,14 +24,6 @@ import org.mockito.junit.MockitoRule;
 
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
-import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CycleNode;
-import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.cycle.CyclePrediction;
-import com.emerigen.infrastructure.learning.cycle.DailyCycle;
-import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
-import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
-import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
@@ -76,19 +66,6 @@ public class CPR_PredictionTest {
 	@Test
 	public final void givenExpectedProbability_whenCreated_thenProbabilityCorrect() {
 		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public final void givenNegativeProbability_whenCreated_thenIllegalArgumentException() {
-		Cycle cycle = new DailyCycle(Sensor.TYPE_GPS, 1);
-		CycleNode node = new CycleNode(cycle, new SensorEvent());
-
-		CyclePrediction prediction = new CyclePrediction(node);
-
-		final Throwable throwable = catchThrowable(() -> prediction.setProbability(-1));
-
-		then(throwable).as("negative probability throws IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
