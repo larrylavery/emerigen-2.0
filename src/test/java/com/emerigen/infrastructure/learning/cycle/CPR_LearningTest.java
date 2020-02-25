@@ -66,7 +66,6 @@ public class CPR_LearningTest {
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(gpsCycle, gpsSensor,
 				new PredictionService());
 
-//		assertThat(sm.listenerIsRegisteredToSensor(cpr, gpsSensor)).isTrue();
 		assertThat(sm.getRegistrationsForSensor(gpsSensor).size()).isEqualTo(5);
 	}
 

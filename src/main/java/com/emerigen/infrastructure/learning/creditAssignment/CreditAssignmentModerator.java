@@ -68,7 +68,7 @@ public class CreditAssignmentModerator {
 				.max((bidx, bidy) -> bidx.compareTo(bidy));
 
 		PredictionConsumer winningConsumer = winningBid.get().getPredictionConsumer();
-		double winningBidAmount = winningBid.get().getBid();
+		double winningBidAmount = winningBid.get().getAmount();
 		Prediction newPrediction = winningConsumer.makePayment(winningBidAmount);
 
 		// Clean my prediction pool for this sensor

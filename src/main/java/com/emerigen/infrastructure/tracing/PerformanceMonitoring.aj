@@ -1,5 +1,6 @@
 package com.emerigen.infrastructure.tracing;
 
+
 import com.emerigen.infrastructure.environment.Environment;
 import com.emerigen.infrastructure.environment.Agent;
 import com.emerigen.infrastructure.environment.NeighborhoodImpl;
@@ -22,6 +23,16 @@ public aspect PerformanceMonitoring extends AbstractPerformanceMonitoring {
 		&& (within(Agent)
 		|| within(Environment)
 		|| within(KnowledgeRepository) 
+		|| within(Cycle) 
+		|| within(CyclePatternRecognizer) 
+		|| within(TransitionPatternRecognizer) 
+		|| within(PredictionService) 
+		|| within(CustomSensorEventSerializer) 
+		|| within(CustomSensorEventDeserializer) 
+		|| within(CustomTransitionSerializer) 
+		|| within(CustomTransitionDeserializer) 
+		|| within(CustomCycleSerializer) 
+		|| within(CustomCycleDeserializer) 
 		|| within(CouchbaseRepository) 
 		|| within(NeighborhoodImpl)));	
 

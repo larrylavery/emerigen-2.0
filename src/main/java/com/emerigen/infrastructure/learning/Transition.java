@@ -2,10 +2,14 @@ package com.emerigen.infrastructure.learning;
 
 import org.apache.log4j.Logger;
 
+import com.emerigen.infrastructure.learning.creditassignment.Bid;
+import com.emerigen.infrastructure.learning.creditassignment.PredictionConsumer;
+import com.emerigen.infrastructure.learning.creditassignment.PredictionSupplier;
+import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
-public class Transition {
+public class Transition implements PredictionConsumer, PredictionSupplier {
 
 	private long timestamp = System.nanoTime();
 
@@ -264,5 +268,33 @@ public class Transition {
 			throw new IllegalArgumentException("cashOnHand must be positive");
 
 		this.cashOnHand = cashOnHand;
+	}
+
+	@Override
+	public void acceptPaymentFromWinningBidder(double winningBid) {
+		if (winningBid < 0.0)
+			throw new IllegalArgumentException("winningBid must be positive");
+
+	}
+
+	@Override
+	public Bid matchingPrediction(Prediction prediction) {
+		if (prediction == null)
+			throw new IllegalArgumentException("prediction must not be null");
+		return null;
+	}
+
+	@Override
+	public Prediction makePayment(double winningBid) {
+		if (winningBid < 0.0)
+			throw new IllegalArgumentException("winningBid must be positive");
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Sensor getSensor() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

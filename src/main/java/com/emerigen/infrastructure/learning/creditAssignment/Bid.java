@@ -4,14 +4,14 @@ public class Bid {
 
 	private PredictionConsumer predictionConsumer;
 
-	private Double bid;
+	private Double amount;
 
-	public Bid(PredictionConsumer bidder, double bidAmount) {
+	public Bid(PredictionConsumer bidder, double amount) {
 		if (bidder == null)
 			throw new IllegalArgumentException("Bidder must not be null");
-		if (bidAmount < 0.0)
+		if (amount < 0.0)
 			throw new IllegalArgumentException("Bid amount must be positive");
-		this.bid = bid;
+		this.amount = amount;
 		this.predictionConsumer = bidder;
 	}
 
@@ -26,35 +26,31 @@ public class Bid {
 	 * @param predictionConsumer the predictionConsumer to set
 	 */
 	public void setPredictionConsumer(PredictionConsumer predictionConsumer) {
+		if (predictionConsumer == null)
+			throw new IllegalArgumentException("predictionConsumer must not be null");
 		this.predictionConsumer = predictionConsumer;
-	}
-
-	/**
-	 * @return the bid
-	 */
-	public double getBid() {
-		return bid;
 	}
 
 	/**
 	 * @param bid the bid to set
 	 */
-	public void setBid(double bid) {
-		this.bid = bid;
+	public void setAmount(double amount) {
+		if (amount < 0.0)
+			throw new IllegalArgumentException("Bid amount must be positive");
+		this.amount = amount;
 	}
 
 	@Override
 	public String toString() {
-		return "Bid [predictionConsumer=" + predictionConsumer + ", bid=" + bid + "]";
+		return "Bid [predictionConsumer=" + predictionConsumer + ", amount=" + amount
+				+ "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(bid);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((amount == null) ? 0 : amount.hashCode());
 		result = prime * result
 				+ ((predictionConsumer == null) ? 0 : predictionConsumer.hashCode());
 		return result;
@@ -69,7 +65,10 @@ public class Bid {
 		if (getClass() != obj.getClass())
 			return false;
 		Bid other = (Bid) obj;
-		if (Double.doubleToLongBits(bid) != Double.doubleToLongBits(other.bid))
+		if (amount == null) {
+			if (other.amount != null)
+				return false;
+		} else if (!amount.equals(other.amount))
 			return false;
 		if (predictionConsumer == null) {
 			if (other.predictionConsumer != null)
@@ -80,7 +79,11 @@ public class Bid {
 	}
 
 	public int compareTo(Bid other) {
-		return bid.compareTo(other.getBid());
+		return amount.compareTo(other.getAmount());
+	}
+
+	public double getAmount() {
+		return amount;
 	}
 
 }
