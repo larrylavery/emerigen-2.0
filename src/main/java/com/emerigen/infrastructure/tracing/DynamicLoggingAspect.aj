@@ -37,23 +37,27 @@ import com.emerigen.infrastructure.utils.LeakyBucket;
 public aspect DynamicLoggingAspect {
 
 	private final static int exceptionOccuranceInterval = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("frequency.exception.interval.seconds"));
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("frequency.exception.interval.seconds"));
 	private final static int maxExceptionsPerInterval = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("frequency.max.exceptions.per.interval"));
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("frequency.max.exceptions.per.interval"));
 	private final static int normalExceptionsPerInterval = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("frequency.normal.exceptions.per.interval"));
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("frequency.normal.exceptions.per.interval"));
 	private final static int minExceptionsAboveThreshold = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("frequency.minimum.exceptions.above.threshold"));
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("frequency.minimum.exceptions.above.threshold"));
 	private final static int minExceptionsBelowThreshold = Integer
-			.parseInt(EmerigenProperties.getInstance().getValue("frequency.minimum.exceptions.below.threshold"));
-	private final static String loggingLevelWhenFrequencyExceeded = EmerigenProperties.getInstance()
-			.getValue("frequency.logging.level.when.threshold.exceeded");
-	private final static String loggingLevelWhenFrequencyNormal = EmerigenProperties.getInstance()
-			.getValue("frequency.logging.level.when.below.threshold");
+			.parseInt(EmerigenProperties.getInstance()
+					.getValue("frequency.minimum.exceptions.below.threshold"));
+	private final static String loggingLevelWhenFrequencyExceeded = EmerigenProperties
+			.getInstance().getValue("frequency.logging.level.when.threshold.exceeded");
+	private final static String loggingLevelWhenFrequencyNormal = EmerigenProperties
+			.getInstance().getValue("frequency.logging.level.when.below.threshold");
 
 	private static Logger logger = Logger.getLogger(DynamicLoggingAspect.class);
 	private static Level previousLoggingLevel;
-
 
 	/**
 	 * Define the interesting pointcuts and exception advice below
@@ -82,8 +86,9 @@ public aspect DynamicLoggingAspect {
 		&& (constructors() || methods()) {
 		leakyBucket.fill();
 	}
-	
-	public DynamicLoggingAspect() {}
+
+	public DynamicLoggingAspect() {
+	}
 
 	/**
 	 * This executes when the frequency of exceptions exceeds a configurable
@@ -95,8 +100,9 @@ public aspect DynamicLoggingAspect {
 
 		@Override
 		public void run() {
-			previousLoggingLevel = logger.getLevel();			
-			logger.info("Frequency of exceptions exceeded. Increasing log verbosity to DEBUG");
+			previousLoggingLevel = logger.getLevel();
+			logger.info(
+					"Frequency of exceptions exceeded. Increasing log verbosity to DEBUG");
 			DynamicLoggingAspect.setLoggingLevel(loggingLevel);
 		}
 	};
@@ -110,8 +116,12 @@ public aspect DynamicLoggingAspect {
 
 		@Override
 		public void run() {
-			logger.info("Frequency of exceptions returned to normal. Lowering log verbosity to previous level(" + previousLoggingLevel + ")");
-			DynamicLoggingAspect.setLoggingLevel(previousLoggingLevel.toString());
+			logger.info(
+					"Frequency of exceptions returned to normal. Lowering log verbosity to previous level("
+							+ previousLoggingLevel + ")");
+			if (previousLoggingLevel != null) {
+				DynamicLoggingAspect.setLoggingLevel(previousLoggingLevel.toString());
+			}
 		}
 	};
 
@@ -120,8 +130,9 @@ public aspect DynamicLoggingAspect {
 	 * Runnable when high frequency exceeded or the frequency returns to normal.
 	 */
 	private LeakyBucket leakyBucket = new LeakyBucket(maxExceptionsPerInterval,
-			Duration.ofSeconds(exceptionOccuranceInterval), minExceptionsBelowThreshold, minExceptionsAboveThreshold,
-			highFrequencyExceededRunnable, normalFrequencyDetectedRunnable);
+			Duration.ofSeconds(exceptionOccuranceInterval), minExceptionsBelowThreshold,
+			minExceptionsAboveThreshold, highFrequencyExceededRunnable,
+			normalFrequencyDetectedRunnable);
 
 	/**
 	 * Dynamically set the logging level for all classes in this application
@@ -130,6 +141,8 @@ public aspect DynamicLoggingAspect {
 	 * @return
 	 */
 	public static Logger setLoggingLevel(String strLevel) {
+		if (strLevel == null || strLevel.isEmpty())
+			throw new IllegalArgumentException("strLevel must not be null or empty");
 		Level level;
 
 		// Translate input to valid logging level, WARN is default

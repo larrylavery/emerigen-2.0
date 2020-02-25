@@ -22,6 +22,10 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 			.parseLong(EmerigenProperties.getInstance()
 					.getValue("cycle.default.data.point.duration.nano"));
 
+	public static final double defaultBidPercentage = Double
+			.parseDouble(EmerigenProperties.getInstance()
+					.getValue("prediction.consumer.default.bid.percent"));
+
 	/**
 	 * This value represents a Transition's strength. It is used during the "credit
 	 * assignment" support and for other other reinforcement mechanisms.
@@ -274,14 +278,15 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	public void acceptPaymentFromWinningBidder(double winningBid) {
 		if (winningBid < 0.0)
 			throw new IllegalArgumentException("winningBid must be positive");
-
+		cashOnHand = cashOnHand + winningBid;
 	}
 
 	@Override
 	public Bid matchingPrediction(Prediction prediction) {
 		if (prediction == null)
 			throw new IllegalArgumentException("prediction must not be null");
-		return null;
+		Bid bid = new Bid(this, cashOnHand * defaultBidPercentage);
+		return bid;
 	}
 
 	@Override

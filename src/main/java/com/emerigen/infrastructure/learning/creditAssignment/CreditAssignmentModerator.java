@@ -22,12 +22,20 @@ public class CreditAssignmentModerator {
 	}
 
 	public void registerSensorForPredictionConsumers(Sensor sensor) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+
 		List<Prediction> currentPredictionsForSensor = predictionPool.get(sensor);
 		predictionPool.put(sensor, currentPredictionsForSensor);
 	}
 
 	public void registerConsumerPredictionForSensor(Prediction consumerPrediction,
 			Sensor sensor) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+		if (consumerPrediction == null)
+			throw new IllegalArgumentException("consumerPrediction must not be null");
+
 		List<Prediction> currentPredictionsForSensor = predictionPool.get(sensor);
 		if (currentPredictionsForSensor == null) {
 			currentPredictionsForSensor = new ArrayList<Prediction>();
@@ -35,7 +43,10 @@ public class CreditAssignmentModerator {
 		predictionPool.put(sensor, currentPredictionsForSensor);
 	}
 
-	void resetPredictionPoolForSensor(Sensor sensor) {
+	public void resetPredictionPoolForSensor(Sensor sensor) {
+		if (sensor == null)
+			throw new IllegalArgumentException("sensor must not be null");
+
 		List<Prediction> currentPredictionsForSensor = predictionPool.get(sensor);
 
 		// sensor has predictions? initialize
@@ -46,7 +57,9 @@ public class CreditAssignmentModerator {
 		}
 	}
 
-	List<Bid> locatePotentialConsumersForPrediction(Prediction currentPrediction) {
+	public List<Bid> locatePotentialConsumersForPrediction(Prediction currentPrediction) {
+		if (currentPrediction == null)
+			throw new IllegalArgumentException("currentPrediction must not be null");
 
 		// Retrieve Consumers where firstSensorEvent matches current prediction
 		List<PredictionConsumer> potentialConsumers = predictionService
@@ -59,7 +72,10 @@ public class CreditAssignmentModerator {
 		return bidders;
 	}
 
-	void selectAndNotifyWinningBidder(List<Bid> bidders) {
+	public void selectAndNotifyWinningBidder(List<Bid> bidders) {
+		if (bidders == null || bidders.isEmpty())
+			throw new IllegalArgumentException("bidders must not be null or empty");
+
 //		Optional<Integer> maxNumber = list.stream().max((i, j) -> i.compareTo(j));
 //		System.out.println(maxNumber.get());
 
