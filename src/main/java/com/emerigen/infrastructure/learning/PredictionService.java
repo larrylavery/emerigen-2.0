@@ -19,6 +19,7 @@ import com.emerigen.infrastructure.learning.creditassignment.PredictionConsumer;
 import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
+import com.emerigen.infrastructure.sensor.CustomTransitionDeserializer;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
@@ -217,6 +218,15 @@ public class PredictionService {
 		mapper.registerModule(module);
 	}
 
+	private void registerCustomTransitionDeserializer(ObjectMapper mapper) {
+
+		// Register custom deserializer
+		SimpleModule module = new SimpleModule("CustomTransitionDeserializer",
+				new Version(1, 0, 0, null, null, null));
+		module.addDeserializer(Transition.class, new CustomTransitionDeserializer());
+		mapper.registerModule(module);
+	}
+
 	private List<SensorEvent> convertFromJsonToSensorEvents(ObjectMapper mapper,
 			N1qlQueryResult result) {
 		SensorEvent sensorEvent;
@@ -301,7 +311,7 @@ public class PredictionService {
 		List<PredictionConsumer> predictors = new ArrayList<PredictionConsumer>();
 		ObjectMapper mapper = new ObjectMapper();
 
-		registerCustomDeserializer(mapper);
+		registerCustomTransitionDeserializer(mapper);
 		N1qlQueryResult result = retrievePredictionConsumersForSensorEvent(sensorEvent);
 		List<PredictionConsumer> predictionConsumers = convertFromJsonToPredictionConsumer(
 				mapper, result);
@@ -311,8 +321,8 @@ public class PredictionService {
 	private N1qlQueryResult retrievePredictionConsumersForSensorEvent(
 			SensorEvent sensorEvent) {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
-		String statement = "SELECT * FROM `transition` WHERE "
-				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\"";
+		String statement = "SELECT * FROM `transition` WHERE firstSensorEventKey=\""
+				+ sensorEvent.getKey() + "" + "\"";
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
 				N1qlQuery.simple(statement));
 		return result;
@@ -320,14 +330,16 @@ public class PredictionService {
 
 	private List<PredictionConsumer> convertFromJsonToPredictionConsumer(
 			ObjectMapper mapper, N1qlQueryResult result) {
+		Transition transition;
 		PredictionConsumer predictionConsumer;
 		List<PredictionConsumer> predictionConsumers = new ArrayList<PredictionConsumer>();
 		try {
 			for (N1qlQueryRow row : result) {
 				logger.debug("Adding PredictionConsumer to list: " + row.value());
-				predictionConsumer = mapper.readValue(row.value().toString(),
-						PredictionConsumer.class);
-				predictionConsumers.add(predictionConsumer);
+				JsonObject rowJsonObject = row.value().getObject("transition");
+				transition = mapper.readValue(rowJsonObject.toString(), Transition.class);
+
+				predictionConsumers.add(transition);
 			}
 		} catch (Exception e) {
 			throw new RepositoryException(e);

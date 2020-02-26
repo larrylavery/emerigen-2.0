@@ -1,9 +1,11 @@
 package com.emerigen.infrastructure.learning.creditAssignment;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.Random;
 
 import org.junit.After;
@@ -12,14 +14,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.learning.TransitionPrediction;
+import com.emerigen.infrastructure.learning.creditassignment.Bid;
 import com.emerigen.infrastructure.learning.creditassignment.CreditAssignmentModerator;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class CreditAssignmentModeratorTest {
 
@@ -118,22 +121,17 @@ public class CreditAssignmentModeratorTest {
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 		SensorEvent sensorEvent3 = new SensorEvent(sensor, values3);
 
-		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
-		Transition t2 = new Transition(sensorEvent1, sensorEvent3);
+		PredictionService ps = new PredictionService(sensor);
+		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
+		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
 		CreditAssignmentModerator cam = new CreditAssignmentModerator(
 				new PredictionService());
 
-		List<Transition> predCons = cam
-				.locatePotentialConsumersForPrediction(new Prediction(sensorEvent1));
-		Sensor s = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_BLOOD_PRESSURE, Sensor.LOCATION_BODY);
+		Utils.allowDataUpdatesTimeToCatchUp();
 
-		final Throwable throwable = catchThrowable(
-				() -> cam.resetPredictionPoolForSensor(null));
-
-		then(throwable).as("A null sensor on reset throws an IllegalArgumentException")
-				.isInstanceOf(IllegalArgumentException.class);
-
+		List<Bid> bids = cam.locatePotentialConsumersForPrediction(
+				new TransitionPrediction(sensorEvent1));
+		assertThat(bids.size()).isEqualTo(2);
 	}
 
 	@Test
