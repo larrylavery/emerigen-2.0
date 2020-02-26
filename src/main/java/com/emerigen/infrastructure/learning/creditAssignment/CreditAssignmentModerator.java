@@ -72,7 +72,7 @@ public class CreditAssignmentModerator {
 		return bidders;
 	}
 
-	public void selectAndNotifyWinningBidder(List<Bid> bidders) {
+	public Bid selectAndNotifyWinningBidder(List<Bid> bidders) {
 		if (bidders == null || bidders.isEmpty())
 			throw new IllegalArgumentException("bidders must not be null or empty");
 
@@ -92,6 +92,8 @@ public class CreditAssignmentModerator {
 
 		// Add winning bidder's prediction to the sensor-based prediction pool
 		registerConsumerPredictionForSensor(newPrediction, winningConsumer.getSensor());
+
+		return winningBid.get();
 
 	}
 

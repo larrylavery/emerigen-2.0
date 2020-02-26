@@ -33,6 +33,8 @@ public class CustomTransitionSerializer extends StdSerializer<Transition> {
 			jsonGenerator.writeNumberField("sensorLocation",
 					transition.getSensorLocation());
 			jsonGenerator.writeNumberField("probability", transition.getProbability());
+			jsonGenerator.writeNumberField("cashOnHand", transition.getCashOnHand());
+			jsonGenerator.writeNumberField("timestamp", transition.getTimestamp());
 			jsonGenerator.writeNumberField("dataPointDurationNano",
 					transition.getDataPointDurationNano());
 

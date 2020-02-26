@@ -136,7 +136,41 @@ public class CreditAssignmentModeratorTest {
 
 	@Test
 	public final void givenThreeBidders_whenSelectWinnerAndNotifyBidder_thenLargestBidderNotified() {
-		fail("Not yet implemented"); // TODO
+		Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
+		float[] values4 = new float[] { rd.nextFloat() + 1000, rd.nextFloat() + 1000 };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+		SensorEvent sensorEvent3 = new SensorEvent(sensor, values3);
+		SensorEvent sensorEvent4 = new SensorEvent(sensor, values4);
+
+		PredictionService ps = new PredictionService(sensor);
+
+		String pcKey1 = ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
+
+		String pcKey2 = ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
+
+		String pcKey3 = ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent4);
+
+		CreditAssignmentModerator cam = new CreditAssignmentModerator(
+				new PredictionService());
+
+		Utils.allowDataUpdatesTimeToCatchUp();
+
+		List<Bid> bids = cam.locatePotentialConsumersForPrediction(
+				new TransitionPrediction(sensorEvent1));
+
+		assertThat(bids.size()).isEqualTo(3);
+		bids.get(0).setAmount(1);
+		bids.get(1).setAmount(10);
+		bids.get(2).setAmount(11);
+		Bid bid = cam.selectAndNotifyWinningBidder(bids);
+		assertThat(bid.getAmount()).isEqualTo(10);
 	}
 
 	@Test

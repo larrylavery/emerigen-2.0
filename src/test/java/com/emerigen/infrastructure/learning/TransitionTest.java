@@ -322,7 +322,6 @@ public class TransitionTest {
 
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
-
 		Transition newTransition = KnowledgeRepository.getInstance().getTransition(uuid);
 
 		assertThat(newTransition).isNotNull();

@@ -90,6 +90,7 @@ public class PredictionService {
 		JsonObject transitionJsonObject = JsonObject.create()
 				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation())
+				.put("cashOnHand", Transition.defaultCashOnHand)
 				.put("probability", defaultProbability).put("timestamp", timestamp)
 				.put("dataPointDurationNano", Transition.defaultDataPointDurationNano)
 				.put("firstSensorEventKey", firstSensorEvent.getKey())

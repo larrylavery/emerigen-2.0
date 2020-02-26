@@ -28,7 +28,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 
 	/**
 	 * This value represents a Transition's strength. It is used during the "credit
-	 * assignment" support and for other other reinforcement mechanisms.
+	 * assignment" support and for P other reinforcement mechanisms.
 	 */
 	private double cashOnHand;
 
@@ -50,6 +50,9 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	private double probability;
 
 	private static Logger logger = Logger.getLogger(Transition.class);
+
+	public static final double defaultCashOnHand = Double.parseDouble(
+			EmerigenProperties.getInstance().getValue("prediction.default.cash.on.hand"));
 
 	public Transition() {
 	}
@@ -299,7 +302,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 
 	@Override
 	public Sensor getSensor() {
-		// TODO Auto-generated method stub
-		return null;
+		return predictedSensorEvent.getSensor();
 	}
 }
