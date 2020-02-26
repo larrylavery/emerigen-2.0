@@ -32,4 +32,8 @@ public interface PredictionConsumer {
 	 */
 	public Sensor getSensor();
 
+	public double getCashOnHand();
+
+	public void setCashOnHand(double cashOnHand);
+
 }

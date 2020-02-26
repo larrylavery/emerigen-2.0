@@ -72,7 +72,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 		}
 		this.sensorType = firstSensorEvent.getSensorType();
 		this.sensorLocation = firstSensorEvent.getSensorLocation();
-		this.firstSensorEventKey = firstSensorEvent.getKey();
 		this.predictedSensorEvent = predictedSensorEvent;
 		this.dataPointDurationNano = defaultDataPointDurationNano;
 	}
@@ -296,8 +295,8 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	public Prediction makePayment(double winningBid) {
 		if (winningBid < 0.0)
 			throw new IllegalArgumentException("winningBid must be positive");
-		// TODO Auto-generated method stub
-		return null;
+		cashOnHand = cashOnHand - winningBid;
+		return new TransitionPrediction(predictedSensorEvent);
 	}
 
 	@Override

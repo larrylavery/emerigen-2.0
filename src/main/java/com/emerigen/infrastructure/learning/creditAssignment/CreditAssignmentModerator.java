@@ -34,7 +34,7 @@ public class CreditAssignmentModerator {
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 		if (consumerPrediction == null)
-			throw new IllegalArgumentException("sensor must not be null");
+			throw new IllegalArgumentException("consumerPrediction must not be null");
 
 		List<Prediction> currentPredictionsForSensor = predictionPool.get(sensor);
 		if (currentPredictionsForSensor == null) {
