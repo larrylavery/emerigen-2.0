@@ -2,6 +2,9 @@
 {
   "sensorType": 1,
   "sensorLocation": 1,
+  "cashOnHand": 1.0,
+  "probability": 0.2,
+  "dataPointDurationNano": 1000,
   "timestamp": 1,
   "firstSensorEventKey": "abc",
   "predictedSensorEvent": {

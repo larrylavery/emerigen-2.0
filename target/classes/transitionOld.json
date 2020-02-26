@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Transition",
+  "description": "A schema representing a transition from one sensor event to the potential predicted sensor event",
+  "transition": {
+    "required": [
+      "sensorType",
+      "sensorLocation",
+      "cashOnHand",
+      "probability",
+      "dataPointDurationNano",
+      "timestamp",
+      "firstSensorEventKey",
+      "predictedSensorEvent"
+    ],
+    "properties": {
+      "sensorType": {
+        "description": "The sensor that that this transition belongs to",
+        "type": "number"
+      },
+      "sensorLocation": {
+        "description": "The location this sensor resides on",
+        "type": "number"
+      },
+      "probability": {
+        "description": "The probability that a transition's prediction will be successful",
+        "type": "number"
+      },
+      "cashOnHand": {
+        "description": "The cash available to consume potential prediction matches",
+        "type": "number"
+      },
+      "dataPointDurationNano": {
+        "description": "The length of time a sensor's readings have been fuzzy equals",
+        "type": "number"
+      },
+      "timestamp": {
+        "description": "The time this transition was logged",
+        "type": "number"
+      },
+      "firstSensorEventKey": {
+        "description": "The key for the first sensor event of the transition",
+        "type": "string"
+      },
+      "predictedSensorEvent": {
+        "description": "The predicted sensor event of the transition",
+        "$ref": "definitions.json#/sensorEvent"
+      }
+    }
+  }
+}

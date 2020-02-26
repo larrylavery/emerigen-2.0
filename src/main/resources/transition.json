@@ -1,35 +1,97 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Transition",
-  "transition": {
-    "type": "object",
-    "required": [
-      "sensorType",
-      "sensorLocation",
-      "timestamp",
-      "firstSensorEventKey",
-      "predictedSensorEvent"
-    ],
-    "properties": {
-      "sensorType": {
-        "description": "The sensor that that this transition belongs to",
-        "type": "number"
-      },
-      "sensorLocation": {
-        "description": "The location this sensor resides on",
-        "type": "number"
-      },
-      "timestamp": {
-        "description": "The time this transition was logged",
-        "type": "number"
-      },
-      "firstSensorEventKey": {
-        "description": "The key for the first sensor event of the transition",
-        "type": "string"
-      },
-      "predictedSensorEvent": {
-        "description": "The predicted sensor event of the transition",
-        "$ref": "definitions.json#/sensorEvent"
+  "description": "A schema representing a transition from one sensor event to the potential predicted sensor event",
+  "definitions": {
+    "sensorEvent": {
+      "required": [
+        "sensorType",
+        "sensorLocation",
+        "timestamp",
+        "values",
+        "minimumDelayBetweenReadings",
+        "reportingMode",
+        "wakeUpSensor"
+      ],
+      "properties": {
+        "sensorType": {
+          "description": "he type ID for this pattern",
+          "type": "number"
+        },
+        "sensorLocation": {
+          "description": "The location this sensor resides on",
+          "type": "number"
+        },
+        "timestamp": {
+          "description": "The time this pattern was logged",
+          "type": "number"
+        },
+        "values": {
+          "description": "The sensor-specific measurements",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          }
+        },
+        "minimumDelayBetweenReadings": {
+          "description": "All readings must be this far apart in time",
+          "type": "number"
+        },
+        "reportingMode": {
+          "description": "Read continuously or on change only",
+          "type": "number"
+        },
+        "wakeUpSensor": {
+          "description": "Does this sensor have the ability to wake up the device",
+          "type": "boolean"
+        }
+      }
+    },
+    "transition": {
+      "required": [
+        "sensorType",
+        "sensorLocation",
+        "cashOnHand",
+        "probability",
+        "dataPointDurationNano",
+        "timestamp",
+        "firstSensorEventKey",
+        "predictedSensorEvent"
+      ],
+      "properties": {
+        "sensorType": {
+          "description": "The sensor that this transition belongs to",
+          "type": "number"
+        },
+        "sensorLocation": {
+          "description": "The location this sensor resides on",
+          "type": "number"
+        },
+        "probability": {
+          "description": "The probability that a transition's prediction will be successful",
+          "type": "number"
+        },
+        "cashOnHand": {
+          "description": "The cash available to consume potential prediction matches",
+          "type": "number"
+        },
+        "dataPointDurationNano": {
+          "description": "The length of time a sensor's readings have been fuzzy equals",
+          "type": "number"
+        },
+        "timestamp": {
+          "description": "The time this transition was logged",
+          "type": "number"
+        },
+        "firstSensorEventKey": {
+          "description": "The key for the first sensor event of the transition",
+          "type": "string"
+        },
+        "predictedSensorEvent": {
+          "description": "The predicted sensor event of the transition",
+          "$ref": "#definitions/sensorEvent"
+        }
       }
     }
   }

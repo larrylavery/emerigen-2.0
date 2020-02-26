@@ -1,6 +1,9 @@
 {
   "timestamp": 3,
   "sensorLocation": 1,
+  "cashOnHand": 1.0,
+  "probability": 0.2,
+  "dataPointDurationNano": 1000,
   "firstSensorEvent": "abcdes",
   "predictedSensorEvent": {
     "sensorType": 1,

@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Sensor Event  plus Associated Sensor",
+  "sensorEvent": {
+    "type": "object",
+    "properties": {
+      "required": [
+        "sensorType",
+        "sensorLocation",
+        "timestamp",
+        "values",
+        "minimumDelayBetweenReadings",
+        "reportingMode",
+        "wakeUpSensor"
+      ],
+      "properties": {
+        "sensorType": {
+          "description": "the type of the sensor associated with this event",
+          "type": "number"
+        },
+        "sensorLocation": {
+          "description": "The location of the sensor associated with this event",
+          "type": "number"
+        },
+        "timestamp": {
+          "description": "The time this reading was observed",
+          "type": "number"
+        },
+        "values": {
+          "description": "The sensor-specific measurements",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "minimumDelayBetweenReadings": {
+        "description": "All readings must be this far apart in time",
+        "type": "number"
+      },
+      "reportingMode": {
+        "description": "Read continuously or on change only",
+        "type": "number"
+      },
+      "wakeUpSensor": {
+        "description": "Does this sensor have the ability to wake up the device",
+        "type": "boolean"
+      }
+    }
+  }
+}
