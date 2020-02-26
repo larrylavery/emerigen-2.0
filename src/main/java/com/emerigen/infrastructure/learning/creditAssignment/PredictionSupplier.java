@@ -1,5 +1,7 @@
 package com.emerigen.infrastructure.learning.creditassignment;
 
+import com.emerigen.infrastructure.learning.Prediction;
+
 public interface PredictionSupplier {
 
 	/**
@@ -7,6 +9,8 @@ public interface PredictionSupplier {
 	 * 
 	 * @param winningBid The amount of the winning bid
 	 */
-	void acceptPaymentFromWinningBidder(double winningBid);
+	public void acceptPaymentFromWinningBidder(double winningBid);
+
+	public Prediction getPrediction();
 
 }

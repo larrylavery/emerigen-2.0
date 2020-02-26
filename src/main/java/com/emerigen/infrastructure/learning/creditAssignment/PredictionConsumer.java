@@ -34,6 +34,8 @@ public interface PredictionConsumer {
 
 	public double getCashOnHand();
 
+	public Prediction getPrediction();
+
 	public void setCashOnHand(double cashOnHand);
 
 }

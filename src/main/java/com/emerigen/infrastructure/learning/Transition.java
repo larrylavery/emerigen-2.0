@@ -157,6 +157,14 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	/**
 	 * @return the predictedSensorEvent
 	 */
+	@Override
+	public Prediction getPrediction() {
+		return new TransitionPrediction(predictedSensorEvent);
+	}
+
+	/**
+	 * @return the predictedSensorEvent
+	 */
 	public SensorEvent getPredictedSensorEvent() {
 		return predictedSensorEvent;
 	}
@@ -222,6 +230,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	/**
 	 * @return the cashOnHand
 	 */
+	@Override
 	public double getCashOnHand() {
 		return cashOnHand;
 	}
@@ -269,6 +278,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	/**
 	 * @param cashOnHand the cashOnHand to set
 	 */
+	@Override
 	public void setCashOnHand(double cashOnHand) {
 		if (cashOnHand < 0.0)
 			throw new IllegalArgumentException("cashOnHand must be positive");
@@ -302,5 +312,19 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	@Override
 	public Sensor getSensor() {
 		return predictedSensorEvent.getSensor();
+	}
+
+	/**
+	 * @return the defaultbidpercentage
+	 */
+	public static double getDefaultbidpercentage() {
+		return defaultBidPercentage;
+	}
+
+	/**
+	 * @return the defaultcashonhand
+	 */
+	public static double getDefaultcashonhand() {
+		return defaultCashOnHand;
 	}
 }
