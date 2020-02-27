@@ -93,6 +93,10 @@ public class PredictionService {
 				.put("cashOnHand", Transition.defaultCashOnHand)
 				.put("probability", defaultProbability).put("timestamp", timestamp)
 				.put("dataPointDurationNano", Transition.defaultDataPointDurationNano)
+				.put("lastSuccessfulPredictionTimestamp",
+						System.currentTimeMillis() * 1000000)
+				.put("numberOfPredictionAttempts", 0)
+				.put("numberOfSuccessfulPredictions", 0)
 				.put("firstSensorEventKey", firstSensorEvent.getKey())
 				.put("predictedSensorEvent", predictedEventJsonDoc);
 

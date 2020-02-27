@@ -12,6 +12,9 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 public class Transition implements PredictionConsumer, PredictionSupplier {
 
 	private long timestamp = System.nanoTime();
+	private long lastSuccessfulPredictionTimestamp;
+	private long numberOfPredictionAttempts;
+	private long numberOfSuccessfulPredictions;
 
 	private String firstSensorEventKey = null;
 	private SensorEvent predictedSensorEvent = null;
@@ -49,7 +52,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	 */
 	private double probability;
 
-	private static Logger logger = Logger.getLogger(Transition.class);
+	private final static Logger logger = Logger.getLogger(Transition.class);
 
 	public static final double defaultCashOnHand = Double.parseDouble(
 			EmerigenProperties.getInstance().getValue("prediction.default.cash.on.hand"));
@@ -74,6 +77,10 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 		this.sensorLocation = firstSensorEvent.getSensorLocation();
 		this.predictedSensorEvent = predictedSensorEvent;
 		this.dataPointDurationNano = defaultDataPointDurationNano;
+		this.lastSuccessfulPredictionTimestamp = System.currentTimeMillis() * 1000000;
+		this.numberOfPredictionAttempts = 0;
+		this.numberOfSuccessfulPredictions = 0;
+
 	}
 
 	/**
@@ -94,6 +101,12 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 				+ (int) (dataPointDurationNano ^ (dataPointDurationNano >>> 32));
 		result = prime * result
 				+ ((firstSensorEventKey == null) ? 0 : firstSensorEventKey.hashCode());
+		result = prime * result + (int) (lastSuccessfulPredictionTimestamp
+				^ (lastSuccessfulPredictionTimestamp >>> 32));
+		result = prime * result + (int) (numberOfPredictionAttempts
+				^ (numberOfPredictionAttempts >>> 32));
+		result = prime * result + (int) (numberOfSuccessfulPredictions
+				^ (numberOfSuccessfulPredictions >>> 32));
 		result = prime * result
 				+ ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
 		temp = Double.doubleToLongBits(probability);
@@ -122,6 +135,12 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 				return false;
 		} else if (!firstSensorEventKey.equals(other.firstSensorEventKey))
 			return false;
+		if (lastSuccessfulPredictionTimestamp != other.lastSuccessfulPredictionTimestamp)
+			return false;
+		if (numberOfPredictionAttempts != other.numberOfPredictionAttempts)
+			return false;
+		if (numberOfSuccessfulPredictions != other.numberOfSuccessfulPredictions)
+			return false;
 		if (predictedSensorEvent == null) {
 			if (other.predictedSensorEvent != null)
 				return false;
@@ -139,10 +158,15 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 
 	@Override
 	public String toString() {
-		return "Transition [timestamp=" + timestamp + ", firstSensorEventKey="
+		return "Transition [timestamp=" + timestamp
+				+ ", lastSuccessfulPredictionTimestamp="
+				+ lastSuccessfulPredictionTimestamp + ", numberOfPredictionAttempts="
+				+ numberOfPredictionAttempts + ", numberOfSuccessfulPredictions="
+				+ numberOfSuccessfulPredictions + ", firstSensorEventKey="
 				+ firstSensorEventKey + ", predictedSensorEvent=" + predictedSensorEvent
 				+ ", sensorType=" + sensorType + ", sensorLocation=" + sensorLocation
-				+ "]";
+				+ ", cashOnHand=" + cashOnHand + ", dataPointDurationNano="
+				+ dataPointDurationNano + ", probability=" + probability + "]";
 	}
 
 	/**
@@ -326,5 +350,65 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	 */
 	public static double getDefaultcashonhand() {
 		return defaultCashOnHand;
+	}
+
+	/**
+	 * @return the lastSuccessfulPredictionTimestamp
+	 */
+	public long getLastSuccessfulPredictionTimestamp() {
+		return lastSuccessfulPredictionTimestamp;
+	}
+
+	/**
+	 * @param lastSuccessfulPredictionTimestamp the
+	 *                                          lastSuccessfulPredictionTimestamp to
+	 *                                          set
+	 */
+	public void setLastSuccessfulPredictionTimestamp(
+			long lastSuccessfulPredictionTimestamp) {
+		if (lastSuccessfulPredictionTimestamp < 0)
+			throw new IllegalArgumentException(
+					"lastSuccessfulPredictionTimestamp must not be negative");
+
+		this.lastSuccessfulPredictionTimestamp = lastSuccessfulPredictionTimestamp;
+	}
+
+	/**
+	 * @return the numberOfPredictionAttempts
+	 */
+	public long getNumberOfPredictionAttempts() {
+		return numberOfPredictionAttempts;
+	}
+
+	/**
+	 * @param numberOfPredictionAttempts the numberOfPredictionAttempts to set
+	 */
+	public void setNumberOfPredictionAttempts(long numberOfPredictionAttempts) {
+		if (numberOfPredictionAttempts < 0)
+			throw new IllegalArgumentException(
+					"numberOfPredictionAttempts must not be negative");
+		this.numberOfPredictionAttempts = numberOfPredictionAttempts;
+	}
+
+	/**
+	 * @return the numberOfSuccessfulPredictions
+	 */
+	public long getNumberOfSuccessfulPredictions() {
+		return numberOfSuccessfulPredictions;
+	}
+
+	public double getPredictionAccuracy() {
+		return (double) numberOfSuccessfulPredictions
+				/ (double) numberOfPredictionAttempts;
+	}
+
+	/**
+	 * @param numberOfSuccessfulPredictions the numberOfSuccessfulPredictions to set
+	 */
+	public void setNumberOfSuccessfulPredictions(long numberOfSuccessfulPredictions) {
+		if (numberOfSuccessfulPredictions < 0)
+			throw new IllegalArgumentException(
+					"numberOfSuccessfulPredictions must not be negative");
+		this.numberOfSuccessfulPredictions = numberOfSuccessfulPredictions;
 	}
 }

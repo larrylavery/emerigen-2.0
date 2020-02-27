@@ -37,6 +37,12 @@ public class CustomTransitionSerializer extends StdSerializer<Transition> {
 			jsonGenerator.writeNumberField("timestamp", transition.getTimestamp());
 			jsonGenerator.writeNumberField("dataPointDurationNano",
 					transition.getDataPointDurationNano());
+			jsonGenerator.writeNumberField("lastSuccessfulPredictionTimestamp",
+					transition.getLastSuccessfulPredictionTimestamp());
+			jsonGenerator.writeNumberField("numberOfPredictionAttempts",
+					transition.getNumberOfPredictionAttempts());
+			jsonGenerator.writeNumberField("numberOfSuccessfulPredictions",
+					transition.getNumberOfSuccessfulPredictions());
 
 			// Create firstSensorEvent fields
 			jsonGenerator.writeStringField("firstSensorEventKey",

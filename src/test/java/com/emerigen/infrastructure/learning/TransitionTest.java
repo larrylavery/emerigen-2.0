@@ -81,6 +81,37 @@ public class TransitionTest {
 	}
 
 	@Test
+	public void givenJsonTransitionWithoutSensorType2_whenValidating_thenValidationExceptionIsThrown() {
+
+		// Given the schema and the instance json docs have been read in
+		InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("transition.json");
+		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("test/transition-invalid-no-sensor-type.json");
+
+//		public static void validate(String schema, String input){
+//		    JSONObject jsonSchema = new JSONObject(schema);
+//		    JSONObject jsonSubject = new JSONObject(input);
+//		    
+//		    Schema schema_ = SchemaLoader.load(jsonSchema);
+//		    schema_.validate(jsonSubject);
+//		  }
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidTransitionJsonFileReader));
+		Schema schema = SchemaLoader.load(jsonSchema);
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
+
+		// Then a ValidationException should be thrown
+		then(throwable).as(
+				"A invalidly structured Json transition document should throw a ValidationException")
+				.isInstanceOf(ValidationException.class);
+	}
+
+	@Test
 	public void givenJsonTransitionWithoutSensorType_whenValidating_thenValidationExceptionIsThrown() {
 
 		// Given the schema and the instance json docs have been read in

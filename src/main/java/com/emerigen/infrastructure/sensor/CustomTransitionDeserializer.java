@@ -52,6 +52,19 @@ public class CustomTransitionDeserializer extends StdDeserializer<Transition> {
 			double probability = node.get("probability").asDouble();
 			transition.setProbability(probability);
 
+			long lastSuccessfulPredictionTimestamp = node
+					.get("lastSuccessfulPredictionTimestamp").asLong();
+			transition.setLastSuccessfulPredictionTimestamp(
+					lastSuccessfulPredictionTimestamp);
+
+			long numberOfPredictionAttempts = node.get("numberOfPredictionAttempts")
+					.asLong();
+			transition.setNumberOfPredictionAttempts(numberOfPredictionAttempts);
+
+			long numberOfSuccessfulPredictions = node.get("numberOfSuccessfulPredictions")
+					.asLong();
+			transition.setNumberOfSuccessfulPredictions(numberOfSuccessfulPredictions);
+
 			double cashOnHand = node.get("cashOnHand").asDouble();
 			transition.setCashOnHand(cashOnHand);
 
