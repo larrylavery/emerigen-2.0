@@ -97,7 +97,7 @@ public class SensorManager {
 			// Registration already exists
 			return true;
 		}
-
+//		return true;
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class SensorManager {
 	 * @param sensor
 	 * @return a list of sensor event listeners applicable for the given sensor
 	 */
-	public List<SensorEventListener> retrievePatternRecognizersForSensor(Sensor sensor) {
+	public List<SensorEventListener> createPatternRecognizersForSensor(Sensor sensor) {
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
 
@@ -239,7 +239,7 @@ public class SensorManager {
 			sensor = new HeartRateSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Created new Heart Rate sensor");
 			return sensor;
@@ -248,7 +248,7 @@ public class SensorManager {
 			sensor = new AccelerometerSensor(sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating Accelerometer sensor");
 			return sensor;
@@ -257,7 +257,7 @@ public class SensorManager {
 			sensor = new SleepSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating Sleep monitoring sensor");
 			return sensor;
@@ -266,7 +266,7 @@ public class SensorManager {
 			sensor = new BloodPressureSensor(sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating blood pressure monitoring sensor");
 			return sensor;
@@ -275,7 +275,7 @@ public class SensorManager {
 			sensor = new GlucoseSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating glucose monitoring sensor");
 			return sensor;
@@ -284,7 +284,7 @@ public class SensorManager {
 			sensor = new TemperatureSensor(sensorLocation,
 					Sensor.REPORTING_MODE_CONTINUOUS, SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating Temperature sensor");
 			return sensor;
@@ -293,7 +293,7 @@ public class SensorManager {
 			sensor = new GpsSensor(sensorLocation, Sensor.REPORTING_MODE_CONTINUOUS,
 					SENSOR_DELAY_NORMAL, false);
 			allSensors.add(sensor);
-			listeners = retrievePatternRecognizersForSensor(sensor);
+			listeners = createPatternRecognizersForSensor(sensor);
 			registerEventListenersForSensor(listeners, sensor);
 			logger.info("Creating GPS sensor");
 			return sensor;

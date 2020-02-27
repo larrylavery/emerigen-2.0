@@ -153,9 +153,9 @@ public class CPR_PredictionTest {
 		event4.setTimestamp(event1.getTimestamp() + 3 * cpr.cycleDurationTimeNano);
 
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 		List<Prediction> mockPredictions4 = new ArrayList<>();
-		mockPredictions4.add(new CyclePrediction(event2));
+		mockPredictions4.add(new Prediction(event2));
 
 		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
 				.thenReturn("");
@@ -233,7 +233,7 @@ public class CPR_PredictionTest {
 		event3.setTimestamp(event1.getTimestamp() + 2 * minimumDelayBetweenReadings);
 
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 
 		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
 				.thenReturn("");
@@ -299,7 +299,7 @@ public class CPR_PredictionTest {
 		event3.setTimestamp(event1.getTimestamp() - 100000 + cpr.cycleDurationTimeNano);
 
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 
 		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
 				.thenReturn("");
@@ -414,7 +414,7 @@ public class CPR_PredictionTest {
 				event1.getTimestamp() - 10000 + 2 * cpr.cycleDurationTimeNano);
 
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 
 		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
 				.thenReturn("");
@@ -486,7 +486,7 @@ public class CPR_PredictionTest {
 		event2.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
 
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 
 		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
 				.thenReturn("");
@@ -526,7 +526,7 @@ public class CPR_PredictionTest {
 		event2.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
 
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 
 		when(mockPredictionService.createPredictionFromSensorEvents(event1, event2))
 				.thenReturn("");

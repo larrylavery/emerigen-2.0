@@ -25,29 +25,34 @@ import com.emerigen.infrastructure.utils.Utils;
 
 public class CyclePatternRecognizerTest {
 
-	private long minimumDelayBetweenReadings = Long
+	static SensorManager sm = SensorManager.getInstance();
+	static Sensor hrSensor;
+
+	private static long minimumDelayBetweenReadings = Long
 			.parseLong(EmerigenProperties.getInstance()
 					.getValue("sensor.default.minimum.delay.between.readings.millis"))
 			* 1000000;
 
+	// 4.8 secs
 	@Test
 	public final void givenNoDefaultSensor_whenRetrieved_thenTheAssociatedTransitionPRIsRegistered() {
 		SensorManager sm = SensorManager.getInstance();
-		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
-				Sensor.LOCATION_WATCH);
-		TransitionPatternRecognizer tpr = new TransitionPatternRecognizer(sensor,
-				new PredictionService(sensor));
+//		Sensor sensor = sm.getDefaultSensorForLocation(Sensor.TYPE_HEART_RATE,
+//				Sensor.LOCATION_WATCH);
+		TransitionPatternRecognizer tpr = new TransitionPatternRecognizer(hrSensor,
+				new PredictionService(hrSensor));
 
-		assertThat(sm.listenerIsRegisteredToSensor(tpr, sensor)).isTrue();
+		assertThat(sm.listenerIsRegisteredToSensor(tpr, hrSensor)).isTrue();
 	}
 
+	// 5.1 secs
 	@Test
 	public final void givenNewEventWithoutPredictions_whenGetPredictionsCalled_thenEmptyPredictionListReturned() {
 
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
@@ -60,14 +65,15 @@ public class CyclePatternRecognizerTest {
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
+	// 15 secs
 	@Test
 	public final void givenOneTransition_whenOnSensorChangedCalledWithFirstEvent_thenPredictionListReturned()
 			throws InterruptedException {
 
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		float[] values = new float[] { rd.nextFloat() + 10, 1.2f };
 		float[] values2 = new float[] { rd.nextFloat() + 100, 281.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
@@ -85,7 +91,7 @@ public class CyclePatternRecognizerTest {
 //		sensorEvent1
 //				.setTimestamp(sensorEvent2.getTimestamp() + minimumDelayBetweenReadings);
 
-		Thread.sleep(100);
+		Thread.sleep(500);
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 
@@ -93,12 +99,13 @@ public class CyclePatternRecognizerTest {
 		assertThat(predictions.size() >= 1).isTrue();
 	}
 
+	// 5.5 seconds
 	@Test
 	public final void givenNoPreviousEventAndEventWithoutPredictions_whenOnSensorChangedCalled_thenEmptyPredictionListReturned() {
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
@@ -110,14 +117,15 @@ public class CyclePatternRecognizerTest {
 		assertThat(predictions).isNotNull().isEmpty();
 	}
 
+	// 29.6 seconds
 	@Test
 	public final void givenFourEventsSomeWithoutDelays_whenOnSensorChangedInvoked_thenOnePrediction()
 			throws InterruptedException {
 		// Given a new valid SensorEvent logged
-		SensorManager.reset();
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+//		Sensor hrSensor = new HeartRateSensor(Sensor.LOCATION_WATCH, 1, true);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
@@ -136,14 +144,20 @@ public class CyclePatternRecognizerTest {
 		sensorEvent4
 				.setTimestamp(sensorEvent3.getTimestamp() + minimumDelayBetweenReadings);
 
+		// 4 secs to here
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 		assertThat(predictions).isNotNull().isEmpty();
 
+		// 8 secs to here
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions.size() >= 0).isTrue();
 
+		// 14 secs to here
+
 		predictions = listener.onSensorChanged(sensorEvent3);
 		assertThat(predictions.size() >= 0).isTrue();
+
+		// 16.7 secs to here
 
 		Thread.sleep(100);
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
@@ -151,24 +165,29 @@ public class CyclePatternRecognizerTest {
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size() >= 1).isTrue();
 
+		// 20 secs to here
 		sensorEvent2.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions).isNotNull().isNotEmpty();
 		assertThat(predictions.size() >= 1).isTrue();
 
+		// 26.5 secs to here
+
 		sensorEvent3.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent3);
 		assertThat(predictions.size() >= 1).isTrue();
+		// 29 secs to here
 	}
 
+	// 27 secs
 	@Test
 	public final void givenThreeLinkingEventsWithTwoTransitionsCreated_whenOnSensorChangedEventMatchingTransitions_thenPredictionsReturned()
 			throws InterruptedException {
 		// Given a new valid SensorEvent logged
 		SensorManager.reset();
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
@@ -205,14 +224,15 @@ public class CyclePatternRecognizerTest {
 		assertThat(predictions.size() >= 1).isTrue();
 	}
 
+	// 13.7 secs
 	@Test
 	public final void givenPreviousEventAndNewEvent_whenOnSensorChangedCalled_thenNewTransitionCreatedAndEmptyPredictionListReturned()
 			throws InterruptedException {
 		// Given a new valid SensorEvent logged
 		SensorManager.reset();
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
@@ -236,12 +256,13 @@ public class CyclePatternRecognizerTest {
 
 	}
 
+	// 6.3 secs
 	@Test
 	public final void givenExistingEventWithoutPredictions_whenOnSensorChangedCalled_thenEmptyPredictionListReturned() {
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
-		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		float[] values2 = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
@@ -258,8 +279,10 @@ public class CyclePatternRecognizerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-//		CouchbaseRepository.getInstance().removeAllDocuments("transition");
-//		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
+//		SensorManager.reset();
+
+		hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 	}
 
 	@AfterClass

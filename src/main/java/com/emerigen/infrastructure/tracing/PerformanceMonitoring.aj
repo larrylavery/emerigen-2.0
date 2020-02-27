@@ -1,10 +1,13 @@
 package com.emerigen.infrastructure.tracing;
 
 
+
 import com.emerigen.infrastructure.environment.Environment;
 import com.emerigen.infrastructure.environment.Agent;
 import com.emerigen.infrastructure.environment.NeighborhoodImpl;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
+import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
+import com.emerigen.infrastructure.learning.TransitionPatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 
 public aspect PerformanceMonitoring extends AbstractPerformanceMonitoring {

@@ -1,6 +1,7 @@
 {
-	"sensorType" : 1,
-	"sensorLocation": 1,
+  "numberOfSuccessfulPredictions": 1,
+  "lastSuccessfulPredictionTimestamp": 1,
+  "numberOfPredictionAttempts": 1,
 	  "cashOnHand": 1.0,
   "probability": 0.2,
   "dataPointDurationNano": 1000,

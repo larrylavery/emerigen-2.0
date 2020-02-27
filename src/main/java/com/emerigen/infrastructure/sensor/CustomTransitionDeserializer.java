@@ -46,8 +46,8 @@ public class CustomTransitionDeserializer extends StdDeserializer<Transition> {
 			JsonNode node = codec.readTree(parser);
 
 			// Create the transition with basic information
-			transition.setSensorType(node.get("sensorType").asInt());
-			transition.setSensorLocation(node.get("sensorLocation").asInt());
+//			transition.setSensorType(node.get("sensorType").asInt());
+//			transition.setSensorLocation(node.get("sensorLocation").asInt());
 
 			double probability = node.get("probability").asDouble();
 			transition.setProbability(probability);

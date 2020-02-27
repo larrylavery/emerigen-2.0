@@ -18,8 +18,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 
 	private String firstSensorEventKey = null;
 	private SensorEvent predictedSensorEvent = null;
-	private int sensorType;
-	private int sensorLocation;
 
 	public static final long defaultDataPointDurationNano = Long
 			.parseLong(EmerigenProperties.getInstance()
@@ -73,8 +71,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 							+ ", predictedPattern sensorType: "
 							+ predictedSensorEvent.getSensorType());
 		}
-		this.sensorType = firstSensorEvent.getSensorType();
-		this.sensorLocation = firstSensorEvent.getSensorLocation();
 		this.predictedSensorEvent = predictedSensorEvent;
 		this.dataPointDurationNano = defaultDataPointDurationNano;
 		this.lastSuccessfulPredictionTimestamp = System.currentTimeMillis() * 1000000;
@@ -111,8 +107,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 				+ ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
 		temp = Double.doubleToLongBits(probability);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + sensorLocation;
-		result = prime * result + sensorType;
 		return result;
 	}
 
@@ -149,10 +143,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 		if (Double.doubleToLongBits(probability) != Double
 				.doubleToLongBits(other.probability))
 			return false;
-		if (sensorLocation != other.sensorLocation)
-			return false;
-		if (sensorType != other.sensorType)
-			return false;
 		return true;
 	}
 
@@ -164,7 +154,6 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 				+ numberOfPredictionAttempts + ", numberOfSuccessfulPredictions="
 				+ numberOfSuccessfulPredictions + ", firstSensorEventKey="
 				+ firstSensorEventKey + ", predictedSensorEvent=" + predictedSensorEvent
-				+ ", sensorType=" + sensorType + ", sensorLocation=" + sensorLocation
 				+ ", cashOnHand=" + cashOnHand + ", dataPointDurationNano="
 				+ dataPointDurationNano + ", probability=" + probability + "]";
 	}
@@ -183,7 +172,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	 */
 	@Override
 	public Prediction getPrediction() {
-		return new TransitionPrediction(predictedSensorEvent);
+		return new Prediction(predictedSensorEvent);
 	}
 
 	/**
@@ -206,32 +195,14 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	 * @return the sensorType
 	 */
 	public int getSensorType() {
-		return sensorType;
-	}
-
-	/**
-	 * @param sensorType the sensorType to set
-	 */
-	public void setSensorType(int sensorType) {
-		if (sensorType < 0)
-			throw new IllegalArgumentException("sensorType must be positive");
-		this.sensorType = sensorType;
+		return predictedSensorEvent.getSensor().getType();
 	}
 
 	/**
 	 * @return the sensorLocation
 	 */
 	public int getSensorLocation() {
-		return sensorLocation;
-	}
-
-	/**
-	 * @param sensorLocation the sensorLocation to set
-	 */
-	public void setSensorLocation(int sensorLocation) {
-		if (sensorLocation < 0)
-			throw new IllegalArgumentException("sensorLocation must be positive");
-		this.sensorLocation = sensorLocation;
+		return predictedSensorEvent.getSensor().getLocation();
 	}
 
 	/**
@@ -330,7 +301,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 		if (winningBid < 0.0)
 			throw new IllegalArgumentException("winningBid must be positive");
 		cashOnHand = cashOnHand - winningBid;
-		return new TransitionPrediction(predictedSensorEvent);
+		return new Prediction(predictedSensorEvent);
 	}
 
 	@Override

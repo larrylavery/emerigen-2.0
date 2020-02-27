@@ -2,6 +2,7 @@ package com.emerigen.infrastructure.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.InputStream;
@@ -22,7 +23,7 @@ import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 import com.emerigen.infrastructure.utils.Utils;
 
-public class TransitionTest {
+public class TransitionMetadataTest {
 
 	private long minimumDelayBetweenReadings = Long
 			.parseLong(EmerigenProperties.getInstance()
@@ -63,6 +64,88 @@ public class TransitionTest {
 				.getResourceAsStream("transition.json");
 		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
 				.getResourceAsStream("test/transition-invalid-no-timestamp.json");
+
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidTransitionJsonFileReader));
+
+		Schema schema = SchemaLoader.load(jsonSchema);
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
+
+		// Then a ValidationException should be thrown
+		then(throwable).as(
+				"A invalidly structured Json transition document should throw a ValidationException")
+				.isInstanceOf(ValidationException.class);
+	}
+
+	@Test
+	public void givenJsonTransitionWithoutSensorType2_whenValidating_thenValidationExceptionIsThrown() {
+
+		// Given the schema and the instance json docs have been read in
+		InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("transition.json");
+		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("test/transition-invalid-no-sensor-type.json");
+
+//		public static void validate(String schema, String input){
+//		    JSONObject jsonSchema = new JSONObject(schema);
+//		    JSONObject jsonSubject = new JSONObject(input);
+//		    
+//		    Schema schema_ = SchemaLoader.load(jsonSchema);
+//		    schema_.validate(jsonSubject);
+//		  }
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidTransitionJsonFileReader));
+		Schema schema = SchemaLoader.load(jsonSchema);
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
+
+		// Then a ValidationException should be thrown
+		then(throwable).as(
+				"A invalidly structured Json transition document should throw a ValidationException")
+				.isInstanceOf(ValidationException.class);
+	}
+
+	@Test
+	public void givenJsonTransitionWithoutSensorType_whenValidating_thenValidationExceptionIsThrown() {
+
+		// Given the schema and the instance json docs have been read in
+		InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("transition.json");
+		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("test/transition-invalid-no-sensor-type.json");
+
+		JSONObject jsonSchema = new JSONObject(
+				new JSONTokener(transitionSchemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(
+				new JSONTokener(invalidTransitionJsonFileReader));
+
+		Schema schema = SchemaLoader.load(jsonSchema);
+
+		// When the instance is validated
+		final Throwable throwable = catchThrowable(() -> schema.validate(jsonSubject));
+
+		// Then a ValidationException should be thrown
+		then(throwable).as(
+				"A invalidly structured Json transition document should throw a ValidationException")
+				.isInstanceOf(ValidationException.class);
+	}
+
+	@Test
+	public void givenJsonTransitionWithNoSensorEventsNoSnsorType_whenValidating_thenValidationExceptionIsThrown() {
+
+		// Given the schema and the instance json docs have been read in
+		InputStream transitionSchemaJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream("transition.json");
+		InputStream invalidTransitionJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream(
+						"test/transition-invalid-no-sensor-events-no-sensorType.json");
 
 		JSONObject jsonSchema = new JSONObject(
 				new JSONTokener(transitionSchemaJsonFileReader));
@@ -300,7 +383,6 @@ public class TransitionTest {
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
 
-		Utils.allowDataUpdatesTimeToCatchUp();
 		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Then getPredictionsForSensorEvent() should return the two predicted
@@ -576,6 +658,55 @@ public class TransitionTest {
 		then(throwable).as(
 				"A IllegalArgumentException should be thrown for a negative timestamp")
 				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeSensorType_whenSetOnTransition_thenIlegalArgumentException() {
+
+		fail("rewrite test");
+
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+//		final Throwable throwable = catchThrowable(() -> t1.setSensorType(-1));
+
+		// Then ValidationException should occur
+//		then(throwable).as(
+//				"A IllegalArgumentException should be thrown for a negative sensor type")
+//				.isInstanceOf(IllegalArgumentException.class);
+
+	}
+
+	@Test
+	public final void givenNegativeSensorLocation_whenSetOnTransition_thenIlegalArgumentException() {
+
+		fail("rewrite test");
+		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
+
+		// Given two valid SensorEvents logged
+		float[] values = new float[] { 1.1f, 1.2f };
+		float[] values2 = new float[] { 2.1f, 2.2f };
+		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
+		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
+
+		Transition t1 = new Transition(sensorEvent1, sensorEvent2);
+//		final Throwable throwable = catchThrowable(() -> t1.setSensorLocation(-1));
+
+		// Then ValidationException should occur
+//		then(throwable).as(
+//				"A IllegalArgumentException should be thrown for a negative sensor location")
+//				.isInstanceOf(IllegalArgumentException.class);
 
 	}
 

@@ -140,6 +140,8 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 							+ sensor.getLocation() + ")");
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
+		// return predictions;
+
 		// Required elapse time has passed since last event?
 		if (currentSensorEvent.getSensor().minimumDelayBetweenReadingsIsSatisfied(
 				previousSensorEvent, currentSensorEvent)) {
@@ -152,24 +154,11 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 				adjustCycleStartTimeToClosestEnclosingCycle(currentSensorEvent);
 
 				if (previousSensorEvent == null) {
-					// Locate prior
-//					List<SensorEvent> priorEvents = predictionService
-//							.getPriorEventsThatPredictSensorEvent(currentSensorEvent);
-//
-//					if (priorEvents == null || priorEvents.isEmpty()) {
 					previousSensorEvent = currentSensorEvent;
 					predictions = predictionService
 							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
 					return predictions;
-//					} else {
-//
-//						/**
-//						 * Choose the first prior event where the currentEvent is predicted. TODO We may
-//						 * want to choose the one with the highest probability
-//						 */
-//						previousSensorEvent = priorEvents.get(0);
-//					}
 				}
 
 				if (currentEventEqualsPreviousEvent(currentSensorEvent)) {
@@ -211,12 +200,8 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	}
 
 	private boolean currentEventEqualsPreviousEvent(SensorEvent currentSensorEvent) {
-//		long currentEventTimestampOffset = currentSensorEvent.getTimestamp() % cycleDurationTimeNano;
-//		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp() % cycleDurationTimeNano;
-//		boolean timeOffsetsEqual = currentEventTimestampOffset == previousEvcentTimestampOffset;
 		boolean valuesEqual = Utils.equals(currentSensorEvent.hashCode(),
 				previousSensorEvent.hashCode());
-//		return timeOffsetsEqual && valuesEqual;
 		return valuesEqual;
 	}
 

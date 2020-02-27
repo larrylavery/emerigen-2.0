@@ -16,7 +16,7 @@ public class TransitionPredictionTest {
 
 	@Test
 	public final void givenPredictionCountZeroOrLess_whenSetProbability_thenIllegalArgumentException() {
-		TransitionPrediction prediction = new TransitionPrediction(new SensorEvent());
+		Prediction prediction = new Prediction(new SensorEvent());
 
 		final Throwable throwable = catchThrowable(() -> prediction.setProbability(0));
 
@@ -28,7 +28,7 @@ public class TransitionPredictionTest {
 	@Test
 	public final void givenNullSensorEvent_whenTransitionCreated_thenIllegalArgumentException() {
 
-		final Throwable throwable = catchThrowable(() -> new TransitionPrediction(null));
+		final Throwable throwable = catchThrowable(() -> new Prediction(null));
 
 		then(throwable).as(
 				"Null sensor event creating Transition prediction throws IllegalArgumentException")
@@ -37,7 +37,7 @@ public class TransitionPredictionTest {
 
 	@Test
 	public final void givenTwoTransitionPredictions_whenProbabilitySet_thenProbabilityEquals50Percent() {
-		TransitionPrediction prediction = new TransitionPrediction(new SensorEvent());
+		Prediction prediction = new Prediction(new SensorEvent());
 		prediction.setProbability(2);
 		assertThat(prediction.getProbability()).isEqualTo(0.5);
 	}

@@ -50,8 +50,6 @@
     },
     "transition": {
       "required": [
-        "sensorType",
-        "sensorLocation",
         "cashOnHand",
         "probability",
         "dataPointDurationNano",
@@ -60,14 +58,6 @@
         "predictedSensorEvent"
       ],
       "properties": {
-        "sensorType": {
-          "description": "The sensor that this transition belongs to",
-          "type": "number"
-        },
-        "sensorLocation": {
-          "description": "The location this sensor resides on",
-          "type": "number"
-        },
         "probability": {
           "description": "The probability that a transition's prediction will be successful",
           "type": "number"
@@ -78,6 +68,18 @@
         },
         "dataPointDurationNano": {
           "description": "The length of time a sensor's readings have been fuzzy equals",
+          "type": "number"
+        },
+        "lastSuccessfulPredictionTimestamp": {
+          "description": "The time of the last successful prediction",
+          "type": "number"
+        },
+        "numberOfPredictionAttempts": {
+          "description": "The number of prediction attempts",
+          "type": "number"
+        },
+        "numberOfSuccessfulPredictions": {
+          "description": "The number of successful prediction attempts",
           "type": "number"
         },
         "timestamp": {

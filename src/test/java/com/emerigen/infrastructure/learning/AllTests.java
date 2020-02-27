@@ -19,7 +19,8 @@ import com.emerigen.infrastructure.learning.cycle.CycleTest;
 		CyclePatternRecognizerTest.class, TransitionPatternRecognizerTest.class,
 		TransitionPredictionTest.class, CPR_ConstraintsTest.class,
 		CPR_InsertionsTest.class, CPR_LearningTest.class, CPR_PredictionTest.class,
-		TransitionTest.class, CycleTest.class, CPR_RolloverTest.class })
+		TransitionTest.class, CycleTest.class, Transition_MetadataTest.class,
+		CPR_RolloverTest.class })
 public class AllTests {
 
 }

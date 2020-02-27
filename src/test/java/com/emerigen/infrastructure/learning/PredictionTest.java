@@ -16,7 +16,7 @@ public class PredictionTest {
 	@Test
 	public final void givenNullSensorEvent_whenCreated_thenIllegalArgumentException() {
 
-		final Throwable throwable = catchThrowable(() -> new TransitionPrediction(null));
+		final Throwable throwable = catchThrowable(() -> new Prediction(null));
 
 		then(throwable).as("null sensor event throws IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -25,7 +25,7 @@ public class PredictionTest {
 	@Test
 	public final void givenNegativeProbability_whenSet_thenIllegalArgumentException() {
 
-		TransitionPrediction prediction = new TransitionPrediction(new SensorEvent());
+		Prediction prediction = new Prediction(new SensorEvent());
 
 		final Throwable throwable = catchThrowable(() -> prediction.setProbability(-1.0));
 

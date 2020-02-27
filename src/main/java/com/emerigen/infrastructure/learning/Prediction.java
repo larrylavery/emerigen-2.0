@@ -38,13 +38,35 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  * @author Larry
  *
  */
-public abstract class Prediction {
+public class Prediction {
 
 	private static final Logger logger = Logger.getLogger(Prediction.class);
 	private SensorEvent sensorEvent;
 	protected double probability = 1.0;
+	private long lastSuccessfulPredictionTimestamp = System.currentTimeMillis() * 1000000;
+	private long numberOfPredictionAttempts = 1;
+	private long numberOfSuccessfulPredictions = 0;
 
 	public Prediction() {
+	}
+
+	public Prediction(SensorEvent sensorEvent, long lastSuccessfulPredictionTimestamp,
+			long numberOfPredictionAttempts, long numberOfSuccessfulPredictions) {
+		if (sensorEvent == null)
+			throw new IllegalArgumentException("sensorEvent must not be null");
+		if (lastSuccessfulPredictionTimestamp <= 0)
+			throw new IllegalArgumentException(
+					"lastSuccessfulPredictionTimestamp must be positive");
+		if (numberOfPredictionAttempts <= 0)
+			throw new IllegalArgumentException(
+					"numberOfPredictionAttempts must be positive");
+		if (numberOfSuccessfulPredictions <= 0)
+			throw new IllegalArgumentException(
+					"numberOfSuccessfulPredictions must be positive");
+		this.sensorEvent = sensorEvent;
+		this.lastSuccessfulPredictionTimestamp = lastSuccessfulPredictionTimestamp;
+		this.numberOfPredictionAttempts = numberOfPredictionAttempts;
+		this.numberOfSuccessfulPredictions = numberOfSuccessfulPredictions;
 	}
 
 	public Prediction(SensorEvent sensorEvent) {
@@ -66,17 +88,6 @@ public abstract class Prediction {
 		this.sensorEvent = sensorEvent;
 	}
 
-	/**
-	 * Calulate the probabilty for this prediction based on available information.
-	 * Transtion-based event probabilities are determined by using the average
-	 * probability calculated by dividing 1.0 by the the total number of
-	 * predictions.
-	 * 
-	 * As stated in the class comments, cycle-based predictions are calculated using
-	 * multiple "prediction factors".
-	 * 
-	 * @return the probability
-	 */
 	public void setProbability(double probability) {
 		if (probability < 0.0)
 			throw new IllegalArgumentException("probability must be zero or more");
@@ -84,10 +95,31 @@ public abstract class Prediction {
 	}
 
 	/**
+	 * Calulate the probabilty for this prediction based on available information.
+	 * Multiple factors are used.
+	 * 
+	 * TODO implement after transition metadata finalized.
+	 * 
 	 * @return the probability
 	 */
 	public double getProbability() {
 		return probability;
+	}
+
+	/**
+	 * Calulate the probabilty for this prediction based on the number of
+	 * predictions returned from either a onSensorChanged() or
+	 * getPredictionsForEvent(SensorEvent) request. Currently this type of
+	 * probability is determined by using the average probability calculated by
+	 * dividing 1.0 by the the total number of predictions.
+	 * 
+	 * @return the probability
+	 */
+	public void setProbability(int predictionCount) {
+		if (predictionCount <= 0)
+			throw new IllegalArgumentException(
+					"predictionCount must be greater than zero");
+		this.probability = 1.0 / predictionCount;
 	}
 
 }

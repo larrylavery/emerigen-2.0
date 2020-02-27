@@ -88,8 +88,6 @@ public class PredictionService {
 				.put("wakeUpSensor", sensor.isWakeUpSensor());
 
 		JsonObject transitionJsonObject = JsonObject.create()
-				.put("sensorType", sensor.getType())
-				.put("sensorLocation", sensor.getLocation())
 				.put("cashOnHand", Transition.defaultCashOnHand)
 				.put("probability", defaultProbability).put("timestamp", timestamp)
 				.put("dataPointDurationNano", Transition.defaultDataPointDurationNano)
@@ -190,8 +188,7 @@ public class PredictionService {
 	private List<Prediction> convertToPredictions(
 			List<SensorEvent> predictedSensorEvents) {
 		List<Prediction> newPredictions = predictedSensorEvents.stream()
-				.map(event -> new TransitionPrediction(event))
-				.collect(Collectors.toList());
+				.map(event -> new Prediction(event)).collect(Collectors.toList());
 		return newPredictions;
 	}
 

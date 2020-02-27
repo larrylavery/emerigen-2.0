@@ -13,7 +13,6 @@ import org.junit.Test;
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.learning.creditassignment.Bid;
-import com.emerigen.infrastructure.learning.cycle.CyclePrediction;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 
 public class PredictionConsumerTest {
@@ -22,7 +21,7 @@ public class PredictionConsumerTest {
 	public final void givenValidPrediction_whenMatchingPredictionInvoked_thenBidOfDefaultPercentageReturned() {
 		Transition t = new Transition();
 		t.setCashOnHand(100.0);
-		Prediction prediction = new CyclePrediction(new SensorEvent());
+		Prediction prediction = new Prediction(new SensorEvent());
 		Bid bid = t.matchingPrediction(prediction);
 		assertThat(bid.getAmount()).isEqualTo(10.0);
 	}

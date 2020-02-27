@@ -20,7 +20,7 @@ public abstract aspect AbstractPerformanceMonitoring {
         } finally {
             long complete = System.nanoTime();
             NDC.push("        ::: ");
-            logger.info("Operation "
+            logger.warn("Operation "
                     + thisJoinPointStaticPart.getSignature().toShortString() + " took "
                     + (complete - start) + " nanoseconds");
             NDC.pop();

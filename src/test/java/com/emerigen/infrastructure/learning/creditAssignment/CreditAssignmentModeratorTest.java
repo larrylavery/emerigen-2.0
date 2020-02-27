@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.Transition;
-import com.emerigen.infrastructure.learning.TransitionPrediction;
 import com.emerigen.infrastructure.learning.creditassignment.Bid;
 import com.emerigen.infrastructure.learning.creditassignment.CreditAssignmentModerator;
 import com.emerigen.infrastructure.sensor.Sensor;
@@ -82,7 +82,7 @@ public class CreditAssignmentModeratorTest {
 
 		final Throwable throwable = catchThrowable(
 				() -> cam.registerConsumerPredictionForSensor(
-						new TransitionPrediction(new SensorEvent()), null));
+						new Prediction(new SensorEvent()), null));
 
 		then(throwable).as("A null consumerPrediction throws an IllegalArgumentException")
 				.isInstanceOf(IllegalArgumentException.class);
@@ -134,8 +134,8 @@ public class CreditAssignmentModeratorTest {
 
 		Utils.allowDataUpdatesTimeToCatchUp();
 
-		List<Bid> bids = cam.locatePotentialConsumersForPrediction(
-				new TransitionPrediction(sensorEvent1));
+		List<Bid> bids = cam
+				.locatePotentialConsumersForPrediction(new Prediction(sensorEvent1));
 		assertThat(bids.size()).isEqualTo(2);
 	}
 
@@ -167,8 +167,8 @@ public class CreditAssignmentModeratorTest {
 
 		Utils.allowDataUpdatesTimeToCatchUp();
 
-		List<Bid> bids = cam.locatePotentialConsumersForPrediction(
-				new TransitionPrediction(sensorEvent1));
+		List<Bid> bids = cam
+				.locatePotentialConsumersForPrediction(new Prediction(sensorEvent1));
 
 		assertThat(bids.size()).isEqualTo(3);
 		bids.get(0).setAmount(1);
@@ -236,8 +236,8 @@ public class CreditAssignmentModeratorTest {
 
 		// locate two 1st link predictionConsumers (ie where firstEventKey =
 		// sensorEvent1
-		List<Bid> bids = cam.locatePotentialConsumersForPrediction(
-				new TransitionPrediction(sensorEvent1));
+		List<Bid> bids = cam
+				.locatePotentialConsumersForPrediction(new Prediction(sensorEvent1));
 
 		assertThat(bids.size()).isEqualTo(2);
 
@@ -256,8 +256,7 @@ public class CreditAssignmentModeratorTest {
 		// Next, locate the potential bidders for the 2nd link prediction winning
 		// bidder's
 		// prediction
-		bids = cam.locatePotentialConsumersForPrediction(
-				(new TransitionPrediction(sensorEvent2)));
+		bids = cam.locatePotentialConsumersForPrediction((new Prediction(sensorEvent2)));
 //		(bid.getPredictionConsumer().getPrediction()));
 
 		assertThat(bids.size()).isEqualTo(2);

@@ -21,13 +21,6 @@ import org.mockito.junit.MockitoRule;
 
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
-import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.cycle.CyclePrediction;
-import com.emerigen.infrastructure.learning.cycle.DailyCycle;
-import com.emerigen.infrastructure.learning.cycle.MonthlyCycle;
-import com.emerigen.infrastructure.learning.cycle.WeeklyCycle;
-import com.emerigen.infrastructure.learning.cycle.YearlyCycle;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
@@ -87,7 +80,7 @@ public class CPR_RolloverTest {
 
 		// Define predictionService behavior for this test case
 		List<Prediction> mockPredictions = new ArrayList<>();
-		mockPredictions.add(new CyclePrediction(event1));
+		mockPredictions.add(new Prediction(event1));
 
 		// Verify appropriate methods called AND how many times and that no other
 		// methods were called
