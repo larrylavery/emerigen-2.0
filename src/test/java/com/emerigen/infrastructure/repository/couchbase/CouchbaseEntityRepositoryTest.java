@@ -11,7 +11,6 @@ import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 //import io.reactivex.Observable;
 
@@ -52,13 +51,13 @@ public class CouchbaseEntityRepositoryTest {
 				false);
 
 		// Give the bucket a chance to catch up after the log
-		try {
-			Thread.sleep(500 + Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(500 + Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("couchbase.server.logging.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		// When the document queried
 		String queryString = "SELECT * FROM `entity` WHERE entityID = \"" + entityUuid1

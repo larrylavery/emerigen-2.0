@@ -81,7 +81,7 @@ public class TransitionPatternRecognizerTest {
 //		sensorEvent1
 //				.setTimestamp(sensorEvent2.getTimestamp() + minimumDelayBetweenReadings);
 
-		Thread.sleep(100);
+//		Thread.sleep(100);
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 
@@ -141,7 +141,7 @@ public class TransitionPatternRecognizerTest {
 		predictions = listener.onSensorChanged(sensorEvent3);
 		assertThat(predictions.size() >= 0).isTrue();
 
-		Thread.sleep(100);
+//		Thread.sleep(100);
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 		assertThat(predictions).isNotNull().isNotEmpty();
@@ -187,7 +187,7 @@ public class TransitionPatternRecognizerTest {
 
 		predictions = listener.onSensorChanged(sensorEvent3);
 
-		Thread.sleep(100);
+//		Thread.sleep(100);
 //		assertThat(predictions).isNotNull().isEmpty();
 
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
@@ -225,7 +225,7 @@ public class TransitionPatternRecognizerTest {
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions).isNotNull().isEmpty();
-		Thread.sleep(100);
+//		Thread.sleep(100);
 
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);

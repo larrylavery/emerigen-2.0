@@ -13,7 +13,6 @@ import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
-import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
  * @author Larry
@@ -50,13 +49,13 @@ public class KnowledgeRepositoryTest {
 //		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent5);
 
 		// Give the bucket a chance to catch up after the log
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("couchbase.server.logging.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		int count = KnowledgeRepository.getInstance()
 				.getSensorEventCountForSensorTypeAndLocation(Sensor.TYPE_HEART_RATE,

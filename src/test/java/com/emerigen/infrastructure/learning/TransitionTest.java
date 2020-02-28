@@ -20,6 +20,7 @@ import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class TransitionTest {
 
@@ -153,7 +154,7 @@ public class TransitionTest {
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
 		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
@@ -212,31 +213,7 @@ public class TransitionTest {
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 
-		// Query all transitions where the firstSensorEvent key equals the supplied
-		// sensorEvent i.e. getPredictions!
-//
-//		//// perform a set asynchronously; return from set not important now
-//		OperationFuture<Boolean> setOp = client.set(KEY, EXP_TIME, VALUE);
-//		// do something in meantime
-//		// check to see if set successful via get, if not fail
-//		// the get will block application flow
-//		if (setOp.get().booleanValue()) {
-//			System.out.println("Set Succeeded");
-//		} else {
-//			System.err.println("Set failed:" + setOp.getStatus().getMessage());
-//		}
-//
-//		GetFuture getOp = client.asyncGet(KEY);
-//		// do something in meantime
-//		// check to see if get successful
-//		// if not cancel
-//		if ((getObject = getOp.get()) != null) {
-//			System.out.println("Asynchronous get succeeded: " + getObject);
-//
-//		} else {
-//			System.err.println(
-//					"Asynchronous get failed: " + getOp.getStatus().getMessage());
-//		}
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		ps = new PredictionService(sensor);
 		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
@@ -292,7 +269,7 @@ public class TransitionTest {
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// Then getPredictionsForSensorEvent() should return the two predicted
 		// sensorEvents
 

@@ -174,6 +174,7 @@ public class CouchbaseRepository {
 
 		Bucket bucket = buckets.get(bucketName);
 		if (bucket != null) {
+
 			if (synchronous) {
 				bucket.upsert(JsonDocument.create(primaryKey, jsonObject),
 						PersistTo.MASTER);

@@ -21,7 +21,6 @@ import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
-import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 //import io.reactivex.Observable;
 
@@ -53,7 +52,7 @@ public class CouchbaseRepositoryQueryTest {
 		ps.createPredictionFromSensorEvents(event1, event2);
 		ps.createPredictionFromSensorEvents(event1, event3);
 
-		Thread.sleep(500);
+//		Thread.sleep(500);
 		String prefix = "SELECT predictedSensorEvent FROM `transition` ";
 		String conditional = "WHERE firstSensorEventKey = \"" + event1.getKey() + "\"";
 		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
@@ -124,15 +123,16 @@ public class CouchbaseRepositoryQueryTest {
 
 		// Log using our repository under test
 		String uuid = UUID.randomUUID().toString();
-		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc, false);
+		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc,
+				false);
 
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("couchbase.server.logging.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		JsonDocument doc = CouchbaseRepository.getInstance().get("sensor-event", uuid);
 

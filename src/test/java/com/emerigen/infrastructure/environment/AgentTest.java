@@ -11,8 +11,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.emerigen.infrastructure.utils.EmerigenProperties;
-
 public class AgentTest {
 
 	@Test
@@ -65,12 +63,12 @@ public class AgentTest {
 		a1.spreadMessage(msg);
 
 		// Wait for all agents to propagate the spreadMessage
-		try {
-			Thread.sleep(500 + Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("environment.message.spreading.catchup.timer")));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(500 + Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("environment.message.spreading.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 
 		// When neighbors requested
 
@@ -111,12 +109,12 @@ public class AgentTest {
 		a1.spreadMessage(msg);
 
 		// Wait for all agents to propagate the spreadMessage
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("environment.message.spreading.catchup.timer")));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("environment.message.spreading.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 
 		// Then the content of all messages is changed to "xxx"
 		softly.assertThat((String) a1.getContent()).isEqualTo("xxx");
@@ -151,12 +149,12 @@ public class AgentTest {
 		a1.spreadMessage(msg);
 
 		// Wait for all agents to propagate the spreadMessage
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("environment.message.spreading.catchup.timer")));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("environment.message.spreading.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 
 		// Then the content of all messages is changed to "xxx"
 		then((String) a1.getContent()).isEqualTo("xxx");

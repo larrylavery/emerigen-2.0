@@ -22,7 +22,7 @@ public class EvaporationTest {
 		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey",
 				"relevant info");
 
-		Thread.sleep(2000);
+//		Thread.sleep(2000);
 
 		// Then
 		assertThat(Environment.getInstance()
@@ -36,12 +36,12 @@ public class EvaporationTest {
 		Environment.getInstance().setInformationWithRelevance("uniqueInfoKey",
 				"relevant info");
 
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(500);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		// Then
 		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
@@ -68,7 +68,7 @@ public class EvaporationTest {
 		// Then
 		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
 				.isNotNull();
-		Thread.sleep(1000);
+//		Thread.sleep(1000);
 
 		assertThat(Environment.getInstance()
 				.getInformationWithMinimumRelevance("uniqueInfoKey", .99)).isNull();
@@ -94,7 +94,7 @@ public class EvaporationTest {
 		// Then
 		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
 				.isNotNull();
-		Thread.sleep(1000);
+//		Thread.sleep(1000);
 
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");
 		Environment.getInstance().getInformationWithRelevance("uniqueInfoKey");

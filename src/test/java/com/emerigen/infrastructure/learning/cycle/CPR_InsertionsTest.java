@@ -248,7 +248,8 @@ public class CPR_InsertionsTest {
 
 		// Verify appropriate methods called AND how many times and that no other
 		// methods were called
-		verify(mockPredictionService, times(2)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService, times(1)).getPredictionsForSensorEvent(event1);
+		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
 		verify(mockPredictionService).getPredictionsForSensorEvent(event1);
 		verify(mockPredictionService).getPredictionsForSensorEvent(event2);
 		verify(mockPredictionService, times(2))

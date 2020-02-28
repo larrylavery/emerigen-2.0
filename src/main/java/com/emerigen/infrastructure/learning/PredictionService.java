@@ -67,7 +67,7 @@ public class PredictionService {
 				firstSensorEvent.getSensor().getType(),
 				firstSensorEvent.getSensor().getLocation());
 
-		// Create ti mestamp and id
+		// Create timestamp and id
 		long timestamp = System.currentTimeMillis() * 1000000;
 		String uuid = UUID.randomUUID().toString();
 

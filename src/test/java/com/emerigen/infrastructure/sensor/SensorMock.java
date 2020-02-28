@@ -61,12 +61,12 @@ public class SensorMock {
 			listener.onSensorChanged(newSensorEvent);
 
 			// sleep for the specified minimum sensor reading delay
-			try {
-				Thread.sleep(minimumDelayBetweenReadings);
-			} catch (InterruptedException e) {
-				// Ignore exceptions but print the stack trace
-				e.printStackTrace();
-			}
+//			try {
+//				Thread.sleep(minimumDelayBetweenReadings);
+//			} catch (InterruptedException e) {
+//				// Ignore exceptions but print the stack trace
+//				e.printStackTrace();
+//			}
 
 			// Get the next sensorEvent
 			newSensorEvent = getNextSensorEvent();

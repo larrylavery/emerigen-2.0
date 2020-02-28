@@ -18,15 +18,11 @@ import org.junit.Test;
 
 import com.couchbase.client.java.document.json.JsonObject;
 import com.emerigen.infrastructure.learning.PredictionService;
-import com.emerigen.infrastructure.learning.cycle.Cycle;
-import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
-import com.emerigen.infrastructure.learning.cycle.DailyCycle;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
-import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class CycleTest {
 
@@ -183,13 +179,13 @@ public class CycleTest {
 		KnowledgeRepository.getInstance().newCycle(uuid, cycle);
 
 		// Give the bucket a chance to catch up after the log
-		try {
-			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-					.getValue("couchbase.server.logging.catchup.timer")));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
+//					.getValue("couchbase.server.logging.catchup.timer")));
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		// Then try to retrieve it
 		Cycle cycle2 = KnowledgeRepository.getInstance().getCycle("Daily", uuid);
