@@ -12,7 +12,6 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 //import io.reactivex.Observable;
 
@@ -49,7 +48,8 @@ public class CouchbaseEntityRepositoryTest {
 				.put("timestamp", "1")
 				.put("channels", JsonArray.from(jsonObjectChannel, jsonObjectChannel2));
 
-		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc);
+		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc,
+				false);
 
 		// Give the bucket a chance to catch up after the log
 		try {
@@ -100,11 +100,10 @@ public class CouchbaseEntityRepositoryTest {
 		JsonObject entityJsonDoc = JsonObject.create().put("entityID", entityUuid1)
 				.put("timestamp", "1").put("channels", JsonArray.from(channelType));
 
-		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc);
+		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc,
+				false);
 
 		// Give the bucket a chance to catch up after the log
-		Utils.allowDataUpdatesTimeToCatchUp();
-		Utils.allowDataUpdatesTimeToCatchUp();
 		// When the document queried
 		String queryString = "SELECT * FROM `entity` WHERE entityID = \"" + entityUuid1
 				+ "\"";

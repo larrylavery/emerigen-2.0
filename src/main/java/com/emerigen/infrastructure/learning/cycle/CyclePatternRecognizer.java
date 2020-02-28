@@ -172,7 +172,6 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					// Previous event occurs after current event? create new Transition
 					predictionService.createPredictionFromSensorEvents(
 							previousSensorEvent, currentSensorEvent);
-					Utils.allowDataUpdatesTimeToCatchUp();
 					predictions = predictionService
 							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);
@@ -184,7 +183,6 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 					// Current event prior to previous event? create backward Transition
 					predictionService.createPredictionFromSensorEvents(currentSensorEvent,
 							previousSensorEvent);
-					Utils.allowDataUpdatesTimeToCatchUp();
 					predictions = predictionService
 							.getPredictionsForSensorEvent(currentSensorEvent);
 					predictionService.setCurrentPredictions(predictions);

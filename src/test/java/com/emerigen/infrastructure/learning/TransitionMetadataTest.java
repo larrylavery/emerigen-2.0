@@ -21,7 +21,6 @@ import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 public class TransitionMetadataTest {
 
@@ -238,9 +237,6 @@ public class TransitionMetadataTest {
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
 
-		Utils.allowDataUpdatesTimeToCatchUp();
-		Utils.allowDataUpdatesTimeToCatchUp();
-
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
 		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
@@ -299,7 +295,6 @@ public class TransitionMetadataTest {
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 
-		Utils.allowDataUpdatesTimeToCatchUp();
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
 //
@@ -350,8 +345,6 @@ public class TransitionMetadataTest {
 		PredictionService ps = new PredictionService(sensor);
 		String uuid = ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 
-		Utils.allowDataUpdatesTimeToCatchUp();
-
 		// Query all transitions where the firstSensorEvent key equals the supplied
 		// sensorEvent i.e. getPredictions!
 		Transition newTransition = KnowledgeRepository.getInstance().getTransition(uuid);
@@ -382,8 +375,6 @@ public class TransitionMetadataTest {
 		PredictionService ps = new PredictionService(sensor);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent2);
 		ps.createPredictionFromSensorEvents(sensorEvent1, sensorEvent3);
-
-		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Then getPredictionsForSensorEvent() should return the two predicted
 		// sensorEvents

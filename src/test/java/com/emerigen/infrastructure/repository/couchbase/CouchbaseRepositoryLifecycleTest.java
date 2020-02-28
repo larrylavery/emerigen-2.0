@@ -112,7 +112,7 @@ public class CouchbaseRepositoryLifecycleTest {
 		JsonObject myObj = JsonObject.create();
 		// When
 		final Throwable throwable = catchThrowable(() -> CouchbaseRepository.getInstance()
-				.log("invalidBucketName", "any-primary-key", myObj));
+				.log("invalidBucketName", "any-primary-key", myObj, false));
 
 		// Then
 		then(throwable).as(

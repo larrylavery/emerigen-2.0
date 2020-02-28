@@ -21,7 +21,6 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 public class CyclePatternRecognizerTest {
 
@@ -249,7 +248,7 @@ public class CyclePatternRecognizerTest {
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions).isNotNull().isEmpty();
-		Utils.allowDataUpdatesTimeToCatchUp();
+
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 		assertThat(predictions).isNotNull().isNotEmpty();

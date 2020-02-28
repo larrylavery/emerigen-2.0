@@ -70,8 +70,8 @@ public class CouchbaseSensorEventRepositoryTest {
 				.put("timestamp", "" + timestamp).put("values", jsonArray1);
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("sensor-event", uuid1, sensorEventJsonDoc);
-		CouchbaseRepository.getInstance().log("sensor-event", uuid2, sensorEventJsonDoc);
+		CouchbaseRepository.getInstance().log("sensor-event", uuid1, sensorEventJsonDoc, false);
+		CouchbaseRepository.getInstance().log("sensor-event", uuid2, sensorEventJsonDoc, false);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
@@ -118,7 +118,7 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		// Store the Document
 		String uuid = UUID.randomUUID().toString();
-		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEvent);
+		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEvent, false);
 
 		// Retrieve by primary using the repository under test
 		JsonDocument getDoc = CouchbaseRepository.getInstance().get("sensor-event", uuid);

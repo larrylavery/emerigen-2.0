@@ -22,7 +22,6 @@ import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 public class CreditAssignmentModeratorTest {
 
@@ -132,8 +131,6 @@ public class CreditAssignmentModeratorTest {
 		CreditAssignmentModerator cam = new CreditAssignmentModerator(
 				new PredictionService());
 
-		Utils.allowDataUpdatesTimeToCatchUp();
-
 		List<Bid> bids = cam
 				.locatePotentialConsumersForPrediction(new Prediction(sensorEvent1));
 		assertThat(bids.size()).isEqualTo(2);
@@ -164,8 +161,6 @@ public class CreditAssignmentModeratorTest {
 
 		CreditAssignmentModerator cam = new CreditAssignmentModerator(
 				new PredictionService());
-
-		Utils.allowDataUpdatesTimeToCatchUp();
 
 		List<Bid> bids = cam
 				.locatePotentialConsumersForPrediction(new Prediction(sensorEvent1));
@@ -230,9 +225,6 @@ public class CreditAssignmentModeratorTest {
 
 		CreditAssignmentModerator cam = new CreditAssignmentModerator(
 				new PredictionService());
-
-		Utils.allowDataUpdatesTimeToCatchUp();
-		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// locate two 1st link predictionConsumers (ie where firstEventKey =
 		// sensorEvent1

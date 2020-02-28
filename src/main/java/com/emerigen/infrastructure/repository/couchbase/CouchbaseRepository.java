@@ -11,6 +11,7 @@ import com.couchbase.client.core.env.KeyValueServiceConfig;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.PersistTo;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
@@ -164,13 +165,22 @@ public class CouchbaseRepository {
 
 	public void log(final String bucketName, final String primaryKey,
 			final JsonObject jsonObject) {
+		log(bucketName, primaryKey, jsonObject, false);
+	}
 
+	public void log(final String bucketName, final String primaryKey,
+			final JsonObject jsonObject, boolean synchronous) {
 		openBucketIfNecessary(bucketName);
 
 		Bucket bucket = buckets.get(bucketName);
 		if (bucket != null) {
-			// insert the jsonObject into my bucket
-			bucket.upsert(JsonDocument.create(primaryKey, jsonObject));
+			if (synchronous) {
+				bucket.upsert(JsonDocument.create(primaryKey, jsonObject),
+						PersistTo.MASTER);
+			} else {
+				// insert the jsonObject into my bucket
+				bucket.upsert(JsonDocument.create(primaryKey, jsonObject));
+			}
 		} else {
 			throw new BucketNotFoundException(
 					"log(bucketName() failed because the bucket was not found");

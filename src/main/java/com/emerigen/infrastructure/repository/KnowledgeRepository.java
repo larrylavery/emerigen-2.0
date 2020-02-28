@@ -197,7 +197,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			logger.info(" JsonObject validated successfully");
 
 			try {
-				repository.log(SENSOR_EVENT, uuid, jsonObject);
+				repository.log(SENSOR_EVENT, uuid, jsonObject, false);
 			} catch (DocumentAlreadyExistsException e) {
 
 				// Ignoring these to contend with Listeners default behavior of always
@@ -253,7 +253,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
-			repository.log(ENTITY, uuid, jsonObject);
+			repository.log(ENTITY, uuid, jsonObject, false);
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
@@ -431,7 +431,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
-			repository.log(CYCLE, cycleKey, jsonObject);
+			repository.log(CYCLE, cycleKey, jsonObject, false);
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);

@@ -124,7 +124,7 @@ public class CouchbaseRepositoryQueryTest {
 
 		// Log using our repository under test
 		String uuid = UUID.randomUUID().toString();
-		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc);
+		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc, false);
 
 		try {
 			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()

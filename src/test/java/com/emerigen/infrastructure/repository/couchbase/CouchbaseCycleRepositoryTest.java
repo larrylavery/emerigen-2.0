@@ -58,10 +58,10 @@ public class CouchbaseCycleRepositoryTest {
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().log("cycle",
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc);
+				cycleJsonDoc, false);
 		CouchbaseRepository.getInstance().log("cycle",
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc);
+				cycleJsonDoc, false);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
@@ -121,7 +121,7 @@ public class CouchbaseCycleRepositoryTest {
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().log("cycle",
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc);
+				cycleJsonDoc, false);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()

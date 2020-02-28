@@ -99,7 +99,8 @@ public class PredictionService {
 				.put("predictedSensorEvent", predictedEventJsonDoc);
 
 		// Log the transition object
-		CouchbaseRepository.getInstance().log("transition", uuid, transitionJsonObject);
+		CouchbaseRepository.getInstance().log("transition", uuid, transitionJsonObject,
+				true);
 		return uuid;
 	}
 
