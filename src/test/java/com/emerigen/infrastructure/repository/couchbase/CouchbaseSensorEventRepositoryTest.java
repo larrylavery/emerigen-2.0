@@ -70,19 +70,15 @@ public class CouchbaseSensorEventRepositoryTest {
 				.put("timestamp", "" + timestamp).put("values", jsonArray1);
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("sensor-event", uuid1, sensorEventJsonDoc, false);
-		CouchbaseRepository.getInstance().log("sensor-event", uuid2, sensorEventJsonDoc, false);
+		CouchbaseRepository.getInstance().log(uuid1, sensorEventJsonDoc, false);
+		CouchbaseRepository.getInstance().log(uuid2, sensorEventJsonDoc, false);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
 				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
-				N1qlQuery.parameterized(
-						"SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = $sensorType"
-								+ " AND sensorLocation = $sensorLocation",
-						placeholderValues));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event");
 
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 2);
@@ -118,10 +114,10 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		// Store the Document
 		String uuid = UUID.randomUUID().toString();
-		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEvent, false);
+		CouchbaseRepository.getInstance().log(uuid, sensorEvent, false);
 
 		// Retrieve by primary using the repository under test
-		JsonDocument getDoc = CouchbaseRepository.getInstance().get("sensor-event", uuid);
+		JsonDocument getDoc = CouchbaseRepository.getInstance().get(uuid);
 
 		assertThat(getDoc).isNotNull();
 		softly.assertThat(getDoc.content().getString("timestamp")).isEqualTo(timestamp);

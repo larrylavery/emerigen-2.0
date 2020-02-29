@@ -197,7 +197,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			logger.info(" JsonObject validated successfully");
 
 			try {
-				repository.log(SENSOR_EVENT, uuid, jsonObject, false);
+				repository.log(uuid, jsonObject, false);
 			} catch (DocumentAlreadyExistsException e) {
 
 				// Ignoring these to contend with Listeners default behavior of always
@@ -218,8 +218,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		String queryString = "SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = "
 				+ sensorType + " AND sensorLocation = " + sensorLocation;
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
-				N1qlQuery.simple(queryString));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event");
 
 		logger.info(" query result: " + result);
 
@@ -253,7 +252,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
-			repository.log(ENTITY, uuid, jsonObject, false);
+			repository.log(uuid, jsonObject, false);
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
@@ -269,7 +268,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-		JsonDocument entityJsonDoc = repo.get(ENTITY, entityKey);
+		JsonDocument entityJsonDoc = repo.get(entityKey);
 		logger.info(" after objectMapping, JsonDocument: " + entityJsonDoc);
 		Entity entity;
 
@@ -299,7 +298,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		mapper.registerModule(module);
 		SensorEvent sensorEvent;
 
-		JsonDocument jsonDocument = repo.get(SENSOR_EVENT, sensorEventKey);
+		JsonDocument jsonDocument = repo.get(sensorEventKey);
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 
 		if (jsonDocument == null)
@@ -332,7 +331,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		module.addDeserializer(Transition.class, new CustomTransitionDeserializer());
 		mapper.registerModule(module);
 
-		JsonDocument jsonDocument = repo.get(TRANSITION, transitionKey);
+		JsonDocument jsonDocument = repo.get(transitionKey);
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 		Transition transition;
 
@@ -431,7 +430,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
-			repository.log(CYCLE, cycleKey, jsonObject, false);
+			repository.log(cycleKey, jsonObject, false);
 
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
@@ -457,7 +456,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		module.addDeserializer(Cycle.class, new CustomCycleDeserializer());
 		mapper.registerModule(module);
 
-		JsonDocument jsonDocument = repo.get(CYCLE, cycleKey);
+		JsonDocument jsonDocument = repo.get(cycleKey);
 
 		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
 		Cycle cycle;

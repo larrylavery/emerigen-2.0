@@ -11,6 +11,8 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.emerigen.infrastructure.utils.Utils;
+
 public class AgentTest {
 
 	@Test
@@ -71,7 +73,7 @@ public class AgentTest {
 //		}
 
 		// When neighbors requested
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// Then the content of all messages is changed to "xxx"
 		assertThat((String) a1.getContent()).isEqualTo("xxx");
 		assertThat((String) a2.getContent()).isEqualTo("xxx");
@@ -115,6 +117,7 @@ public class AgentTest {
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
 //		}
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Then the content of all messages is changed to "xxx"
 		softly.assertThat((String) a1.getContent()).isEqualTo("xxx");
@@ -155,6 +158,7 @@ public class AgentTest {
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
 //		}
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// Then the content of all messages is changed to "xxx"
 		then((String) a1.getContent()).isEqualTo("xxx");

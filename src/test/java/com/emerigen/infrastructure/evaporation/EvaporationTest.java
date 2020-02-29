@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.emerigen.infrastructure.environment.Environment;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class EvaporationTest {
 
@@ -23,7 +24,7 @@ public class EvaporationTest {
 				"relevant info");
 
 //		Thread.sleep(2000);
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// Then
 		assertThat(Environment.getInstance()
 				.getInformationWithMinimumRelevance("uniqueInfoKey", 1.0)).isNull();
@@ -69,6 +70,8 @@ public class EvaporationTest {
 		assertThat(Environment.getInstance().getInformationWithRelevance("uniqueInfoKey"))
 				.isNotNull();
 //		Thread.sleep(1000);
+//		Utils.allowDataUpdatesTimeToCatchUp();
+//		Utils.allowDataUpdatesTimeToCatchUp();
 
 		assertThat(Environment.getInstance()
 				.getInformationWithMinimumRelevance("uniqueInfoKey", .99)).isNull();

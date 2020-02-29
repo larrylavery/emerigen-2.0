@@ -56,23 +56,19 @@ public class CouchbaseCycleRepositoryTest {
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc, false);
-		CouchbaseRepository.getInstance().log("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc, false);
+		CouchbaseRepository.getInstance().log("" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
+				cycleJsonDoc,
+				false);
+		CouchbaseRepository.getInstance().log("" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
+				cycleJsonDoc,
+				false);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
 				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("cycle",
-				N1qlQuery.parameterized(
-						"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
-								+ " AND sensorLocation = $sensorLocation",
-						placeholderValues));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("cycle");
 
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);
@@ -119,20 +115,16 @@ public class CouchbaseCycleRepositoryTest {
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log("cycle",
-				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc, false);
+		CouchbaseRepository.getInstance().log("" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
+				cycleJsonDoc,
+				false);
 
 		// Perform a N1QL Query
 		JsonObject placeholderValues = JsonObject.create()
 				.put("sensorType", sensor.getType())
 				.put("sensorLocation", sensor.getLocation());
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("cycle",
-				N1qlQuery.parameterized(
-						"SELECT COUNT(*) FROM `cycle` WHERE sensorType = $sensorType"
-								+ " AND sensorLocation = $sensorLocation",
-						placeholderValues));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("cycle");
 
 		softly.assertThat(result).isNotNull().isNotEmpty();
 		softly.assertThat(result.info().resultCount() == 1);

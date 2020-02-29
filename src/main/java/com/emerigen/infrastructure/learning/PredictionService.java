@@ -99,8 +99,7 @@ public class PredictionService {
 				.put("predictedSensorEvent", predictedEventJsonDoc);
 
 		// Log the transition object
-		CouchbaseRepository.getInstance().log("transition", uuid, transitionJsonObject,
-				true);
+		CouchbaseRepository.getInstance().log(uuid, transitionJsonObject, true);
 		return uuid;
 	}
 
@@ -112,8 +111,7 @@ public class PredictionService {
 
 		String queryString = "SELECT COUNT(*) FROM `transition` WHERE sensorType = "
 				+ sensorType + " AND sensorLocation = " + sensorLocation;
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event",
-				N1qlQuery.simple(queryString));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event");
 
 		logger.info(" query result: " + result);
 
@@ -199,8 +197,7 @@ public class PredictionService {
 		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
 				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\""
 				+ "AND timestamp < " + timestamp;
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(statement));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition");
 		return result;
 	}
 
@@ -209,8 +206,7 @@ public class PredictionService {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
 				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(statement));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition");
 		return result;
 	}
 
@@ -294,8 +290,7 @@ public class PredictionService {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		String statement = "SELECT predictedSensorEvent FROM `transition` WHERE "
 				+ "firstSensorEventKey = \"" + currentSensorEvent.getKey() + "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(statement));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition");
 		return null;
 	}
 
@@ -326,8 +321,7 @@ public class PredictionService {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		String statement = "SELECT * FROM `transition` WHERE firstSensorEventKey=\""
 				+ sensorEvent.getKey() + "" + "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(statement));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition");
 		return result;
 	}
 

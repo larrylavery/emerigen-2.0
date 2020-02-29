@@ -55,8 +55,7 @@ public class CouchbaseRepositoryQueryTest {
 //		Thread.sleep(500);
 		String prefix = "SELECT predictedSensorEvent FROM `transition` ";
 		String conditional = "WHERE firstSensorEventKey = \"" + event1.getKey() + "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(prefix + conditional));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition");
 
 		assertThat(result).isNotNull().isNotEmpty();
 		assertThat(result.info().resultCount() == 2);
@@ -91,10 +90,7 @@ public class CouchbaseRepositoryQueryTest {
 		ps.createPredictionFromSensorEvents(event1, event2);
 		ps.createPredictionFromSensorEvents(event1, event3);
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition",
-				N1qlQuery.simple(
-						"SELECT COUNT(*) FROM `transition` WHERE firstSensorEventKey = \""
-								+ event1.getKey() + "\""));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("transition");
 
 		assertThat(result).isNotNull().isNotEmpty();
 		assertThat(result.info().resultCount() == 2);
@@ -123,8 +119,7 @@ public class CouchbaseRepositoryQueryTest {
 
 		// Log using our repository under test
 		String uuid = UUID.randomUUID().toString();
-		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc,
-				false);
+		CouchbaseRepository.getInstance().log(uuid, sensorEventJsonDoc, false);
 
 //		try {
 //			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
@@ -134,7 +129,7 @@ public class CouchbaseRepositoryQueryTest {
 //			e.printStackTrace();
 //		}
 
-		JsonDocument doc = CouchbaseRepository.getInstance().get("sensor-event", uuid);
+		JsonDocument doc = CouchbaseRepository.getInstance().get(uuid);
 
 		assertThat(doc).isNotNull();
 

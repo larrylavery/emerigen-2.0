@@ -58,7 +58,7 @@ public class SensorEventTest {
 		// Log using our repository under test
 		String uuid = UUID.randomUUID().toString();
 //		KnowledgeRepository.getInstance().newSensorEvent(event);
-		CouchbaseRepository.getInstance().log("sensor-event", uuid, sensorEventJsonDoc, false);
+		CouchbaseRepository.getInstance().log(uuid, sensorEventJsonDoc, false);
 
 		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance()
 				.getSensorEvent(uuid);

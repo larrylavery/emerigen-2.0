@@ -11,6 +11,7 @@ import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
+import com.emerigen.infrastructure.utils.Utils;
 
 //import io.reactivex.Observable;
 
@@ -47,8 +48,7 @@ public class CouchbaseEntityRepositoryTest {
 				.put("timestamp", "1")
 				.put("channels", JsonArray.from(jsonObjectChannel, jsonObjectChannel2));
 
-		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc,
-				false);
+		CouchbaseRepository.getInstance().log(entityUuid1, entityJsonDoc, false);
 
 		// Give the bucket a chance to catch up after the log
 //		try {
@@ -58,12 +58,12 @@ public class CouchbaseEntityRepositoryTest {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		Utils.allowDataUpdatesTimeToCatchUp();
 
 		// When the document queried
 		String queryString = "SELECT * FROM `entity` WHERE entityID = \"" + entityUuid1
 				+ "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("entity",
-				N1qlQuery.simple(queryString));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("entity");
 
 		// Then
 		// Verify that sensory events can be retrieved from each sensory event source
@@ -99,15 +99,14 @@ public class CouchbaseEntityRepositoryTest {
 		JsonObject entityJsonDoc = JsonObject.create().put("entityID", entityUuid1)
 				.put("timestamp", "1").put("channels", JsonArray.from(channelType));
 
-		CouchbaseRepository.getInstance().log("entity", entityUuid1, entityJsonDoc,
-				false);
+		CouchbaseRepository.getInstance().log(entityUuid1, entityJsonDoc, false);
 
 		// Give the bucket a chance to catch up after the log
+		Utils.allowDataUpdatesTimeToCatchUp();
 		// When the document queried
 		String queryString = "SELECT * FROM `entity` WHERE entityID = \"" + entityUuid1
 				+ "\"";
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("entity",
-				N1qlQuery.simple(queryString));
+		N1qlQueryResult result = CouchbaseRepository.getInstance().query("entity");
 
 		// Then it should validate successfully
 		assertThat(result).isNotNull().isNotEmpty();
