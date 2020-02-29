@@ -3,8 +3,9 @@
  */
 package com.emerigen.infrastructure.repository.couchbase;
 
-import java.util.List;
 import org.json.JSONObject;
+
+import com.couchbase.client.java.query.QueryResult;
 
 /**
  * @author Larry
@@ -55,11 +56,10 @@ public interface Repository {
 
 	public void log(JSONObject document);
 
-	public List<JSONObject> simpleQuery(final String queryString);
+	public QueryResult query(final String statement);
 
 	public void disconnect();
 
 	public Repository reconnect();
 
-	public CouchbaseRepositoryConfig getConfig();
 }

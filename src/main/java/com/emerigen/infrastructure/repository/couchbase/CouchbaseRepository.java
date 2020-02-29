@@ -19,7 +19,9 @@ import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.kv.GetResult;
 import com.couchbase.client.java.kv.MutationResult;
 import com.couchbase.client.java.kv.UpsertOptions;
+import com.couchbase.client.java.query.QueryOptions;
 import com.couchbase.client.java.query.QueryResult;
+import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
@@ -103,54 +105,117 @@ public class CouchbaseRepository {
 	}
 
 	private void connect() {
-		env = ClusterEnvironment.builder()
-				.timeoutConfig(TimeoutConfig.kvTimeout(Duration.ofSeconds(5)))
-				.ioConfig(IoConfig.maxHttpConnections(MAX_HTTP_CONNECTIONS)).build();
 
-		// Create a cluster using those client settings.
-		cluster = Cluster.connect(LOCALHOST,
-				ClusterOptions.clusterOptions(ADMINISTRATOR, PASSWORD).environment(env));
+		try {
+			env = ClusterEnvironment.builder()
+					.timeoutConfig(TimeoutConfig.kvTimeout(Duration.ofSeconds(5)))
+					.ioConfig(IoConfig.maxHttpConnections(MAX_HTTP_CONNECTIONS)).build();
 
-		// Open a Collection connected to our knowledge db
-		bucket = cluster.bucket(KNOWLEDGE_DB);
-		knowledgeCollection = bucket.defaultCollection();
+			// Create a cluster using those client settings.
+			cluster = Cluster.connect(LOCALHOST, ClusterOptions
+					.clusterOptions(ADMINISTRATOR, PASSWORD).environment(env));
+
+			// Open a Collection connected to our knowledge db
+			bucket = cluster.bucket(KNOWLEDGE_DB);
+			knowledgeCollection = bucket.defaultCollection();
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
+		}
+
 	}
 
 	@Override
 	protected void finalize() {
 
-		// Shut down gracefully.
-		cluster.disconnect();
-		env.shutdown();
+		try {
+			// Shut down gracefully.
+			cluster.disconnect();
+			env.shutdown();
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
+		}
+
 	}
 
 	public void logWithOverwrite(final String primaryKey, final JsonObject jsonObject) {
 
-		// Insert, and overwrite if already exists
-		knowledgeCollection.insert(primaryKey, jsonObject);
+		try {
+			// Insert, and overwrite if already exists
+			knowledgeCollection.insert(primaryKey, jsonObject);
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
+		}
+
 	}
 
 	public void log(final String primaryKey, final JsonObject jsonObject,
 			boolean synchronous) {
 		MutationResult upsertResult;
-		// Wait for completion if synchronous
-		if (synchronous) {
-			upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject,
-					UpsertOptions.upsertOptions()
-							.durability(DurabilityLevel.MAJORITY_AND_PERSIST_TO_ACTIVE));
-		} else {
-			// insert the jsonObject into my bucket
-			upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject);
+
+		try {
+			// Wait for completion if synchronous
+			if (synchronous) {
+				upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject,
+						UpsertOptions.upsertOptions().durability(
+								DurabilityLevel.MAJORITY_AND_PERSIST_TO_ACTIVE));
+			} else {
+				// insert the jsonObject into my bucket
+				upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject);
+			}
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
 		}
+
 	}
 
+	/**
+	 * Query with parameters
+	 * 
+	 * @param parameterizedStatement Holds the string to be parameterized
+	 * @param placeholderValues      Holds the parameters
+	 * @return
+	 */
+	public QueryResult query(final String parameterizedStatement,
+			final QueryOptions placeholderValues) {
+
+		try {
+			return cluster.query(parameterizedStatement, placeholderValues);
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+		}
+
+//		cluster.query(String parameterizedStatement, queryOptions)
+		// "select * from bucket where type = $type",
+		// queryOptions().parameters(JsonObject.create().put("type", "airport"))
+
+		// public cluster.query("select * from bucket where type = $1",
+//				queryOptions().parameters(JsonArray.from("airport")));
+
+	}
+
+	/**
+	 * Query using a string that may contain embedded parameters
+	 * 
+	 * @param statement The statement containing embeded parms
+	 * @return
+	 */
 	public QueryResult query(final String statement) {
 
-		QueryResult queryResult = cluster.query(statement);
+		try {
+			QueryResult queryResult = cluster.query(statement);
 //		for (JsonObject value : queryResult.rowsAsObject()) {
 //			// ...
 //		}
-		return queryResult;
+			return queryResult;
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
+		}
+
 	}
 
 	public void removeAllDocuments() {
@@ -159,14 +224,21 @@ public class CouchbaseRepository {
 
 	public JsonObject get(final String docID) {
 
-		GetResult getResult = knowledgeCollection.get(docID);
+		try {
+			GetResult getResult = knowledgeCollection.get(docID);
 
-		// TODO Decode the content of the document into an instance of the target class.
-		// List<String> strings = result.contentAs(new TypeRef<List<String>>(){});
-		// return getResult.contentAs(new TypeRef<SensorEvent>() {
-		// getResult.contentAs(SensorEvent.class);
-		// getResult.contentAs(clazz.class);
-		return getResult.contentAsObject();
+			// TODO Decode the content of the document into an instance of the target
+			// class.
+			// List<String> strings = result.contentAs(new TypeRef<List<String>>(){});
+			// return getResult.contentAs(new TypeRef<SensorEvent>() {
+			// getResult.contentAs(SensorEvent.class);
+			// getResult.contentAs(clazz.class);
+			return getResult.contentAsObject();
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
+		}
+
 	}
 
 	public boolean isConnected() {
@@ -199,6 +271,13 @@ public class CouchbaseRepository {
 	public void remove(String key) {
 		if (key == null | key.isEmpty())
 			throw new IllegalArgumentException("key must not be null or empty");
-		knowledgeCollection.remove(key);
+
+		try {
+			knowledgeCollection.remove(key);
+		} catch (Exception e) {
+			throw new RepositoryException("query exception, cause: " + e);
+
+		}
+
 	}
 }

@@ -11,9 +11,8 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import com.couchbase.client.java.document.json.JsonObject;
-import com.couchbase.client.java.error.BucketDoesNotExistException;
-import com.couchbase.client.java.error.InvalidPasswordException;
+import com.couchbase.client.java.json.JsonObject;
+import com.emerigen.infrastructure.repository.RepositoryException;
 
 /**
  * @author Larry
@@ -21,7 +20,6 @@ import com.couchbase.client.java.error.InvalidPasswordException;
  */
 public class CouchbaseRepositoryLifecycleTest {
 
-	CouchbaseRepositoryConfig dbInfo, dbInfo2;
 	CouchbaseRepository myRepos;
 	static private ArrayList<String> sensorEventIDs = new ArrayList<>();
 
@@ -81,7 +79,7 @@ public class CouchbaseRepositoryLifecycleTest {
 	}
 
 	// @Test
-	public final void testThatCouchbaseConnectionCreationWithInvalidUserIdThrowsInvalidPasswordException() {
+	public final void testThatCouchbaseConnectionCreationWithInvalidUserIdThrowsRepositoryException() {
 
 		// When
 		final Throwable throwable = catchThrowable(
@@ -89,21 +87,21 @@ public class CouchbaseRepositoryLifecycleTest {
 
 		// Then
 		then(throwable).as(
-				"An InvalidPasswordException should be thrown if a bad password is passed")
-				.isInstanceOf(InvalidPasswordException.class);
+				"An InvalidPasRepositoryExceptionswordException should be thrown if a bad password is passed")
+				.isInstanceOf(RepositoryException.class);
 	}
 
 	// @Test
-	public final void testThatCouchbaseConnectionCreationWithInvalidPasswordThrowsInvalidPasswordException() {
+	public final void testThatCouchbaseConnectionCreationWithInvalidPasswordThrowsRepositoryException() {
 
 		// When
 		final Throwable throwable = catchThrowable(
 				() -> CouchbaseRepository.getInstance());
 
 		// Then
-		then(throwable).as(
-				"An InvalidPasswordException should be thrown if a bad password is passed")
-				.isInstanceOf(InvalidPasswordException.class);
+		then(throwable)
+				.as("An RepositoryException should be thrown if a bad password is passed")
+				.isInstanceOf(RepositoryException.class);
 	}
 
 	@Test
@@ -116,8 +114,8 @@ public class CouchbaseRepositoryLifecycleTest {
 
 		// Then
 		then(throwable).as(
-				"A BucketDoesNotExistException should be thrown if the bucket name is invalid")
-				.isInstanceOf(BucketDoesNotExistException.class);
+				"A RepositoryException should be thrown if the bucket name is invalid")
+				.isInstanceOf(RepositoryException.class);
 	}
 
 }
