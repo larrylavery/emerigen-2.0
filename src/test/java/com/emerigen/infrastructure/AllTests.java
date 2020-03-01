@@ -10,7 +10,6 @@ import org.junit.runners.Suite.SuiteClasses;
 		com.emerigen.infrastructure.repository.AllTests.class,
 		com.emerigen.infrastructure.repository.couchbase.AllTests.class,
 		com.emerigen.infrastructure.utils.AllTests.class,
-		com.emerigen.knowledge.AllTests.class,
 		com.emerigen.infrastructure.sensor.AllTests.class,
 		com.emerigen.infrastructure.learning.creditAssignment.AllTests.class,
 		com.emerigen.infrastructure.learning.AllTests.class })

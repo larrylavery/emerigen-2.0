@@ -1,5 +1,6 @@
 package com.emerigen.infrastructure.repository.couchbase;
 
+import java.util.List;
 import java.util.Random;
 
 import org.assertj.core.api.SoftAssertions;
@@ -15,6 +16,7 @@ import com.couchbase.client.java.query.QueryResult;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorManager;
 
 //import io.reactivex.Observable;
 
@@ -28,52 +30,39 @@ public class CouchbaseCycleRepositoryTest {
 
 		// Sensor
 		long timestamp = System.currentTimeMillis();
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+
 		Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
 
-		float[] values = { 1.1f, 2.1f };
-		HeartRateSensor sensor = new HeartRateSensor(Sensor.LOCATION_WATCH,
-				Sensor.REPORTING_MODE_CONTINUOUS, false);
-		SensorEvent event1 = new SensorEvent(sensor, values);
-
-		JsonObject cycleNodeJsonDoc = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH)
-				.put("timestamp", "" + timestamp)
-				.put("values",
-						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
-								"" + rd.nextFloat()))
-				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
-				.put("wakeUpSensor", false).put("dataPointDuration", 500)
-				.put("probability", 0.3);
-
-		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
-				.put("cycleStartTimeNano", 20).put("cycleDurationTimeNano", 1500)
+		JsonObject cycleJsonDoc = JsonObject.create().put("type", "cycle")
+				.put("cycleType", "Daily").put("cycleStartTimeNano", 20)
+				.put("cycleDurationTimeNano", 1500)
 				.put("allowablePercentDifferenceForEquality", 0.8)
-				.put("previousCycleNodeIndex", 0).put("previousCycleNodeIndex", 0)
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH)
-				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
+				.put("sensorLocation", Sensor.LOCATION_WATCH);
 
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().log(
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc, false);
+				cycleJsonDoc, true);
 		CouchbaseRepository.getInstance().log(
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc, false);
+				cycleJsonDoc, true);
+		String key = "" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily";
+		JsonObject jsonObject;
+		String queryString = "SELECT COUNT(*) FROM `knowledge` WHERE cycleType = \"Daily\""
+				+ " AND sensorType = " + Sensor.TYPE_HEART_RATE + "AND sensorLocation = "
+				+ Sensor.LOCATION_WATCH;
 
-		// Perform a N1QL Query
-		JsonObject placeholderValues = JsonObject.create()
-				.put("sensorType", sensor.getType())
-				.put("sensorLocation", sensor.getLocation());
+		QueryResult result = CouchbaseRepository.getInstance().query(queryString);
+		List<JsonObject> jsonObjects = result.rowsAsObject();
+		int count = jsonObjects.get(0).getInt("$1");
 
-		QueryResult result = CouchbaseRepository.getInstance().query("cycle");
-
-		softly.assertThat(result).isNotNull();
-//		softly.assertThat(result.info().resultCount() == 1);
+		softly.assertThat(count).isEqualTo(1);
 		softly.assertAll();
-//		CouchbaseRepository.getInstance().remove("cycle",
-//				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily");
 
 	}
 
@@ -116,20 +105,18 @@ public class CouchbaseCycleRepositoryTest {
 		// Log using our repository under test
 		CouchbaseRepository.getInstance().log(
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
-				cycleJsonDoc, false);
+				cycleJsonDoc, true);
 
-		// Perform a N1QL Query
-		JsonObject placeholderValues = JsonObject.create()
-				.put("sensorType", sensor.getType())
-				.put("sensorLocation", sensor.getLocation());
+		String queryString = "SELECT COUNT(*) FROM `knowledge` WHERE cycleType = \"Daily\""
+				+ " AND sensorType = " + Sensor.TYPE_HEART_RATE + "AND sensorLocation = "
+				+ Sensor.LOCATION_WATCH;
 
-		QueryResult result = CouchbaseRepository.getInstance().query("cycle");
+		QueryResult result = CouchbaseRepository.getInstance().query(queryString);
+		List<JsonObject> jsonObjects = result.rowsAsObject();
+		int count = jsonObjects.get(0).getInt("$1");
 
-		softly.assertThat(result).isNotNull();
-//		softly.assertThat(result.info().resultCount() == 1);
+		softly.assertThat(count).isEqualTo(1);
 		softly.assertAll();
-//		CouchbaseRepository.getInstance().remove("cycle",
-//				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily");
 
 	}
 
