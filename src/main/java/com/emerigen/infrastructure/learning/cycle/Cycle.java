@@ -5,7 +5,7 @@ package com.emerigen.infrastructure.learning.cycle;
 
 import org.apache.log4j.Logger;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
@@ -27,6 +27,7 @@ public abstract class Cycle {
 	 *       home, going to lunch at different places, ...
 	 */
 	private String cycleType;
+	private String type = "cycle";
 	private int sensorLocation;
 	private int sensorType;
 
@@ -165,6 +166,20 @@ public abstract class Cycle {
 	 */
 	public void setCycleType(String cycleType) {
 		this.cycleType = cycleType;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }

@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 import org.apache.log4j.Logger;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Larry

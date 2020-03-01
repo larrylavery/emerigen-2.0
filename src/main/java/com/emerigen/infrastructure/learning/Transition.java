@@ -11,6 +11,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class Transition implements PredictionConsumer, PredictionSupplier {
 
+	private String type = "transition";
 	private long timestamp = System.nanoTime();
 	private long lastSuccessfulPredictionTimestamp;
 	private long numberOfPredictionAttempts;
@@ -107,6 +108,7 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 				+ ((predictedSensorEvent == null) ? 0 : predictedSensorEvent.hashCode());
 		temp = Double.doubleToLongBits(probability);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -143,12 +145,17 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 		if (Double.doubleToLongBits(probability) != Double
 				.doubleToLongBits(other.probability))
 			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Transition [timestamp=" + timestamp
+		return "Transition [type=" + type + ", timestamp=" + timestamp
 				+ ", lastSuccessfulPredictionTimestamp="
 				+ lastSuccessfulPredictionTimestamp + ", numberOfPredictionAttempts="
 				+ numberOfPredictionAttempts + ", numberOfSuccessfulPredictions="
@@ -381,5 +388,19 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 			throw new IllegalArgumentException(
 					"numberOfSuccessfulPredictions must not be negative");
 		this.numberOfSuccessfulPredictions = numberOfSuccessfulPredictions;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 }

@@ -1,0 +1,48 @@
+Get count
+
+		List<JsonObject> jsonObjects = result.rowsAsObject();
+		int count = jsonObjects.get(0).getInt("$1");
+
+		
+get results
+
+		List<JsonObject> jsonObjects = result.rowsAsObject();
+
+		for (JsonObject value : queryResult.rowsAsObject()) {
+
+		}	
+
+		// Create predicted sensorEvent json document
+		JsonArray jsonArray2 = JsonArray.create();
+		for (int i = 0; i < predictedSensorEvent.getValues().length; i++) {
+			jsonArray2.add(predictedSensorEvent.getValues()[i]);
+		}
+		
+
+// List<String> strings = result.contentAs(new TypeRef<List<String>>(){});
+// return getResult.contentAs(new TypeRef<SensorEvent>() {
+// getResult.contentAs(SensorEvent.class);
+// getResult.contentAs(clazz.class);
+
+
+		// Register custom deserializer
+//		SimpleModule module = new SimpleModule("CustomCycleDeserializer",
+//				new Version(1, 0, 0, null, null, null));
+//		module.addDeserializer(Cycle.class, new CustomCycleDeserializer());
+//		mapper.registerModule(module);
+
+
+Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+		Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+
+Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
+		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		SensorEvent event2 = new SensorEvent(hrSensor, values2);
+		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
+		SensorEvent event3 = new SensorEvent(hrSensor, values3);
+		float[] values4 = new float[] { rd.nextFloat() + 1000, rd.nextFloat() + 1000 };
+		SensorEvent event4 = new SensorEvent(hrSensor, values4);
+		float[] values5 = new float[] { rd.nextFloat()+10000, rd.nextFloat()+10000};
+		SensorEvent event5 = new SensorEvent(hrSensor, values5);

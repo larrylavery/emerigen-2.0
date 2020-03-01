@@ -2,9 +2,8 @@ package com.emerigen.infrastructure.sensor;
 
 import java.util.Arrays;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * This class represents an event from any hardware-based sensor. The major
@@ -40,6 +39,7 @@ public class SensorEvent {
 	 * The sensor that published this event
 	 */
 	private Sensor sensor = null;
+	private String type = "sensor-event";
 
 	// The hash of all values
 
@@ -101,9 +101,11 @@ public class SensorEvent {
 
 	@Override
 	public String toString() {
-		return "SensorEvent [sensor=" + sensor + ", sensorType=" + sensorType
-				+ ", sensorLocation=" + sensorLocation + ", timestamp=" + timestamp
-				+ ", values=" + Arrays.toString(values) + "]";
+		return "SensorEvent [sensor=" + sensor + ", type=" + type + ", sensorType="
+				+ sensorType + ", sensorLocation=" + sensorLocation + ", timestamp="
+				+ timestamp + ", dataPointDurationNano=" + dataPointDurationNano
+				+ ", values=" + Arrays.toString(values)
+				+ ", defaultDataPointDurationNano=" + defaultDataPointDurationNano + "]";
 	}
 
 	/**
@@ -127,6 +129,7 @@ public class SensorEvent {
 		result = prime * result + ((sensor == null) ? 0 : sensor.hashCode());
 		result = prime * result + sensorLocation;
 		result = prime * result + sensorType;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + Arrays.hashCode(values);
 		return result;
 	}
@@ -156,7 +159,12 @@ public class SensorEvent {
 			return false;
 		if (sensorType != other.sensorType)
 			return false;
-		if (!Utils.equals(getValuesHashCode(), other.getValuesHashCode()))
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (!Arrays.equals(values, other.values))
 			return false;
 		return true;
 	}
@@ -215,5 +223,19 @@ public class SensorEvent {
 	 */
 	public void setDataPointDurationNano(long dataPointDurationNano) {
 		this.dataPointDurationNano = dataPointDurationNano;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 }

@@ -16,7 +16,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
-import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.json.JsonObject;
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;

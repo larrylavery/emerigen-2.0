@@ -7,12 +7,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonParser;
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
-import com.couchbase.client.deps.com.fasterxml.jackson.core.ObjectCodec;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.DeserializationContext;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonNode;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonParser;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonProcessingException;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.DeserializationContext;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
 public class CustomSensorEventDeserializer extends StdDeserializer<SensorEvent> {
@@ -48,14 +46,17 @@ public class CustomSensorEventDeserializer extends StdDeserializer<SensorEvent> 
 
 		try {
 
-			ObjectCodec codec = parser.getCodec();
-			JsonNode node = codec.readTree(parser);
+			com.couchbase.client.core.deps.com.fasterxml.jackson.core.ObjectCodec codec = parser
+					.getCodec();
+			com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonNode node = codec
+					.readTree(parser);
 
 			// Retrieve the sensor event fields
 			System.out.println("SensorEvent node: " + node.toString());
 
 			// Next token a predicted event? consume it
-			JsonNode predictedSensorEventNode = node.get("predictedSensorEvent");
+			com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonNode predictedSensorEventNode = node
+					.get("predictedSensorEvent");
 			if (predictedSensorEventNode != null) {
 				System.out.println("SensorEvent node was the predicted sensor event"
 						+ node.toString());
@@ -70,12 +71,15 @@ public class CustomSensorEventDeserializer extends StdDeserializer<SensorEvent> 
 			logger.info("Partial SensorEvent without values set: " + sensorEvent);
 
 			// Retrieve the sensor event values
-			JsonNode valuesNode = node.get("values");
+			com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonNode valuesNode = node
+					.get("values");
 			List<Float> valuesList = new ArrayList<Float>();
-			Iterator<JsonNode> valuesJsonNode = valuesNode.elements();
+			Iterator<com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonNode> valuesJsonNode = valuesNode
+					.elements();
 
 			while (valuesJsonNode.hasNext()) {
-				JsonNode valueJsonNode = valuesJsonNode.next();
+				com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonNode valueJsonNode = valuesJsonNode
+						.next();
 				valuesList.add(valueJsonNode.floatValue());
 			}
 			float[] values = new float[valuesList.size()];

@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.couchbase.client.java.document.json.JsonArray;
-import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.json.JsonArray;
+import com.couchbase.client.java.json.JsonObject;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 

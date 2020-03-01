@@ -34,5 +34,83 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="C:/Information/Downloads/opencsv-4.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/com/couchbase/client/java-client/3.0.1/java-client-3.0.1.jar" sourcepath="C:/Users/Larry/.m2/repository/com/couchbase/client/java-client/3.0.1/java-client-3.0.1-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="com.couchbase.client"/>
+			<attribute name="maven.artifactId" value="java-client"/>
+			<attribute name="maven.version" value="3.0.1"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.9.13/jackson-mapper-asl-1.9.13.jar" sourcepath="C:/Users/Larry/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.9.13/jackson-mapper-asl-1.9.13-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Larry/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.9.13/jackson-mapper-asl-1.9.13-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="org.codehaus.jackson"/>
+			<attribute name="maven.artifactId" value="jackson-mapper-asl"/>
+			<attribute name="maven.version" value="1.9.13"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.10.1/jackson-databind-2.10.1.jar" sourcepath="C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.10.1/jackson-databind-2.10.1-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.10.1/jackson-databind-2.10.1-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="com.fasterxml.jackson.core"/>
+			<attribute name="maven.artifactId" value="jackson-databind"/>
+			<attribute name="maven.version" value="2.10.1"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.10.1/jackson-core-2.10.1.jar" sourcepath="C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.10.1/jackson-core-2.10.1-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.10.1/jackson-core-2.10.1-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="com.fasterxml.jackson.core"/>
+			<attribute name="maven.artifactId" value="jackson-core"/>
+			<attribute name="maven.version" value="2.10.1"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/com/couchbase/client/core-io/2.0.2/core-io-2.0.2.jar" sourcepath="C:/Users/Larry/.m2/repository/com/couchbase/client/core-io/2.0.2/core-io-2.0.2-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="com.couchbase.client"/>
+			<attribute name="maven.artifactId" value="core-io"/>
+			<attribute name="maven.version" value="2.0.2"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.9.13/jackson-core-asl-1.9.13.jar" sourcepath="C:/Users/Larry/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.9.13/jackson-core-asl-1.9.13-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Larry/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.9.13/jackson-core-asl-1.9.13-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="org.codehaus.jackson"/>
+			<attribute name="maven.artifactId" value="jackson-core-asl"/>
+			<attribute name="maven.version" value="1.9.13"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/com/google/code/gson/gson/2.6.2/gson-2.6.2.jar" sourcepath="C:/Users/Larry/.m2/repository/com/google/code/gson/gson/2.6.2/gson-2.6.2-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Larry/.m2/repository/com/google/code/gson/gson/2.6.2/gson-2.6.2-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="com.google.code.gson"/>
+			<attribute name="maven.artifactId" value="gson"/>
+			<attribute name="maven.version" value="2.6.2"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.10.1/jackson-annotations-2.10.1.jar" sourcepath="C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.10.1/jackson-annotations-2.10.1-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Larry/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.10.1/jackson-annotations-2.10.1-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="com.fasterxml.jackson.core"/>
+			<attribute name="maven.artifactId" value="jackson-annotations"/>
+			<attribute name="maven.version" value="2.10.1"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

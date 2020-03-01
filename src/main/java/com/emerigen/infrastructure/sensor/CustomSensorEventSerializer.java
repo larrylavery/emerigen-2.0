@@ -4,9 +4,8 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonGenerator;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializerProvider;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.SerializerProvider;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
 public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
@@ -22,7 +21,8 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 	}
 
 	@Override
-	public void serialize(SensorEvent sensorEvent, JsonGenerator jsonGenerator,
+	public void serialize(SensorEvent sensorEvent,
+			com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonGenerator jsonGenerator,
 			SerializerProvider serializer) {
 		try {
 
@@ -59,5 +59,12 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 			throw new RepositoryException("IO exception thrown: ", e);
 		}
 	}
+
+//	@Override
+//	public void serialize(SensorEvent value, JsonGenerator gen,
+//			SerializerProvider provider) throws IOException {
+//		// TODO Auto-generated method stub
+//
+//	}
 
 }

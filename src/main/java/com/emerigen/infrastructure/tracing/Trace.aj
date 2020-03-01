@@ -6,15 +6,9 @@
 package com.emerigen.infrastructure.tracing;
 
 
-
-
-
-
-
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
 import com.emerigen.infrastructure.repository.RepositoryException;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepositoryConfig;
 import com.emerigen.infrastructure.repository.couchbase.BucketNotFoundException;
 import com.emerigen.infrastructure.environment.Agent;
 import com.emerigen.infrastructure.environment.Environment;

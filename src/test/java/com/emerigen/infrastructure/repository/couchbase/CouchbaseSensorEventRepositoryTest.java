@@ -2,6 +2,7 @@ package com.emerigen.infrastructure.repository.couchbase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -12,12 +13,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-//Couchbase
-import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonArray;
-import com.couchbase.client.java.document.json.JsonObject;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.json.JsonArray;
+import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.query.QueryResult;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
@@ -26,10 +24,6 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 public class CouchbaseSensorEventRepositoryTest {
 
 	String uuid = UUID.randomUUID().toString();
-
-	@Test
-	public final void givenTwoDifferentCyclesLogged_WhenCountQueriedByKey_ThenCountShouldBe2() {
-	}
 
 	@Test
 	public final void givenTwoSensorEventsLogged_WhenCountQueriedByKey_ThenCountShouldBe2() {
@@ -61,27 +55,32 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		String uuid1 = UUID.randomUUID().toString();
 		String uuid2 = UUID.randomUUID().toString();
-		JsonObject sensorEventJsonDoc = JsonObject.create()
+		JsonObject sensorEventJsonDoc = JsonObject.create().put("type", "sensor-event")
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("timestamp", "" + timestamp).put("values", jsonArray1);
 
-		JsonObject sensorEventJsonDoc2 = JsonObject.create()
+		JsonObject sensorEventJsonDoc2 = JsonObject.create().put("type", "sensor-event")
 				.put("sensorType", Sensor.TYPE_HEART_RATE)
+				.put("sensorLocation", Sensor.LOCATION_WATCH)
 				.put("timestamp", "" + timestamp).put("values", jsonArray1);
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log(uuid1, sensorEventJsonDoc, false);
-		CouchbaseRepository.getInstance().log(uuid2, sensorEventJsonDoc, false);
+		CouchbaseRepository.getInstance().log(uuid1, sensorEventJsonDoc, true);
+		CouchbaseRepository.getInstance().log(uuid2, sensorEventJsonDoc, true);
 
-		// Perform a N1QL Query
-		JsonObject placeholderValues = JsonObject.create()
-				.put("sensorType", sensor.getType())
-				.put("sensorLocation", sensor.getLocation());
+		String statement = "SELECT COUNT(*) FROM `knowledge` WHERE type= \"sensor-event\" AND sensorType= "
+				+ sensor.getType() + " AND sensorLocation= " + sensor.getLocation()
+				+ " AND timestamp = \"" + timestamp + "\"";
+		QueryResult result = CouchbaseRepository.getInstance().query(statement);
 
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event");
+//		for (JsonObject value : queryResult.rowsAsObject()) {
+//		// ...
+//	}	
 
-		softly.assertThat(result).isNotNull().isNotEmpty();
-		softly.assertThat(result.info().resultCount() == 2);
+		List<JsonObject> jsonObjects = result.rowsAsObject();
+		int count = jsonObjects.get(0).getInt("$1");
+		softly.assertThat(count).isEqualTo(2);
 		softly.assertAll();
 
 	}
@@ -114,17 +113,16 @@ public class CouchbaseSensorEventRepositoryTest {
 
 		// Store the Document
 		String uuid = UUID.randomUUID().toString();
-		CouchbaseRepository.getInstance().log(uuid, sensorEvent, false);
+		CouchbaseRepository.getInstance().log(uuid, sensorEvent, true);
 
 		// Retrieve by primary using the repository under test
-		JsonDocument getDoc = CouchbaseRepository.getInstance().get(uuid);
+		JsonObject getDoc = CouchbaseRepository.getInstance().get(uuid, "");
 
 		assertThat(getDoc).isNotNull();
-		softly.assertThat(getDoc.content().getString("timestamp")).isEqualTo(timestamp);
-		softly.assertThat(getDoc.content().getInt("sensorType"))
-				.isEqualTo(Sensor.TYPE_HEART_RATE);
-		softly.assertThat(getDoc.content().get("values")
-				.equals(JsonArray.from("4.1", "4.2", "4.3")));
+		softly.assertThat(getDoc.getString("timestamp")).isEqualTo(timestamp);
+		softly.assertThat(getDoc.getInt("sensorType")).isEqualTo(Sensor.TYPE_HEART_RATE);
+		softly.assertThat(
+				getDoc.getArray("values").equals(JsonArray.from("4.1", "4.2", "4.3")));
 
 		softly.assertAll();
 

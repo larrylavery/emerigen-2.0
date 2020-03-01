@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonGenerator;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializerProvider;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.emerigen.infrastructure.learning.cycle.Cycle;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
@@ -23,8 +21,9 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 	}
 
 	@Override
-	public void serialize(Cycle cycle, JsonGenerator jsonGenerator,
-			SerializerProvider serializer) {
+	public void serialize(Cycle cycle,
+			com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonGenerator jsonGenerator,
+			com.couchbase.client.core.deps.com.fasterxml.jackson.databind.SerializerProvider serializer) {
 		try {
 
 			// create cycle-specific fields
@@ -57,7 +56,8 @@ public class CustomCycleSerializer extends StdSerializer<Cycle> {
 	 * @param sensorEvent
 	 * @throws IOException
 	 */
-	private void writeCycleNodeSensorEvent(JsonGenerator jsonGenerator,
+	private void writeCycleNodeSensorEvent(
+			com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonGenerator jsonGenerator,
 			SensorEvent sensorEvent) throws IOException {
 
 		jsonGenerator.writeNumberField("sensorType", sensorEvent.getSensorType());

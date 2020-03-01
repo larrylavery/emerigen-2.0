@@ -14,28 +14,17 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonParseException;
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
-import com.couchbase.client.deps.com.fasterxml.jackson.core.Version;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonMappingException;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.SerializationFeature;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.module.SimpleModule;
-import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonObject;
-import com.couchbase.client.java.error.DocumentAlreadyExistsException;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonParseException;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonProcessingException;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonMappingException;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.ObjectMapper;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.SerializationFeature;
+import com.couchbase.client.java.json.JsonObject;
 import com.emerigen.infrastructure.learning.PredictionService;
 import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.learning.cycle.Cycle;
 import com.emerigen.infrastructure.learning.cycle.CyclePatternRecognizer;
 import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
-import com.emerigen.infrastructure.sensor.CustomCycleDeserializer;
-import com.emerigen.infrastructure.sensor.CustomCycleSerializer;
-import com.emerigen.infrastructure.sensor.CustomSensorEventDeserializer;
-import com.emerigen.infrastructure.sensor.CustomSensorEventSerializer;
-import com.emerigen.infrastructure.sensor.CustomTransitionDeserializer;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
@@ -169,10 +158,10 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public String newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
 
 		ObjectMapper mapper = new ObjectMapper();
-		SimpleModule module = new SimpleModule("CustomSensorEventSerializer",
-				new Version(1, 0, 0, null, null, null));
-		module.addSerializer(SensorEvent.class, new CustomSensorEventSerializer());
-		mapper.registerModule(module);
+//		SimpleModule module = new SimpleModule("CustomSensorEventSerializer",
+//				new Version(1, 0, 0, null, null, null));
+//		module.addSerializer(SensorEvent.class, new CustomSensorEventSerializer());
+//		mapper.registerModule(module);
 		String uuid = UUID.randomUUID().toString();
 
 		try {
@@ -198,12 +187,12 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 			try {
 				repository.log(uuid, jsonObject, false);
-			} catch (DocumentAlreadyExistsException e) {
+			} catch (Exception e) {
 
-				// Ignoring these to contend with Listeners default behavior of always
+				// TODO Ignoring this exception to contend with Listeners default behavior
+				// of always
 				// logging events
-				logger.warn("Ignoring DocumentAlreadyExistsException for sensor event - "
-						+ sensorEvent);
+				logger.warn("Ignoring Exception for sensor event - " + sensorEvent, e);
 			}
 
 		} catch (JsonProcessingException e) {
@@ -218,11 +207,12 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		String queryString = "SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = "
 				+ sensorType + " AND sensorLocation = " + sensorLocation;
-		N1qlQueryResult result = CouchbaseRepository.getInstance().query("sensor-event");
+		com.couchbase.client.java.query.QueryResult result = CouchbaseRepository
+				.getInstance().query(queryString);
 
 		logger.info(" query result: " + result);
 
-		int count = result.allRows().get(0).value().getInt("$1");
+		int count = 0; // result.allRows().get(0).value().getInt("$1");
 		return count;
 	}
 
@@ -268,12 +258,12 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-		JsonDocument entityJsonDoc = repo.get(entityKey);
+		JsonObject entityJsonDoc = repo.get(entityKey, "");
 		logger.info(" after objectMapping, JsonDocument: " + entityJsonDoc);
 		Entity entity;
 
 		try {
-			entity = mapper.readValue(entityJsonDoc.content().toString(), Entity.class);
+			entity = mapper.readValue(entityJsonDoc.toString(), Entity.class);
 			return entity;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);
@@ -292,21 +282,20 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		// Register custom deserializer
-		SimpleModule module = new SimpleModule("CustomSensorEventDeserializer",
-				new Version(1, 0, 0, null, null, null));
-		module.addDeserializer(SensorEvent.class, new CustomSensorEventDeserializer());
-		mapper.registerModule(module);
+//		SimpleModule module = new SimpleModule("CustomSensorEventDeserializer",
+//				new Version(1, 0, 0, null, null, null));
+//		module.addDeserializer(SensorEvent.class, new CustomSensorEventDeserializer());
+//		mapper.registerModule(module);
 		SensorEvent sensorEvent;
 
-		JsonDocument jsonDocument = repo.get(sensorEventKey);
-		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
+		JsonObject jsonObject = repo.get(sensorEventKey, "");
+		logger.info(" after objectMapping, JsonObject: " + jsonObject);
 
-		if (jsonDocument == null)
+		if (jsonObject == null)
 			return null;
 
 		try {
-			sensorEvent = mapper.readValue(jsonDocument.content().toString(),
-					SensorEvent.class);
+			sensorEvent = mapper.readValue(jsonObject.toString(), SensorEvent.class);
 			return sensorEvent;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);
@@ -326,18 +315,17 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		// Register custom deserializer
-		SimpleModule module = new SimpleModule("CustomTransitionDeserializer",
-				new Version(1, 0, 0, null, null, null));
-		module.addDeserializer(Transition.class, new CustomTransitionDeserializer());
-		mapper.registerModule(module);
+//		SimpleModule module = new SimpleModule("CustomTransitionDeserializer",
+//				new Version(1, 0, 0, null, null, null));
+//		module.addDeserializer(Transition.class, new CustomTransitionDeserializer());
+//		mapper.registerModule(module);
 
-		JsonDocument jsonDocument = repo.get(transitionKey);
-		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
+		JsonObject jsonObject = repo.get(transitionKey, "");
+		logger.info(" after objectMapping, JsonDocument: " + jsonObject);
 		Transition transition;
 
 		try {
-			transition = mapper.readValue(jsonDocument.content().toString(),
-					Transition.class);
+			transition = mapper.readValue(jsonObject.toString(), Transition.class);
 			return transition;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);
@@ -405,10 +393,10 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public String newCycle(String cycleKey, Cycle cycle) {
 		String uuid = UUID.randomUUID().toString();
 		ObjectMapper mapper = new ObjectMapper();
-		SimpleModule module = new SimpleModule("CustomCycleSerializer",
-				new Version(1, 0, 0, null, null, null));
-		module.addSerializer(Cycle.class, new CustomCycleSerializer());
-		mapper.registerModule(module);
+//		SimpleModule module = new SimpleModule("CustomCycleSerializer",
+//				new Version(1, 0, 0, null, null, null));
+//		module.addSerializer(Cycle.class, new CustomCycleSerializer());
+//		mapper.registerModule(module);
 
 		try {
 
@@ -451,21 +439,21 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		// Register custom deserializer
-		SimpleModule module = new SimpleModule("CustomCycleDeserializer",
-				new Version(1, 0, 0, null, null, null));
-		module.addDeserializer(Cycle.class, new CustomCycleDeserializer());
-		mapper.registerModule(module);
+//		SimpleModule module = new SimpleModule("CustomCycleDeserializer",
+//				new Version(1, 0, 0, null, null, null));
+//		module.addDeserializer(Cycle.class, new CustomCycleDeserializer());
+//		mapper.registerModule(module);
 
-		JsonDocument jsonDocument = repo.get(cycleKey);
+		JsonObject jsonObject = repo.get(cycleKey);
 
-		logger.info(" after objectMapping, JsonDocument: " + jsonDocument);
+		logger.info(" after objectMapping, JsonDocument: " + jsonObject);
 		Cycle cycle;
 
-		if (jsonDocument == null)
+		if (jsonObject == null)
 			return null;
 
 		try {
-			cycle = mapper.readValue(jsonDocument.content().toString(), Cycle.class);
+			cycle = mapper.readValue(jsonObject.toString(), Cycle.class);
 			return cycle;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);

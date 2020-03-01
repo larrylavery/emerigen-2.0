@@ -1,12 +1,15 @@
+CREATE PRIMARY INDEX ON knowledge
+
 CREATE INDEX `ix_fetchUnique` ON `transition`(`sensorType`,`senorLocation`,`firstSensorEvent.values`)
+CREATE INDEX `ix_transition` ON `knowledge`(`firstSensorEventKey`) WHERE type = `transition`
 
 CREATE INDEX `ix_sensor-event_unique2` ON `sensor-event`(`sensorType`,`sensorLocation`,`timestamp`)
-
-CREATE INDEX `ix_prediction_three_unique` ON `prediction`(`entityID`,`channelType`,`timestamp`)
+CREATE INDEX `ix_sensorEvent` ON `knowledge`(`sensorType`, `sensorLocation`) WHERE type=`sensor-event`
 
 CREATE INDEX `ix_cycle` ON `cycle`(`sensorType`,`senorLocation`,`cycleType`)
+CREATE INDEX `ix_cycle` ON `knowledge`(`sensorType`, `sensorLocation`, `cycleType`) WHERE type=`cycle`
 
 CREATE INDEX `en_index` ON `entity`(`entityID`)
+CREATE INDEX `ix_prediction_three_unique` ON `prediction`(`entityID`,`channelType`,`timestamp`) WHERE type=`entity`
 
-CREATE PRIMARY INDEX `#primary` ON `transition`
 

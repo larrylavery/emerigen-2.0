@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.couchbase.client.core.env.IoConfig;
 import com.couchbase.client.core.env.TimeoutConfig;
+import com.couchbase.client.core.error.DocumentNotFoundException;
 import com.couchbase.client.core.msg.kv.DurabilityLevel;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
@@ -159,8 +160,8 @@ public class CouchbaseRepository {
 			// Wait for completion if synchronous
 			if (synchronous) {
 				upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject,
-						UpsertOptions.upsertOptions().durability(
-								DurabilityLevel.MAJORITY_AND_PERSIST_TO_ACTIVE));
+						UpsertOptions.upsertOptions()
+								.durability(DurabilityLevel.PERSIST_TO_MAJORITY));
 			} else {
 				// insert the jsonObject into my bucket
 				upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject);
@@ -223,6 +224,24 @@ public class CouchbaseRepository {
 	}
 
 	public JsonObject get(final String docID) {
+		try {
+			GetResult getResult = knowledgeCollection.get(docID);
+
+			// TODO Decode the content of the document into an instance of the target
+			// class.
+			// List<String> strings = result.contentAs(new TypeRef<List<String>>(){});
+			// return getResult.contentAs(new TypeRef<SensorEvent>() {
+			// getResult.contentAs(SensorEvent.class);
+			// getResult.contentAs(clazz.class);
+			return getResult.contentAsObject();
+		} catch (DocumentNotFoundException e) {
+			logger.info("Document not found", e);
+			return null;
+		}
+
+	}
+
+	public JsonObject get(final String docID, String docType) {
 
 		try {
 			GetResult getResult = knowledgeCollection.get(docID);

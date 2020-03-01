@@ -26,11 +26,11 @@ public class KnowledgeRepositoryTest {
 	public void GivenFiveSensorEventsLogged_whenCountRequestedForSensorType_thenThreeShouldBeReturned() {
 
 		// Given 5 valid SensorEvents logged, three by the same entity/channelType
-		Random rd = new Random(); // creating Random object
 		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		Sensor accSensor = SensorManager.getInstance().getDefaultSensorForLocation(
 				Sensor.TYPE_ACCELEROMETER, Sensor.LOCATION_PHONE);
+		Random rd = new Random(); // creating Random object
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 		float[] values2 = new float[] { rd.nextFloat(), 1.2f };

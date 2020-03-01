@@ -7,12 +7,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonParser;
-import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
-import com.couchbase.client.deps.com.fasterxml.jackson.core.ObjectCodec;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.DeserializationContext;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonNode;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonParser;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonProcessingException;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.core.ObjectCodec;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.DeserializationContext;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonNode;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
