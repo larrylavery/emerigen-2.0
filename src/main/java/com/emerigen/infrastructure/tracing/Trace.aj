@@ -15,7 +15,6 @@ import com.emerigen.infrastructure.environment.Environment;
 import com.emerigen.infrastructure.environment.NeighborhoodImpl;
 import com.emerigen.infrastructure.environment.MessageToSpread;
 import com.emerigen.infrastructure.environment.Location;
-import com.emerigen.knowledge.Entity;
 import com.emerigen.infrastructure.evaporation.EvaporationAspect;
 import com.emerigen.infrastructure.evaporation.InformationWithRelevanceHolder;
 import com.emerigen.infrastructure.evaporation.RelevantInformation;

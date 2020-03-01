@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import com.couchbase.client.java.json.JsonObject;
 import com.emerigen.infrastructure.repository.RepositoryException;
 
 /**
@@ -101,20 +100,6 @@ public class CouchbaseRepositoryLifecycleTest {
 		// Then
 		then(throwable)
 				.as("An RepositoryException should be thrown if a bad password is passed")
-				.isInstanceOf(RepositoryException.class);
-	}
-
-	@Test
-	public final void testThatCouchbaseConnectionCreationWithInvalidBucketNameThrowsBucketDoesNotExistException() {
-
-		JsonObject myObj = JsonObject.create();
-		// When
-		final Throwable throwable = catchThrowable(() -> CouchbaseRepository.getInstance()
-				.log("any-primary-key", myObj, false));
-
-		// Then
-		then(throwable).as(
-				"A RepositoryException should be thrown if the bucket name is invalid")
 				.isInstanceOf(RepositoryException.class);
 	}
 

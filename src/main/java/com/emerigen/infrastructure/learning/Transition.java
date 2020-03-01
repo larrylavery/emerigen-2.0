@@ -202,14 +202,14 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	 * @return the sensorType
 	 */
 	public int getSensorType() {
-		return predictedSensorEvent.getSensor().getType();
+		return predictedSensorEvent.getSensor().getSensorType();
 	}
 
 	/**
 	 * @return the sensorLocation
 	 */
 	public int getSensorLocation() {
-		return predictedSensorEvent.getSensor().getLocation();
+		return predictedSensorEvent.getSensor().getSensorLocation();
 	}
 
 	/**

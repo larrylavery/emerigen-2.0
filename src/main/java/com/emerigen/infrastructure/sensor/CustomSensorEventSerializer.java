@@ -32,6 +32,8 @@ public class CustomSensorEventSerializer extends StdSerializer<SensorEvent> {
 			jsonGenerator.writeNumberField("sensorLocation",
 					sensorEvent.getSensorLocation());
 			jsonGenerator.writeNumberField("timestamp", sensorEvent.getTimestamp());
+			jsonGenerator.writeNumberField("dataPointDurationNano",
+					sensorEvent.getDataPointDurationNano());
 //			jsonGenerator.writeNumberField("timestamp", sensorEvent.getTimestamp());
 			logger.info("Current json before values parsed: " + jsonGenerator.toString());
 

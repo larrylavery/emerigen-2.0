@@ -70,8 +70,8 @@ public class SensorEventListenerTest {
 
 		// Verify that 10 HeartRate patterns were logged for those sensor events
 		int patternCount = KnowledgeRepository.getInstance()
-				.getSensorEventCountForSensorTypeAndLocation(sensor.getType(),
-						sensor.getLocation());
+				.getSensorEventCountForSensorTypeAndLocation(sensor.getSensorType(),
+						sensor.getSensorLocation());
 		assertThat(patternCount).isGreaterThan(9);
 	}
 

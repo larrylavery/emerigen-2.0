@@ -6,7 +6,6 @@ package com.emerigen.infrastructure.repository;
 import com.emerigen.infrastructure.learning.Transition;
 import com.emerigen.infrastructure.learning.cycle.Cycle;
 import com.emerigen.infrastructure.sensor.SensorEvent;
-import com.emerigen.knowledge.Entity;
 
 /**
  * @author Larry
@@ -92,9 +91,6 @@ import com.emerigen.knowledge.Entity;
  */
 public abstract class AbstractKnowledgeRepository {
 
-	// Add new Entity to the knowledgebase
-	public abstract String newEntity(Entity entity);
-
 	// Log a neww SensorEvent
 	public abstract String newSensorEvent(SensorEvent sensorEvent);
 
@@ -118,8 +114,6 @@ public abstract class AbstractKnowledgeRepository {
 //		}
 		return 0.0;
 	}
-
-	public abstract Entity getEntity(String entityKey);
 
 	public abstract SensorEvent getSensorEvent(String sensorEventKey);
 

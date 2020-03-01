@@ -44,8 +44,8 @@ public class CycleTest {
 		event.setTimestamp(timestamp);
 
 		// Create new cycle
-		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", gpsSensor.getType(),
-				gpsSensor.getLocation(), 1);
+		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", gpsSensor.getSensorType(),
+				gpsSensor.getSensorLocation(), 1);
 
 		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
 				.put("sensorType", Sensor.TYPE_GPS)
@@ -64,8 +64,8 @@ public class CycleTest {
 		assertThat(retrievedCycle.getAllowablePercentDifferenceForEquality())
 				.isEqualTo(cycle.getAllowablePercentDifferenceForEquality());
 
-		assertThat(cpr.getSensor().getType()).isEqualTo(Sensor.TYPE_GPS);
-		assertThat(cpr.getSensor().getLocation()).isEqualTo(Sensor.LOCATION_PHONE);
+		assertThat(cpr.getSensor().getSensorType()).isEqualTo(Sensor.TYPE_GPS);
+		assertThat(cpr.getSensor().getSensorLocation()).isEqualTo(Sensor.LOCATION_PHONE);
 
 //		CouchbaseRepository.getInstance().remove("cycle", uuid);
 

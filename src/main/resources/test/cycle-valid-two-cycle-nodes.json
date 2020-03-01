@@ -1,40 +1,10 @@
 {
+ "type": "cycle",
   "cycleType": "Daily",
       "sensorType": 1,
       "sensorLocation": 1,
   "cycleStartTimeNano": 1,
   "cycleDurationTimeNano": 4,
-  "allowablePercentDifferenceForEquality": 1.1,
-  "previousCycleNodeIndex": 0,
-  "nodeList": [
-    {
-      "sensorType": 1,
-      "sensorLocation": 1,
-      "timestamp": 1,
-      "values": [
-        1.1,
-        2.2
-      ],
-      "minimumDelayBetweenReadings": 1,
-      "reportingMode": 1,
-      "wakeUpSensor": false,
-      "startTimeOffsetNano": 2,
-      "dataPointDurationNano": 1,
-      "probability": 0.4
-    },
-    {
-      "sensorType": 1,
-      "sensorLocation": 1,
-      "timestamp": 1,
-      "values": [
-        1111.1,
-        2222.2
-      ],
-      "minimumDelayBetweenReadings": 111,
-      "reportingMode": 1,
-      "wakeUpSensor": true,
-      "startTimeOffsetNano": 2,"dataPointDurationNano":100,
-      
-    }
-  ]
+  "allowablePercentDifferenceForEquality": 1.1
+ 
 }

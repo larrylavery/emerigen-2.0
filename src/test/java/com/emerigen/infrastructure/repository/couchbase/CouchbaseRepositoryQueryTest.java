@@ -55,6 +55,7 @@ public class CouchbaseRepositoryQueryTest {
 		ps.createPredictionFromSensorEvents(event1, event2);
 		ps.createPredictionFromSensorEvents(event1, event3);
 
+		Utils.allowDataUpdatesTimeToCatchUp();
 		String prefix = "SELECT predictedSensorEvent FROM `knowledge` ";
 		String conditional = "WHERE firstSensorEventKey = \"" + event1.getKey() + "\""
 				+ " AND type = \"transition\"";
@@ -63,7 +64,7 @@ public class CouchbaseRepositoryQueryTest {
 
 		List<JsonObject> jsonObjects = result.rowsAsObject();
 		assertThat(jsonObjects).isNotNull();
-		softly.assertThat(jsonObjects.size()).isEqualTo(2);
+		assertThat(jsonObjects.size()).isEqualTo(2);
 
 		softly.assertAll();
 

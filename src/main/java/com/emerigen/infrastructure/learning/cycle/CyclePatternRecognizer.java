@@ -129,15 +129,15 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		if (currentSensorEvent == null)
 			throw new IllegalArgumentException("currentSensorEvent must not be null");
 
-		if (!(sensor.getType() == currentSensorEvent.getSensorType()))
+		if (!(sensor.getSensorType() == currentSensorEvent.getSensorType()))
 			throw new IllegalArgumentException("given sensor type ("
 					+ currentSensorEvent.getSensorType()
-					+ "), does not match my sensor type (" + sensor.getType() + ")");
-		if (!(sensor.getLocation() == currentSensorEvent.getSensorLocation()))
+					+ "), does not match my sensor type (" + sensor.getSensorType() + ")");
+		if (!(sensor.getSensorLocation() == currentSensorEvent.getSensorLocation()))
 			throw new IllegalArgumentException(
 					"given sensor location (" + currentSensorEvent.getSensorLocation()
 							+ "), does not match cycle sensor location ("
-							+ sensor.getLocation() + ")");
+							+ sensor.getSensorLocation() + ")");
 		List<Prediction> predictions = new ArrayList<Prediction>();
 
 		// return predictions;

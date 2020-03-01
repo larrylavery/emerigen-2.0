@@ -145,26 +145,26 @@ public class SensorManager {
 		 * Add all cycle pattern recognizer types for each sensor
 		 */
 		// Daily
-		DailyCycle dailyCycle = new DailyCycle(sensor.getType(), sensor.getLocation());
+		DailyCycle dailyCycle = new DailyCycle(sensor.getSensorType(), sensor.getSensorLocation());
 		CyclePatternRecognizer cpr = new CyclePatternRecognizer(dailyCycle, sensor,
 				new PredictionService(sensor));
 		patternRecognizers.add(cpr);
 
 		// Weekly
-		WeeklyCycle weeklyCycle = new WeeklyCycle(sensor.getType(), sensor.getLocation());
+		WeeklyCycle weeklyCycle = new WeeklyCycle(sensor.getSensorType(), sensor.getSensorLocation());
 		cpr = new CyclePatternRecognizer(weeklyCycle, sensor,
 				new PredictionService(sensor));
 		patternRecognizers.add(cpr);
 
 		// Monthly
-		MonthlyCycle monthlyCycle = new MonthlyCycle(sensor.getType(),
-				sensor.getLocation());
+		MonthlyCycle monthlyCycle = new MonthlyCycle(sensor.getSensorType(),
+				sensor.getSensorLocation());
 		cpr = new CyclePatternRecognizer(monthlyCycle, sensor,
 				new PredictionService(sensor));
 		patternRecognizers.add(cpr);
 
 		// Yearly
-		YearlyCycle yearlyCycle = new YearlyCycle(sensor.getType(), sensor.getLocation());
+		YearlyCycle yearlyCycle = new YearlyCycle(sensor.getSensorType(), sensor.getSensorLocation());
 		cpr = new CyclePatternRecognizer(yearlyCycle, sensor,
 				new PredictionService(sensor));
 		patternRecognizers.add(cpr);
@@ -224,7 +224,7 @@ public class SensorManager {
 
 		// Retrieve existing sensors matching type and location
 		List<Sensor> sensors = allSensors.stream().filter(
-				(s) -> (s.getType() == sensorType) && (s.getLocation() == sensorLocation))
+				(s) -> (s.getSensorType() == sensorType) && (s.getSensorLocation() == sensorLocation))
 				.collect(Collectors.toList());
 
 		// Return the first located sensor

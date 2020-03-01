@@ -80,15 +80,15 @@ public class SensorEvent {
 			throw new IllegalArgumentException("Sensor values must not be null or empty");
 
 		this.sensor = sensor;
-		this.sensorType = sensor.getType();
-		this.sensorLocation = sensor.getLocation();
+		this.sensorType = sensor.getSensorType();
+		this.sensorLocation = sensor.getSensorLocation();
 		this.values = values;
 		this.dataPointDurationNano = defaultDataPointDurationNano;
 	}
 
 	@JsonIgnore
 	public String getKey() {
-		return "" + sensor.getType() + sensor.getLocation() + getValuesHashCode();
+		return "" + sensor.getSensorType() + sensor.getSensorLocation() + getValuesHashCode();
 	}
 
 	public float[] getValues() {
@@ -173,14 +173,14 @@ public class SensorEvent {
 	 * @return the sensorType
 	 */
 	public int getSensorType() {
-		return sensor.getType();
+		return sensor.getSensorType();
 	}
 
 	/**
 	 * @return the sensorLocation
 	 */
 	public int getSensorLocation() {
-		return sensor.getLocation();
+		return sensor.getSensorLocation();
 	}
 
 	/**

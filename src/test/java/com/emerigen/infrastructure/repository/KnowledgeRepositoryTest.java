@@ -48,15 +48,6 @@ public class KnowledgeRepositoryTest {
 //		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent4);
 //		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent5);
 
-		// Give the bucket a chance to catch up after the log
-//		try {
-//			Thread.sleep(Long.parseLong(EmerigenProperties.getInstance()
-//					.getValue("couchbase.server.logging.catchup.timer")));
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
 		int count = KnowledgeRepository.getInstance()
 				.getSensorEventCountForSensorTypeAndLocation(Sensor.TYPE_HEART_RATE,
 						Sensor.LOCATION_PHONE);

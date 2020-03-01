@@ -1,4 +1,5 @@
 { 
+ "type": "cycle",
   "cycleType": "Daily",
   "sensorLocation": 1,
   "allowablePercentDifferenceForEquality": 0.2

@@ -70,7 +70,7 @@ public class CouchbaseSensorEventRepositoryTest {
 		CouchbaseRepository.getInstance().log(uuid2, sensorEventJsonDoc, true);
 
 		String statement = "SELECT COUNT(*) FROM `knowledge` WHERE type= \"sensor-event\" AND sensorType= "
-				+ sensor.getType() + " AND sensorLocation= " + sensor.getLocation()
+				+ sensor.getSensorType() + " AND sensorLocation= " + sensor.getSensorLocation()
 				+ " AND timestamp = \"" + timestamp + "\"";
 		QueryResult result = CouchbaseRepository.getInstance().query(statement);
 

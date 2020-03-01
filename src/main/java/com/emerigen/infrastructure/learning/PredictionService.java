@@ -60,8 +60,8 @@ public class PredictionService {
 					"firstSensorEvent and predictedSensorEvent sensor locations must be the same");
 
 		Sensor sensor = SensorManager.getInstance().getDefaultSensorForLocation(
-				firstSensorEvent.getSensor().getType(),
-				firstSensorEvent.getSensor().getLocation());
+				firstSensorEvent.getSensor().getSensorType(),
+				firstSensorEvent.getSensor().getSensorLocation());
 
 		// Create timestamp and id
 		long timestamp = System.currentTimeMillis() * 1000000;
@@ -73,15 +73,20 @@ public class PredictionService {
 			jsonArray2.add(predictedSensorEvent.getValues()[i]);
 		}
 
-		JsonObject predictedEventJsonDoc = JsonObject.create()
-				.put("sensorType", sensor.getType())
-				.put("sensorLocation", sensor.getLocation()).put("type", "sensor-event")
-				.put("timestamp", predictedSensorEvent.getTimestamp())
-				.put("values", jsonArray2)
+		JsonObject sensorJsonDoc = JsonObject.create().put("sensorType", sensor.getSensorType())
+				.put("sensorLocation", sensor.getSensorLocation())
+				.put("wakeUpSensor", sensor.isWakeUpSensor())
 				.put("minimumDelayBetweenReadings",
 						sensor.getMinimumDelayBetweenReadings())
-				.put("reportingMode", sensor.getReportingMode())
-				.put("wakeUpSensor", sensor.isWakeUpSensor());
+				.put("reportingMode", sensor.getReportingMode()).put("type", "sensor");
+
+		JsonObject predictedEventJsonDoc = JsonObject.create()
+				.put("sensorType", sensor.getSensorType())
+				.put("sensorLocation", sensor.getSensorLocation()).put("type", "sensor-event")
+				.put("timestamp", predictedSensorEvent.getTimestamp())
+				.put("values", jsonArray2).put("sensor", sensorJsonDoc);
+
+		;
 
 		JsonObject transitionJsonObject = JsonObject.create()
 				.put("cashOnHand", Transition.defaultCashOnHand)
@@ -176,7 +181,7 @@ public class PredictionService {
 		String statement = "SELECT predictedSensorEvent FROM `knowledge` WHERE "
 				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\""
 				+ " AND type = \"sensor-event\"";
-		QueryResult result = CouchbaseRepository.getInstance().query("transition");
+		QueryResult result = CouchbaseRepository.getInstance().query(statement);
 		return result;
 	}
 

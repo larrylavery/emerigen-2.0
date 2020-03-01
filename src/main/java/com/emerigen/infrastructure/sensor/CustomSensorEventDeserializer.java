@@ -68,6 +68,8 @@ public class CustomSensorEventDeserializer extends StdDeserializer<SensorEvent> 
 			sensorLocation = node.get("sensorLocation").asInt();
 			sensorEvent.setSensorLocation(sensorLocation);
 			sensorEvent.setTimestamp(node.get("timestamp").asLong());
+			sensorEvent
+					.setDataPointDurationNano(node.get("dataPointDurationNano").asLong());
 			logger.info("Partial SensorEvent without values set: " + sensorEvent);
 
 			// Retrieve the sensor event values

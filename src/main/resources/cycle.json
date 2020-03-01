@@ -3,11 +3,16 @@
     "type": "object",
     "required": [
       "cycleType",
+      "type",
       "sensorType",
       "sensorLocation",
       "allowablePercentDifferenceForEquality"
     ],
     "properties": {
+         "type": {
+          "description": "the object type",
+          "type": "string"
+        },
       "cycleType": {
         "description": "The type of this cycle (Daily, Weekly, Monthly, Yearly",
         "type": "string"

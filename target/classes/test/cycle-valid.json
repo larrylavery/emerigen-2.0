@@ -1,4 +1,5 @@
 {
+ "type": "cycle",
   "cycleType": "Daily",
   "sensorType": 1,
   "sensorLocation": 1,

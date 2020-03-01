@@ -4,15 +4,19 @@
   "description": "A schema representing an event published by a sensor",
   "type": "object",
   "required": [
+    "type",
+    "dataPointDurationNano",
     "sensorType",
     "sensorLocation",
     "timestamp",
     "values",
-    "minimumDelayBetweenReadings",
-    "reportingMode",
-    "wakeUpSensor"
+    "sensor"
   ],
   "properties": {
+    "type": {
+      "description": "the object type",
+      "type": "string"
+    },
     "sensorType": {
       "description": "he type ID for this pattern",
       "type": "number"
@@ -25,6 +29,10 @@
       "description": "The time this pattern was logged",
       "type": "number"
     },
+    "dataPointDurationNano": {
+      "description": "The amount of time that the data point represented by this event was active",
+      "type": "number"
+    },
     "values": {
       "description": "The sensor-specific measurements",
       "type": "array",
@@ -33,17 +41,26 @@
         "type": "number"
       }
     },
-    "minimumDelayBetweenReadings": {
-      "description": "All readings must be this far apart in time",
-      "type": "number"
-    },
-    "reportingMode": {
-      "description": "Read continuously or on change only",
-      "type": "number"
-    },
-    "wakeUpSensor": {
-      "description": "Does this sensor have the ability to wake up the device",
-      "type": "boolean"
+    "sensor": {
+      "required": [
+        "minimumDelayBetweenReadings",
+        "reportingMode",
+        "wakeUpSensor"
+      ],
+      "properties": {
+        "minimumDelayBetweenReadings": {
+          "description": "All readings must be this far apart in time",
+          "type": "number"
+        },
+        "reportingMode": {
+          "description": "Read continuously or on change only",
+          "type": "number"
+        },
+        "wakeUpSensor": {
+          "description": "Does this sensor have the ability to wake up the device",
+          "type": "boolean"
+        }
+      }
     }
   }
 }

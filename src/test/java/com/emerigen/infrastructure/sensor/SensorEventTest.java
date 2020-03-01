@@ -71,9 +71,9 @@ public class SensorEventTest {
 		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(3);
 
 		assertThat(retrievedSensorEvent.getSensor()).isNotNull();
-		assertThat(retrievedSensorEvent.getSensor().getType())
+		assertThat(retrievedSensorEvent.getSensor().getSensorType())
 				.isEqualTo(Sensor.TYPE_HEART_RATE);
-		assertThat(retrievedSensorEvent.getSensor().getLocation())
+		assertThat(retrievedSensorEvent.getSensor().getSensorLocation())
 				.isEqualTo(Sensor.LOCATION_WATCH);
 		assertThat(retrievedSensorEvent.getSensor().getMinimumDelayBetweenReadings())
 				.isEqualTo(1000);

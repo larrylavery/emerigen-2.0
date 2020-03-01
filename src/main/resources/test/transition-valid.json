@@ -1,5 +1,6 @@
 
 {
+"type": "transition",
   "numberOfSuccessfulPredictions": 1,
   "lastSuccessfulPredictionTimestamp": 1,
   "numberOfPredictionAttempts": 1,

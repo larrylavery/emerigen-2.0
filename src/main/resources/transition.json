@@ -5,17 +5,20 @@
   "definitions": {
     "sensorEvent": {
       "required": [
+        "type",
         "sensorType",
         "sensorLocation",
         "timestamp",
         "values",
-        "minimumDelayBetweenReadings",
-        "reportingMode",
-        "wakeUpSensor"
+        "sensor"
       ],
       "properties": {
+        "type": {
+          "description": "the object type",
+          "type": "string"
+        },
         "sensorType": {
-          "description": "he type ID for this pattern",
+          "description": "the type ID for this pattern",
           "type": "number"
         },
         "sensorLocation": {
@@ -34,65 +37,92 @@
             "type": "number"
           }
         },
-        "minimumDelayBetweenReadings": {
-          "description": "All readings must be this far apart in time",
-          "type": "number"
-        },
-        "reportingMode": {
-          "description": "Read continuously or on change only",
-          "type": "number"
-        },
-        "wakeUpSensor": {
-          "description": "Does this sensor have the ability to wake up the device",
-          "type": "boolean"
+        "sensor": {
+          "required": [
+            "type",
+            "sensorType",
+            "sensorLocation",
+            "minimumDelayBetweenReadings",
+            "reportingMode",
+            "wakeUpSensor"
+          ],
+          "properties": {
+            "type": {
+              "description": "the type of this object",
+              "type": "string"
+            },
+            "sensorType": {
+              "description": "the type ID for this pattern",
+              "type": "number"
+            },
+            "sensorLocation": {
+              "description": "The location this sensor resides on",
+              "type": "number"
+            },
+            "minimumDelayBetweenReadings": {
+              "description": "All readings must be this far apart in time",
+              "type": "number"
+            },
+            "reportingMode": {
+              "description": "Read continuously or on change only",
+              "type": "number"
+            },
+            "wakeUpSensor": {
+              "description": "Does this sensor have the ability to wake up the device",
+              "type": "boolean"
+            }
+          }
         }
-      }
-    },
-    "transition": {
-      "required": [
-        "cashOnHand",
-        "probability",
-        "dataPointDurationNano",
-        "timestamp",
-        "firstSensorEventKey",
-        "predictedSensorEvent"
-      ],
-      "properties": {
-        "probability": {
-          "description": "The probability that a transition's prediction will be successful",
-          "type": "number"
-        },
-        "cashOnHand": {
-          "description": "The cash available to consume potential prediction matches",
-          "type": "number"
-        },
-        "dataPointDurationNano": {
-          "description": "The length of time a sensor's readings have been fuzzy equals",
-          "type": "number"
-        },
-        "lastSuccessfulPredictionTimestamp": {
-          "description": "The time of the last successful prediction",
-          "type": "number"
-        },
-        "numberOfPredictionAttempts": {
-          "description": "The number of prediction attempts",
-          "type": "number"
-        },
-        "numberOfSuccessfulPredictions": {
-          "description": "The number of successful prediction attempts",
-          "type": "number"
-        },
-        "timestamp": {
-          "description": "The time this transition was logged",
-          "type": "number"
-        },
-        "firstSensorEventKey": {
-          "description": "The key for the first sensor event of the transition",
-          "type": "string"
-        },
-        "predictedSensorEvent": {
-          "description": "The predicted sensor event of the transition",
-          "$ref": "#definitions/sensorEvent"
+      },
+      "transition": {
+        "required": [
+          "cashOnHand",
+          "probability",
+          "dataPointDurationNano",
+          "timestamp",
+          "lastSuccessfulPredictionTimestamp",
+          "numberOfPredictionAttempts",
+          "numberOfSuccessfulPredictions",
+          "firstSensorEventKey",
+          "predictedSensorEvent"
+        ],
+        "properties": {
+          "probability": {
+            "description": "The probability that a transition's prediction will be successful",
+            "type": "number"
+          },
+          "cashOnHand": {
+            "description": "The cash available to consume potential prediction matches",
+            "type": "number"
+          },
+          "dataPointDurationNano": {
+            "description": "The length of time a sensor's readings have been fuzzy equals",
+            "type": "number"
+          },
+          "lastSuccessfulPredictionTimestamp": {
+            "description": "The time of the last successful prediction",
+            "type": "number"
+          },
+          "numberOfPredictionAttempts": {
+            "description": "The number of prediction attempts",
+            "type": "number"
+          },
+          "numberOfSuccessfulPredictions": {
+            "description": "The number of successful prediction attempts",
+            "type": "number"
+          },
+          "timestamp": {
+            "description": "The time this transition was logged",
+            "type": "number"
+          },
+          "firstSensorEventKey": {
+            "description": "The key for the first sensor event of the transition",
+            "type": "string"
+          },
+          "predictedSensorEvent": {
+            "description": "The predicted sensor event of the transition",
+            "$ref": "#definitions/sensorEvent"
+          }
         }
       }
     }

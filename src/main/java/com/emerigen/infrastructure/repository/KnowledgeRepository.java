@@ -29,7 +29,6 @@ import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
-import com.emerigen.knowledge.Entity;
 
 /**
  * @author Larry
@@ -158,6 +157,10 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public String newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
 
 		ObjectMapper mapper = new ObjectMapper();
+
+//		To create a serializer backed by a custom ObjectMapper, 
+//		call JacksonJsonSerializer.create and pass in your custom mapper.
+//		JacksonJsonSerializer.create().;
 //		SimpleModule module = new SimpleModule("CustomSensorEventSerializer",
 //				new Version(1, 0, 0, null, null, null));
 //		module.addSerializer(SensorEvent.class, new CustomSensorEventSerializer());
@@ -167,6 +170,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		try {
 
 			// Convert the Java object to a SensorEvent JsonDocument
+//			JacksonJsonSerializer.create(CustomSensorEventSerializer).serialize(sensorEvent).;
+
 			JsonObject jsonObject = JsonObject
 					.fromJson(mapper.writeValueAsString(sensorEvent));
 			logger.info(" jsonObject: " + jsonObject);
@@ -182,6 +187,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			Schema schema = SchemaLoader.load(jsonSchema);
 
 			// Validate the JsonDocument against its' schema, ValidationException
+			logger.warn("schema: " + schema + ", object: " + jsonObject);
 			schema.validate(jsonSubject);
 			logger.info(" JsonObject validated successfully");
 
@@ -214,64 +220,6 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		int count = 0; // result.allRows().get(0).value().getInt("$1");
 		return count;
-	}
-
-	@Override
-	public String newEntity(Entity entity) {
-		ObjectMapper mapper = new ObjectMapper();
-		String uuid = UUID.randomUUID().toString();
-
-		try {
-
-			// Convert the Java object to a JsonDocument
-			JsonObject jsonObject = JsonObject
-					.fromJson(mapper.writeValueAsString(entity));
-			logger.info(" jsonObject: " + jsonObject);
-
-			// Validate the JsonDocument against the SensorEvent Schema
-			InputStream sensorEventSchemaJsonFileReader = getClass().getClassLoader()
-					.getResourceAsStream("entity.json");
-
-			JSONObject jsonSchema = new JSONObject(
-					new JSONTokener(sensorEventSchemaJsonFileReader));
-			JSONObject jsonSubject = new JSONObject(jsonObject.toString());
-
-			Schema schema = SchemaLoader.load(jsonSchema);
-
-			// Validate the JsonDocument against its' schema, ValidationException
-			schema.validate(jsonSubject);
-			logger.info(" JsonObject validated successfully");
-
-			repository.log(uuid, jsonObject, false);
-
-		} catch (JsonProcessingException e) {
-			throw new RepositoryException(e);
-		}
-		return uuid;
-
-	}
-
-	@Override
-	public Entity getEntity(String entityKey) {
-
-		CouchbaseRepository repo = CouchbaseRepository.getInstance();
-		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
-				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-		JsonObject entityJsonDoc = repo.get(entityKey, "");
-		logger.info(" after objectMapping, JsonDocument: " + entityJsonDoc);
-		Entity entity;
-
-		try {
-			entity = mapper.readValue(entityJsonDoc.toString(), Entity.class);
-			return entity;
-		} catch (JsonParseException e) {
-			throw new RepositoryException(e);
-		} catch (JsonMappingException e) {
-			throw new RepositoryException(e);
-		} catch (IOException e) {
-			throw new RepositoryException(e);
-		}
 	}
 
 	@Override
@@ -320,7 +268,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 //		module.addDeserializer(Transition.class, new CustomTransitionDeserializer());
 //		mapper.registerModule(module);
 
-		JsonObject jsonObject = repo.get(transitionKey, "");
+		JsonObject jsonObject = repo.get(transitionKey, "transition");
 		logger.info(" after objectMapping, JsonDocument: " + jsonObject);
 		Transition transition;
 
@@ -368,22 +316,22 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		// For now call the DB once for each type to reuse code
 		List<Cycle> cycles = new ArrayList<Cycle>();
 
-		cycle = getCycle("Daily", "" + sensor.getType() + sensor.getLocation() + "Daily");
+		cycle = getCycle("Daily", "" + sensor.getSensorType() + sensor.getSensorLocation() + "Daily");
 		if (cycle != null)
 			cycles.add(cycle);
 
 		cycle = getCycle("Weekly",
-				"" + sensor.getType() + sensor.getLocation() + "Weekly");
+				"" + sensor.getSensorType() + sensor.getSensorLocation() + "Weekly");
 		if (cycle != null)
 			cycles.add(cycle);
 
 		cycle = getCycle("Monthly",
-				"" + sensor.getType() + sensor.getLocation() + "Monthly");
+				"" + sensor.getSensorType() + sensor.getSensorLocation() + "Monthly");
 		if (cycle != null)
 			cycles.add(cycle);
 
 		cycle = getCycle("Yearly",
-				"" + sensor.getType() + sensor.getLocation() + "Yearly");
+				"" + sensor.getSensorType() + sensor.getSensorLocation() + "Yearly");
 		if (cycle != null)
 			cycles.add(cycle);
 		return cycles;
