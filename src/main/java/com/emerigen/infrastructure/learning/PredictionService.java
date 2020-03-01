@@ -73,7 +73,8 @@ public class PredictionService {
 			jsonArray2.add(predictedSensorEvent.getValues()[i]);
 		}
 
-		JsonObject sensorJsonDoc = JsonObject.create().put("sensorType", sensor.getSensorType())
+		JsonObject sensorJsonDoc = JsonObject.create()
+				.put("sensorType", sensor.getSensorType())
 				.put("sensorLocation", sensor.getSensorLocation())
 				.put("wakeUpSensor", sensor.isWakeUpSensor())
 				.put("minimumDelayBetweenReadings",
@@ -82,7 +83,8 @@ public class PredictionService {
 
 		JsonObject predictedEventJsonDoc = JsonObject.create()
 				.put("sensorType", sensor.getSensorType())
-				.put("sensorLocation", sensor.getSensorLocation()).put("type", "sensor-event")
+				.put("sensorLocation", sensor.getSensorLocation())
+				.put("type", "sensor-event")
 				.put("timestamp", predictedSensorEvent.getTimestamp())
 				.put("values", jsonArray2).put("sensor", sensorJsonDoc);
 
@@ -180,7 +182,7 @@ public class PredictionService {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		String statement = "SELECT predictedSensorEvent FROM `knowledge` WHERE "
 				+ "firstSensorEventKey = \"" + sensorEvent.getKey() + "\""
-				+ " AND type = \"sensor-event\"";
+				+ " AND type = \"transition\"";
 		QueryResult result = CouchbaseRepository.getInstance().query(statement);
 		return result;
 	}
@@ -204,14 +206,26 @@ public class PredictionService {
 	private List<SensorEvent> convertFromJsonToSensorEvents(ObjectMapper mapper,
 			QueryResult result) {
 		SensorEvent sensorEvent;
+		Sensor sensor;
 		List<SensorEvent> predictedSensorEvents = new ArrayList<SensorEvent>();
 		try {
 
 			List<JsonObject> jsonObjects = result.rowsAsObject();
+			JsonObject sensorEventJsonObject, sensorJsonObject;
 			for (JsonObject jsonObject : jsonObjects) {
+
+				sensorEventJsonObject = jsonObject.getObject("predictedSensorEvent");
+				sensorJsonObject = sensorEventJsonObject.getObject("sensor");
+				logger.info("sensorJson: " + sensorJsonObject.toString());
+				logger.info("sensorEventJson: " + sensorEventJsonObject.toString());
+
+				sensor = mapper.readValue(sensorJsonObject.toString(), Sensor.class);
+				sensorEvent = mapper.readValue(sensorEventJsonObject.toString(),
+						SensorEvent.class);
+
+				sensorEvent.setSensor(sensor);
 				logger.debug("Adding sensorEvent to predicted sensorEvents: "
-						+ jsonObject.toString());
-				sensorEvent = mapper.readValue(jsonObject.toString(), SensorEvent.class);
+						+ sensorEvent.toString());
 				predictedSensorEvents.add(sensorEvent);
 			}
 		} catch (Exception e) {
