@@ -160,7 +160,7 @@ public class TransitionTest {
 		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
 
 		assertThat(predictions).isNotNull().isNotEmpty();
-		assertThat(predictions.size() >= 2).isTrue();
+		assertThat(predictions.size() == 2).isTrue();
 
 //		assertThat(predictions.get(1).getSensorEvent()).isEqualTo(sensorEvent2);
 //		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(sensorEvent3);
@@ -219,6 +219,7 @@ public class TransitionTest {
 		List<Prediction> predictions = ps.getPredictionsForSensorEvent(sensorEvent1);
 
 		assertThat(predictions).isNotNull().isNotEmpty();
+		assertThat(predictions.size()).isEqualTo(1);
 
 	}
 
@@ -277,7 +278,7 @@ public class TransitionTest {
 				.getPredictionsForSensorEvent(sensorEvent1);
 
 		assertThat(predictedSensorEvents).isNotNull().isNotEmpty();
-		assertThat(predictedSensorEvents.size() >= 2).isTrue();
+		assertThat(predictedSensorEvents.size() == 2).isTrue();
 	}
 
 	@Test
@@ -331,9 +332,7 @@ public class TransitionTest {
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
 
-		// And given 1 transition with different entities
-//		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
-//		SensorEvent predictedSensorEvent = new SensorEvent(sensor2, values2);
+		// And given 1 transition with different sensor types
 
 		// When
 		PredictionService ps = new PredictionService(sensor);

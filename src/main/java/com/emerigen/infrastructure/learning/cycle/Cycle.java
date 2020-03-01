@@ -3,6 +3,12 @@
  */
 package com.emerigen.infrastructure.learning.cycle;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
+
 import org.apache.log4j.Logger;
 
 import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,7 +18,7 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
  * @author Larry
  *
  */
-public abstract class Cycle {
+public class Cycle {
 
 	/**
 	 * @IDEA - enable cycle data point fuzzines using equality based on std
@@ -30,6 +36,32 @@ public abstract class Cycle {
 	private String type = "cycle";
 	private int sensorLocation;
 	private int sensorType;
+	/**
+	 * This is the starting timestamp for the beginning of each cycle type. For
+	 * example, Hourly cycles start at 0 minutes 0 seconds of the current hour,
+	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
+	 * 12:00am Sunday morning of the current week, etc
+	 * 
+	 * This is an absolute value of nanoseconds since Jan 1, 1970. It is used to
+	 * calculate offsets for data point timestamps in the sensor events. This field
+	 * is rolled over to the next Cycle start time at the end of the duration of the
+	 * present cycle (i.e. moved to the next 24 hours for DailyCycle, 7 days for a
+	 * weekly cycle, etc.).
+	 */
+	private long cycleStartTimeNano;
+	/**
+	 * This is the duration for a cycle. Time zones and Daylight Savings times are
+	 * taken into account. Generally, this will be 168 hours for a weekly cycle, 24
+	 * hours for a daily cycle, etc.; all converted to nanoseconds.
+	 */
+	private long cycleDurationTimeNano;
+	final private long secondsPerYear = 31556952L;
+	final private int daysPerWeek = 7;
+	final private long hoursPerDay = 24;
+	final private long minutesPerHour = 60;
+	final private long secondsPerMinute = 60;
+	final private long milliSecondsPerSecond = 1000;
+	final private long nanoSecondsPerMillisecond = 1000000;
 
 	private double allowablePercentDifferenceForEquality = Double
 			.parseDouble(EmerigenProperties.getInstance()
@@ -46,23 +78,34 @@ public abstract class Cycle {
 			throw new IllegalArgumentException("cycleType must not be null or empty");
 
 		this.sensorType = sensorType;
-		this.cycleType = cycleType;
+		this.setCycleType(cycleType);
 		this.sensorLocation = sensorLocation;
 	}
 
+	public Cycle() {
+	}
+
 	public Cycle(String cycleType) {
-		this.cycleType = cycleType;
+		setCycleType(cycleType);
 	}
 
 	/**
+	 * Must be overriden by subclasses
+	 * 
 	 * @return the cycleStartTimeNano
 	 */
-	public abstract long calculateCycleStartTimeNano();
+	public long calculateCycleStartTimeNano() {
+		return 0;
+	}
 
 	/**
+	 * Must be overriden by subclasses
+	 * 
 	 * @return the cycleDurationTimeNano
 	 */
-	public abstract long calculateCycleDurationNano();
+	public long calculateCycleDurationNano() {
+		return 0;
+	}
 
 	/**
 	 * @return the key for this cycle
@@ -74,8 +117,8 @@ public abstract class Cycle {
 
 	@Override
 	public String toString() {
-		return "Cycle [cycleType=" + cycleType + ", sensorLocation=" + sensorLocation
-				+ ", sensorType=" + sensorType
+		return "Cycle [cycleType=" + cycleType + ", type=" + type + ", sensorLocation="
+				+ sensorLocation + ", sensorType=" + sensorType
 				+ ", allowablePercentDifferenceForEquality="
 				+ allowablePercentDifferenceForEquality + "]";
 	}
@@ -90,6 +133,7 @@ public abstract class Cycle {
 		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
 		result = prime * result + sensorLocation;
 		result = prime * result + sensorType;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -102,9 +146,9 @@ public abstract class Cycle {
 		if (getClass() != obj.getClass())
 			return false;
 		Cycle other = (Cycle) obj;
-//		if (Double.doubleToLongBits(PercentDifferenceForEquality) != Double
-//				.doubleToLongBits(other.StandardDeviationForEquality))
-//			return false;
+		if (Double.doubleToLongBits(allowablePercentDifferenceForEquality) != Double
+				.doubleToLongBits(other.allowablePercentDifferenceForEquality))
+			return false;
 		if (cycleType == null) {
 			if (other.cycleType != null)
 				return false;
@@ -113,6 +157,11 @@ public abstract class Cycle {
 		if (sensorLocation != other.sensorLocation)
 			return false;
 		if (sensorType != other.sensorType)
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
 			return false;
 		return true;
 	}
@@ -162,10 +211,123 @@ public abstract class Cycle {
 	}
 
 	/**
+	 * Once we have the cycle type, figure out the values for cycleStartTimeNano and
+	 * cycleDurationNano
+	 * 
 	 * @param cycleType the cycleType to set
 	 */
 	public void setCycleType(String cycleType) {
 		this.cycleType = cycleType;
+
+		// Daily cycle?
+		if ("Daily".equals(cycleType))
+			setDailyCycleNumbers();
+
+		// Weekly cycle?
+		else if ("Weekly".equals(cycleType))
+			setWeeklyCycleNumbers();
+
+		// Monthly cycle?
+		else if ("Monthly".equals(cycleType))
+			setMonthlyCycleNumbers();
+
+		// Yearly cycle?
+		else if ("Yearly".equals(cycleType))
+			setYearlyCycleNumbers();
+	}
+
+	private void setYearlyCycleNumbers() {
+		/**
+		 * Start time in nano seconds
+		 */
+		ZoneId zoneId = ZoneId.systemDefault();
+
+		// Get the first day of this year
+		LocalDate today = LocalDate.now();
+		LocalDate firstDayOfCurrentYear = today.with(TemporalAdjusters.firstDayOfYear());
+
+		// Get the start of that day
+		ZonedDateTime firtDayStartTime = firstDayOfCurrentYear.atStartOfDay(zoneId);
+		setCycleStartTimeNano(firtDayStartTime.toEpochSecond() * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond);
+
+		/**
+		 * Duration in nano seconds
+		 */
+		setCycleDurationTimeNano(
+				secondsPerYear * milliSecondsPerSecond * nanoSecondsPerMillisecond);
+
+	}
+
+	private void setMonthlyCycleNumbers() {
+		/**
+		 * Start time in nano seconds
+		 */
+		ZoneId zoneId = ZoneId.systemDefault();
+
+		// Get the first day of this month
+		LocalDate today = LocalDate.now();
+		LocalDate firstDayOfCurrentMonth = today
+				.with(TemporalAdjusters.firstDayOfMonth());
+
+		// Get the start of that day
+		ZonedDateTime firtDayStartTime = firstDayOfCurrentMonth.atStartOfDay(zoneId);
+		setCycleStartTimeNano(firtDayStartTime.toEpochSecond() * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond);
+		/**
+		 * Duration in nano seconds
+		 */
+		long secondsPerMonth = secondsPerYear / 12;
+		setCycleDurationTimeNano(
+				secondsPerMonth * milliSecondsPerSecond * nanoSecondsPerMillisecond);
+	}
+
+	/**
+	 * Calculate the weekly start time and duration
+	 */
+	private void setWeeklyCycleNumbers() {
+		/**
+		 * Start time in nano seconds
+		 */
+		ZoneId zoneId = ZoneId.systemDefault();
+
+		// Get the first day of this week
+		LocalDate today = LocalDate.now();
+		LocalDate firstDayOfCurrentWeek = today
+				.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+
+		// Get the start of that day
+		ZonedDateTime firtDayStartTime = firstDayOfCurrentWeek.atStartOfDay(zoneId);
+		setCycleStartTimeNano(firtDayStartTime.toEpochSecond() * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond);
+
+		/**
+		 * Duration in nano seconds
+		 */
+		setCycleDurationTimeNano(daysPerWeek * hoursPerDay * minutesPerHour
+				* secondsPerMinute * milliSecondsPerSecond * nanoSecondsPerMillisecond);
+	}
+
+	/**
+	 * Calculate the daily start time and duration
+	 */
+	private void setDailyCycleNumbers() {
+		/**
+		 * Start time in nano seconds
+		 */
+		ZoneId zoneId = ZoneId.systemDefault();
+		ZonedDateTime now = ZonedDateTime.now(zoneId);
+		ZonedDateTime todayStart = now.toLocalDate().atStartOfDay(zoneId);
+		long startTime = todayStart.toEpochSecond() * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond;
+		logger.info("cycleStartTimeNano = " + startTime);
+		setCycleStartTimeNano(todayStart.toEpochSecond() * milliSecondsPerSecond
+				* nanoSecondsPerMillisecond);
+		/**
+		 * Duration in nano seconds
+		 */
+		setCycleDurationTimeNano(hoursPerDay * minutesPerHour * secondsPerMinute
+				* milliSecondsPerSecond * nanoSecondsPerMillisecond);
 	}
 
 	/**
@@ -180,6 +342,34 @@ public abstract class Cycle {
 	 */
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	/**
+	 * @param cycleStartTimeNano the cycleStartTimeNano to set
+	 */
+	public void setCycleStartTimeNano(long cycleStartTimeNano) {
+		this.cycleStartTimeNano = cycleStartTimeNano;
+	}
+
+	/**
+	 * @return the cycleDurationTimeNano
+	 */
+	public long getCycleDurationTimeNano() {
+		return cycleDurationTimeNano;
+	}
+
+	/**
+	 * @param cycleDurationTimeNano the cycleDurationTimeNano to set
+	 */
+	public void setCycleDurationTimeNano(long cycleDurationTimeNano) {
+		this.cycleDurationTimeNano = cycleDurationTimeNano;
+	}
+
+	/**
+	 * @return the cycleStartTimeNano
+	 */
+	public long getCycleStartTimeNano() {
+		return cycleStartTimeNano;
 	}
 
 }

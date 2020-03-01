@@ -195,12 +195,10 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 				repository.log(uuid, jsonObject, false);
 			} catch (Exception e) {
 
-				// TODO Ignoring this exception to contend with Listeners default behavior
-				// of always
-				// logging events
+				// TODO Ignoring this exception to support Listeners default behavior
+				// of always logging events
 				logger.warn("Ignoring Exception for sensor event - " + sensorEvent, e);
 			}
-
 		} catch (JsonProcessingException e) {
 			throw new RepositoryException(e);
 		}
@@ -211,14 +209,15 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public int getSensorEventCountForSensorTypeAndLocation(int sensorType,
 			int sensorLocation) {
 
-		String queryString = "SELECT COUNT(*) FROM `sensor-event` WHERE sensorType = "
-				+ sensorType + " AND sensorLocation = " + sensorLocation;
+		String queryString = "SELECT COUNT(*) FROM `knowledge` WHERE sensorType = "
+				+ sensorType + " AND sensorLocation = " + sensorLocation
+				+ " AND type = \"sensor-event\"";
 		com.couchbase.client.java.query.QueryResult result = CouchbaseRepository
 				.getInstance().query(queryString);
 
 		logger.info(" query result: " + result);
-
-		int count = 0; // result.allRows().get(0).value().getInt("$1");
+		List<JsonObject> jsonObjects = result.rowsAsObject();
+		int count = jsonObjects.get(0).getInt("$1");
 		return count;
 	}
 
@@ -236,7 +235,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 //		mapper.registerModule(module);
 		SensorEvent sensorEvent;
 
-		JsonObject jsonObject = repo.get(sensorEventKey, "");
+		JsonObject jsonObject = repo.get(sensorEventKey);
 		logger.info(" after objectMapping, JsonObject: " + jsonObject);
 
 		if (jsonObject == null)
@@ -316,7 +315,8 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		// For now call the DB once for each type to reuse code
 		List<Cycle> cycles = new ArrayList<Cycle>();
 
-		cycle = getCycle("Daily", "" + sensor.getSensorType() + sensor.getSensorLocation() + "Daily");
+		cycle = getCycle("Daily",
+				"" + sensor.getSensorType() + sensor.getSensorLocation() + "Daily");
 		if (cycle != null)
 			cycles.add(cycle);
 
@@ -402,6 +402,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		try {
 			cycle = mapper.readValue(jsonObject.toString(), Cycle.class);
+			cycle.setCycleType(cycle.getCycleType());
 			return cycle;
 		} catch (JsonParseException e) {
 			throw new RepositoryException(e);

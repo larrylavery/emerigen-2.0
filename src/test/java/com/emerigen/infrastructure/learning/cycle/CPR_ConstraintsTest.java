@@ -112,7 +112,7 @@ public class CPR_ConstraintsTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor2, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 
-		event2.setTimestamp(event2.getTimestamp() - cpr.cycleDurationTimeNano);
+		event2.setTimestamp(event2.getTimestamp() - cpr.getCycleDurationTimeNano());
 
 		final Throwable throwable = catchThrowable(() -> cpr.onSensorChanged(event1));
 
@@ -137,7 +137,8 @@ public class CPR_ConstraintsTest {
 		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() - cpr.cycleDurationTimeNano - 1000);
+		event2.setTimestamp(
+				event1.getTimestamp() - cpr.getCycleDurationTimeNano() - 1000);
 
 		// Define predictionService behavior for this test case
 		List<Prediction> mockPredictions = new ArrayList<>();

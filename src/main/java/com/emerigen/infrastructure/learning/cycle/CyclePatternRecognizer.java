@@ -25,27 +25,6 @@ import com.emerigen.infrastructure.utils.Utils;
 public class CyclePatternRecognizer extends PatternRecognizer {
 
 	/**
-	 * This is the starting timestamp for the beginning of each cycle type. For
-	 * example, Hourly cycles start at 0 minutes 0 seconds of the current hour,
-	 * daily Cycles start at 12:00 am of the current day, weekly cycles atart at
-	 * 12:00am Sunday morning of the current week, etc
-	 * 
-	 * This is an absolute value of nanoseconds since Jan 1, 1970. It is used to
-	 * calculate offsets for data point timestamps in the sensor events. This field
-	 * is rolled over to the next Cycle start time at the end of the duration of the
-	 * present cycle (i.e. moved to the next 24 hours for DailyCycle, 7 days for a
-	 * weekly cycle, etc.).
-	 */
-	private long cycleStartTimeNano;
-
-	/**
-	 * This is the duration for a cycle. Time zones and Daylight Savings times are
-	 * taken into account. Generally, this will be 168 hours for a weekly cycle, 24
-	 * hours for a daily cycle, etc.; all converted to nanoseconds.
-	 */
-	long cycleDurationTimeNano;
-
-	/**
 	 * @IDEA - enable cycle data point fuzziness using equality based on std
 	 *       deviation. As long as values are within this standard deviation from
 	 *       each other they will be considered to be equal. This allows for
@@ -59,7 +38,6 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	 */
 
 	private Cycle cycle;
-
 	private Sensor sensor;
 	private SensorEvent previousSensorEvent = null;
 	private PredictionService predictionService;
@@ -83,24 +61,24 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		this.cycle = cycle;
 		this.sensor = sensor;
 		this.predictionService = predictionService;
-		this.cycleStartTimeNano = cycle.calculateCycleStartTimeNano();
-		this.cycleDurationTimeNano = cycle.calculateCycleDurationNano();
 
 	}
 
 	private void adjustCycleStartTimeToClosestEnclosingCycle(SensorEvent sensorEvent) {
-		if ((sensorEvent.getTimestamp() - cycleStartTimeNano) > cycleDurationTimeNano) {
+		if ((sensorEvent.getTimestamp() - cycle.getCycleStartTimeNano()) > cycle
+				.getCycleDurationTimeNano()) {
 
 			// Calculate closest enclosing cycle
-			long cyclesToSkip = (sensorEvent.getTimestamp() - cycleStartTimeNano)
-					/ cycleDurationTimeNano;
+			long cyclesToSkip = (sensorEvent.getTimestamp()
+					- cycle.getCycleStartTimeNano()) / cycle.getCycleDurationTimeNano();
 
-			cycleStartTimeNano = cycleStartTimeNano
-					+ (cyclesToSkip * cycleDurationTimeNano);
+			cycle.setCycleStartTimeNano(cycle.getCycleStartTimeNano()
+					+ (cyclesToSkip * cycle.getCycleDurationTimeNano()));
 			logger.info(
 					"Incoming event was past our current cycle duration so the new cycleStartTime ("
-							+ cycleStartTimeNano + "), sensor event timestamp ("
-							+ sensorEvent.getTimestamp() + ")");
+							+ cycle.getCycleStartTimeNano()
+							+ "), sensor event timestamp (" + sensorEvent.getTimestamp()
+							+ ")");
 		}
 	}
 
@@ -130,9 +108,10 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 			throw new IllegalArgumentException("currentSensorEvent must not be null");
 
 		if (!(sensor.getSensorType() == currentSensorEvent.getSensorType()))
-			throw new IllegalArgumentException("given sensor type ("
-					+ currentSensorEvent.getSensorType()
-					+ "), does not match my sensor type (" + sensor.getSensorType() + ")");
+			throw new IllegalArgumentException(
+					"given sensor type (" + currentSensorEvent.getSensorType()
+							+ "), does not match my sensor type ("
+							+ sensor.getSensorType() + ")");
 		if (!(sensor.getSensorLocation() == currentSensorEvent.getSensorLocation()))
 			throw new IllegalArgumentException(
 					"given sensor location (" + currentSensorEvent.getSensorLocation()
@@ -223,27 +202,25 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	private boolean currentEventIsGreaterThanPreviousEvent(
 			SensorEvent currentSensorEvent) {
 		long currentEventTimestampOffset = currentSensorEvent.getTimestamp()
-				% cycleDurationTimeNano;
+				% cycle.getCycleDurationTimeNano();
 		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp()
-				% cycleDurationTimeNano;
+				% cycle.getCycleDurationTimeNano();
 		return currentEventTimestampOffset > previousEvcentTimestampOffset;
 	}
 
 	private boolean currentEventIsLessThanPreviousEvent(SensorEvent currentSensorEvent) {
 		long currentEventTimestampOffset = currentSensorEvent.getTimestamp()
-				% cycleDurationTimeNano;
+				% cycle.getCycleDurationTimeNano();
 		long previousEvcentTimestampOffset = previousSensorEvent.getTimestamp()
-				% cycleDurationTimeNano;
+				% cycle.getCycleDurationTimeNano();
 		return currentEventTimestampOffset < previousEvcentTimestampOffset;
 	}
 
 	@Override
 	public String toString() {
-		return "CyclePatternRecognizer [cycleStartTimeNano=" + cycleStartTimeNano
-				+ ", cycleDurationTimeNano=" + cycleDurationTimeNano + ", cycle=" + cycle
-				+ ", sensor=" + sensor + ", previousSensorEvent=" + previousSensorEvent
-				+ ", predictionService=" + predictionService
-				+ ", allowablePercentDifferenceForEquality="
+		return "CyclePatternRecognizer [cycle=" + cycle + ", sensor=" + sensor
+				+ ", previousSensorEvent=" + previousSensorEvent + ", predictionService="
+				+ predictionService + ", allowablePercentDifferenceForEquality="
 				+ allowablePercentDifferenceForEquality + "]";
 	}
 
@@ -251,11 +228,10 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		long temp;
+		temp = Double.doubleToLongBits(allowablePercentDifferenceForEquality);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((cycle == null) ? 0 : cycle.hashCode());
-		result = prime * result
-				+ (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
-		result = prime * result
-				+ (int) (cycleStartTimeNano ^ (cycleStartTimeNano >>> 32));
 		result = prime * result
 				+ ((predictionService == null) ? 0 : predictionService.hashCode());
 		result = prime * result
@@ -273,14 +249,13 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 		if (getClass() != obj.getClass())
 			return false;
 		CyclePatternRecognizer other = (CyclePatternRecognizer) obj;
+		if (Double.doubleToLongBits(allowablePercentDifferenceForEquality) != Double
+				.doubleToLongBits(other.allowablePercentDifferenceForEquality))
+			return false;
 		if (cycle == null) {
 			if (other.cycle != null)
 				return false;
 		} else if (!cycle.equals(other.cycle))
-			return false;
-		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
-			return false;
-		if (cycleStartTimeNano != other.cycleStartTimeNano)
 			return false;
 		if (predictionService == null) {
 			if (other.predictionService != null)
@@ -301,11 +276,11 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	}
 
 	public long getCycleStartTimeNano() {
-		return cycleStartTimeNano;
+		return cycle.getCycleStartTimeNano();
 	}
 
 	public long getCycleDurationTimeNano() {
-		return cycleDurationTimeNano;
+		return cycle.getCycleDurationTimeNano();
 	}
 
 	/**
@@ -320,6 +295,7 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	 */
 	public void setCycle(Cycle cycle) {
 		this.cycle = cycle;
+		cycle.setCycleType(cycle.getCycleType());
 	}
 
 	/**
@@ -391,17 +367,10 @@ public class CyclePatternRecognizer extends PatternRecognizer {
 	}
 
 	/**
-	 * @param cycleStartTimeNano the cycleStartTimeNano to set
-	 */
-	public void setCycleStartTimeNano(long cycleStartTimeNano) {
-		this.cycleStartTimeNano = cycleStartTimeNano;
-	}
-
-	/**
 	 * @param cycleDurationTimeNano the cycleDurationTimeNano to set
 	 */
 	public void setCycleDurationTimeNano(long cycleDurationTimeNano) {
-		this.cycleDurationTimeNano = cycleDurationTimeNano;
+		cycle.setCycleDurationTimeNano(cycleDurationTimeNano);
 	}
 
 }

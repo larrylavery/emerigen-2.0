@@ -73,7 +73,7 @@ public class CPR_RolloverTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
-		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
+		event1.setTimestamp(event1.getTimestamp() + cpr.getCycleDurationTimeNano());
 
 		long previousCycleStartTime = cpr.getCycleStartTimeNano();
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
@@ -118,7 +118,7 @@ public class CPR_RolloverTest {
 		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() - 500 + cpr.cycleDurationTimeNano);
+		event2.setTimestamp(event1.getTimestamp() - 500 + cpr.getCycleDurationTimeNano());
 
 		// Test that event added before existing event
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
@@ -255,7 +255,8 @@ public class CPR_RolloverTest {
 		float[] values3 = { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() - 10000 + cpr.cycleDurationTimeNano);
+		event2.setTimestamp(
+				event1.getTimestamp() - 10000 + cpr.getCycleDurationTimeNano());
 
 		// Test that event added to the beginning of the next cycle
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
@@ -292,7 +293,8 @@ public class CPR_RolloverTest {
 		float[] values2 = { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
-		event2.setTimestamp(event1.getTimestamp() + 1000 + cpr.cycleDurationTimeNano);
+		event2.setTimestamp(
+				event1.getTimestamp() + 1000 + cpr.getCycleDurationTimeNano());
 
 		// Test that event added to the beginning of the next cycle
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
@@ -499,7 +501,7 @@ public class CPR_RolloverTest {
 		SensorEvent event1 = new SensorEvent(gpsSensor, values);
 
 		// Set the event timestamp to after the cycle duration
-		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
+		event1.setTimestamp(event1.getTimestamp() + cpr.getCycleDurationTimeNano());
 
 		long previousCycleStartTime = cpr.getCycleStartTimeNano();
 		cpr.onSensorChanged(event1);

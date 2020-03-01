@@ -2,6 +2,7 @@ package com.emerigen.infrastructure.sensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import org.junit.Test;
@@ -64,6 +65,7 @@ public class SensorTest {
 
 	@Test
 	public final void testIsWakUpSensor() {
+		fail("Not yet implemented");
 		// TODO implement wakeup sensor test
 	}
 

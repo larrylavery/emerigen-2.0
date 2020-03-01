@@ -89,7 +89,8 @@ public class CPR_PredictionTest {
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
 		event3.setTimestamp(event1.getTimestamp() + 2000);
 		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
-		event4.setTimestamp(event1.getTimestamp() - 1000 + cpr.cycleDurationTimeNano);
+		event4.setTimestamp(
+				event1.getTimestamp() - 1000 + cpr.getCycleDurationTimeNano());
 
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		assertThat(predictions).isNotNull().isEmpty();
@@ -150,7 +151,7 @@ public class CPR_PredictionTest {
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
 		event3.setTimestamp(event1.getTimestamp() + 2 * minimumDelayBetweenReadings);
 		SensorEvent event4 = new SensorEvent(gpsSensor, values4);
-		event4.setTimestamp(event1.getTimestamp() + 3 * cpr.cycleDurationTimeNano);
+		event4.setTimestamp(event1.getTimestamp() + 3 * cpr.getCycleDurationTimeNano());
 
 		List<Prediction> mockPredictions = new ArrayList<>();
 		mockPredictions.add(new Prediction(event1));
@@ -296,7 +297,8 @@ public class CPR_PredictionTest {
 		SensorEvent event2 = new SensorEvent(gpsSensor, values2);
 		SensorEvent event3 = new SensorEvent(gpsSensor, values3);
 		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
-		event3.setTimestamp(event1.getTimestamp() - 100000 + cpr.cycleDurationTimeNano);
+		event3.setTimestamp(
+				event1.getTimestamp() - 100000 + cpr.getCycleDurationTimeNano());
 
 		List<Prediction> mockPredictions = new ArrayList<>();
 		mockPredictions.add(new Prediction(event1));
@@ -367,14 +369,14 @@ public class CPR_PredictionTest {
 				.thenReturn(new ArrayList<Prediction>());
 
 		// Set the event timestamp to after the cycle duration
-		event1.setTimestamp(event1.getTimestamp() + cpr.cycleDurationTimeNano);
+		event1.setTimestamp(event1.getTimestamp() + cpr.getCycleDurationTimeNano());
 
 		long previousCycleStartTime = cpr.getCycleStartTimeNano();
 		List<Prediction> predictions = cpr.onSensorChanged(event1);
 		long currentCycleStartTime = cpr.getCycleStartTimeNano();
 
 		assertThat(currentCycleStartTime - previousCycleStartTime)
-				.isEqualTo(cpr.cycleDurationTimeNano);
+				.isEqualTo(cpr.getCycleDurationTimeNano());
 		assertThat(predictions).isNotNull().isEmpty();
 
 		// Verify appropriate methods called AND how many times and that no other
@@ -411,7 +413,7 @@ public class CPR_PredictionTest {
 		SensorEvent event3 = new SensorEvent(gpsSensor, values);
 		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
 		event3.setTimestamp(
-				event1.getTimestamp() - 10000 + 2 * cpr.cycleDurationTimeNano);
+				event1.getTimestamp() - 10000 + 2 * cpr.getCycleDurationTimeNano());
 
 		List<Prediction> mockPredictions = new ArrayList<>();
 		mockPredictions.add(new Prediction(event1));

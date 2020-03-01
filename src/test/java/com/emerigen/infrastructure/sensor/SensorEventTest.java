@@ -6,7 +6,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.InputStream;
 import java.util.Random;
-import java.util.UUID;
 
 import org.assertj.core.api.SoftAssertions;
 import org.everit.json.schema.Schema;
@@ -20,10 +19,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.couchbase.client.java.json.JsonArray;
-import com.couchbase.client.java.json.JsonObject;
 import com.emerigen.infrastructure.repository.KnowledgeRepository;
-import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class SensorEventTest {
 
@@ -44,31 +41,17 @@ public class SensorEventTest {
 		SensorEvent event = new SensorEvent(sensor, values);
 		event.setTimestamp(timestamp);
 
-		JsonObject sensorEventJsonDoc = JsonObject.create()
-				.put("sensorType", Sensor.TYPE_HEART_RATE)
-				.put("sensorLocation", Sensor.LOCATION_WATCH)
-				.put("timestamp", "" + timestamp)
-				.put("values",
-						JsonArray.from("" + rd.nextFloat(), "" + rd.nextFloat(),
-								"" + rd.nextFloat()))
-				.put("minimumDelayBetweenReadings", 1000).put("reportingMode", "1")
-				.put("wakeUpSensor", false);
-
-		// when
-		// Log using our repository under test
-		String uuid = UUID.randomUUID().toString();
-//		KnowledgeRepository.getInstance().newSensorEvent(event);
-		CouchbaseRepository.getInstance().log(uuid, sensorEventJsonDoc, false);
-
+		String key = KnowledgeRepository.getInstance().newSensorEvent(event);
+		Utils.allowDataUpdatesTimeToCatchUp();
 		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance()
-				.getSensorEvent(uuid);
+				.getSensorEvent(key);
 		assertThat(retrievedSensorEvent).isNotNull();
 		assertThat(retrievedSensorEvent.getTimestamp()).isEqualTo(timestamp);
 		assertThat(retrievedSensorEvent.getSensorType())
 				.isEqualTo(Sensor.TYPE_HEART_RATE);
 		assertThat(retrievedSensorEvent.getSensorLocation())
 				.isEqualTo(Sensor.LOCATION_WATCH);
-		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(3);
+		assertThat(retrievedSensorEvent.getValues().length).isEqualTo(2);
 
 		assertThat(retrievedSensorEvent.getSensor()).isNotNull();
 		assertThat(retrievedSensorEvent.getSensor().getSensorType())
@@ -77,7 +60,8 @@ public class SensorEventTest {
 				.isEqualTo(Sensor.LOCATION_WATCH);
 		assertThat(retrievedSensorEvent.getSensor().getMinimumDelayBetweenReadings())
 				.isEqualTo(1000);
-		assertThat(retrievedSensorEvent.getSensor().getReportingMode()).isEqualTo(1);
+		assertThat(retrievedSensorEvent.getSensor().getReportingMode())
+				.isEqualTo(Sensor.DELAY_NORMAL);
 		assertThat(retrievedSensorEvent.getSensor().isWakeUpSensor()).isFalse();
 		softly.assertAll();
 	}

@@ -13,6 +13,7 @@ import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
+import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * @author Larry
@@ -45,13 +46,14 @@ public class KnowledgeRepositoryTest {
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
 		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent3);
-//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent4);
-//		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent5);
+		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent4);
+		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent5);
 
+		Utils.allowDataUpdatesTimeToCatchUp();
 		int count = KnowledgeRepository.getInstance()
 				.getSensorEventCountForSensorTypeAndLocation(Sensor.TYPE_HEART_RATE,
 						Sensor.LOCATION_PHONE);
-		assertThat(count >= 2).isTrue();
+		assertThat(count).isGreaterThan(2);
 	}
 
 	// Test

@@ -19,6 +19,7 @@ import com.couchbase.client.java.query.QueryResult;
 import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.utils.Utils;
 
 //@RunWith(MockitoJUnitRunner.class)
 public class CouchbaseSensorEventRepositoryTest {
@@ -69,18 +70,15 @@ public class CouchbaseSensorEventRepositoryTest {
 		CouchbaseRepository.getInstance().log(uuid1, sensorEventJsonDoc, true);
 		CouchbaseRepository.getInstance().log(uuid2, sensorEventJsonDoc, true);
 
+		Utils.allowDataUpdatesTimeToCatchUp();
 		String statement = "SELECT COUNT(*) FROM `knowledge` WHERE type= \"sensor-event\" AND sensorType= "
-				+ sensor.getSensorType() + " AND sensorLocation= " + sensor.getSensorLocation()
-				+ " AND timestamp = \"" + timestamp + "\"";
+				+ sensor.getSensorType() + " AND sensorLocation= "
+				+ sensor.getSensorLocation() + " AND timestamp = \"" + timestamp + "\"";
 		QueryResult result = CouchbaseRepository.getInstance().query(statement);
-
-//		for (JsonObject value : queryResult.rowsAsObject()) {
-//		// ...
-//	}	
 
 		List<JsonObject> jsonObjects = result.rowsAsObject();
 		int count = jsonObjects.get(0).getInt("$1");
-		softly.assertThat(count).isEqualTo(2);
+		assertThat(count).isEqualTo(2);
 		softly.assertAll();
 
 	}
