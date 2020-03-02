@@ -3,20 +3,14 @@ package com.emerigen.infrastructure.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
 
 public class LeakyBucketTest {
 
@@ -37,7 +31,7 @@ public class LeakyBucketTest {
 		}
 	};
 
-	@Test
+	// @Test
 	public final void givenFullBucket_whenLeakedThenFilled_thenValidates() {
 		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, normalFrequency);
@@ -47,7 +41,7 @@ public class LeakyBucketTest {
 		assertThat(leakyBucket.isFull()).isTrue();
 	}
 
-	@Test
+	// @Test
 	public final void givenFullBucket_whenLeaked_thenIsFullIsFalse() {
 		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
@@ -55,21 +49,21 @@ public class LeakyBucketTest {
 		assertThat(leakyBucket.isFull()).isFalse();
 	}
 
-	@Test
+	// @Test
 	public final void givenNewFullLeakyBucket_whencheckingFull_thenTrue() {
 		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
 		assertThat(leakyBucket.isFull()).isTrue();
 	}
 
-	@Test
+	// @Test
 	public final void givenFullLeakyBucket_whenCheckingIsEmpty_thenFalse() {
 		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2,
 				highFrequency, null);
 		assertThat(leakyBucket.isEmpty()).isFalse();
 	}
 
-	@Test
+	// @Test
 	public final void givenHighEventFrequencyHandler_whenOccurancesExceedThreshold_thenHandlerInvoked() {
 		// Given
 
@@ -85,13 +79,13 @@ public class LeakyBucketTest {
 
 	}
 
-	@Test
+	// @Test
 	public final void givenLowEventFrequencyHandler_whenOccurancesBelowThreshold_thenHandlerInvoked() {
 		LeakyBucket leakyBucket = new LeakyBucket(5, Duration.ofSeconds(1), 2, 2, null,
 				normalFrequency);
 		// When low threshold exceeded by sleeping
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,7 +96,7 @@ public class LeakyBucketTest {
 
 	}
 
-	@Test
+	// @Test
 	public final void givenTheOtherhHandlerNull_whenCreated_thenNoException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
 				Duration.ofSeconds(2), 1, 1, null, normalFrequency));
@@ -111,7 +105,7 @@ public class LeakyBucketTest {
 
 	}
 
-	@Test
+	// @Test
 	public final void givenOnehHandlerNull_whenCreated_thenNoException() {
 		final Throwable throwable = catchThrowable(() -> new LeakyBucket(1,
 				Duration.ofSeconds(2), 1, 1, highFrequency, null));

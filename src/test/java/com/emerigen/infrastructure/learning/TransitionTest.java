@@ -55,7 +55,7 @@ public class TransitionTest {
 
 	}
 
-	@Test
+	// @Test
 	public void givenJsonTransitionWithoutTimestamp_whenValidating_thenValidationExceptionIsThrown() {
 
 		// Given the schema and the instance json docs have been read in
@@ -80,7 +80,7 @@ public class TransitionTest {
 				.isInstanceOf(ValidationException.class);
 	}
 
-	@Test
+	// @Test
 	public void givenJsonTransitionWithNoSensorEvents_whenValidating_thenValidationExceptionIsThrown() {
 
 		// Given the schema and the instance json docs have been read in
@@ -105,7 +105,7 @@ public class TransitionTest {
 				.isInstanceOf(ValidationException.class);
 	}
 
-	@Test
+	// @Test
 	public void givenJsonTransitionWithOnlyOneSensorEventn_whenValidating_thenValidationExceptionIsThrown() {
 
 		// Given the schema and the instance json docs have been read in
@@ -166,7 +166,7 @@ public class TransitionTest {
 //		assertThat(predictions.get(0).getSensorEvent()).isEqualTo(sensorEvent3);
 	}
 
-	@Test
+	// @Test
 	public final void givenInvalidTransitionWithoutFirstSensorEvent_whenTranslatedAndLogged_thenItshouldThrowValidationException() {
 		KnowledgeRepository knowledgeRepository = KnowledgeRepository.getInstance();
 

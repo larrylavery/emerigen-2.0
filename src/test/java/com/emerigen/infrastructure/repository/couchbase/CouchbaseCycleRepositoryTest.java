@@ -55,9 +55,10 @@ public class CouchbaseCycleRepositoryTest {
 		JsonObject jsonObject;
 		String queryString = "SELECT COUNT(*) FROM `knowledge` WHERE cycleType = \"Daily\""
 				+ " AND sensorType = " + Sensor.TYPE_HEART_RATE + "AND sensorLocation = "
-				+ Sensor.LOCATION_WATCH;
+				+ Sensor.LOCATION_WATCH + " AND type = \"cycle\"";
 
 		QueryResult result = CouchbaseRepository.getInstance().query(queryString);
+
 		List<JsonObject> jsonObjects = result.rowsAsObject();
 		int count = jsonObjects.get(0).getInt("$1");
 

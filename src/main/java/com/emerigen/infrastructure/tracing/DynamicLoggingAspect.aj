@@ -84,7 +84,8 @@ public aspect DynamicLoggingAspect {
 	 */
 	after() throwing (Exception ex):classes() &&  !ignoredClassesAndMethods() 
 		&& (constructors() || methods()) {
-		leakyBucket.fill();
+		//TODO uncomment for leakyBucket testing
+//		leakyBucket.fill();
 	}
 
 	public DynamicLoggingAspect() {
@@ -129,11 +130,12 @@ public aspect DynamicLoggingAspect {
 	 * LeakyBucket measures frequencies (high and low) and invokes the appropriate
 	 * Runnable when high frequency exceeded or the frequency returns to normal.
 	 */
-	private LeakyBucket leakyBucket = new LeakyBucket(maxExceptionsPerInterval,
-			Duration.ofSeconds(exceptionOccuranceInterval), minExceptionsBelowThreshold,
-			minExceptionsAboveThreshold, highFrequencyExceededRunnable,
-			normalFrequencyDetectedRunnable);
+//	private LeakyBucket leakyBucket = new LeakyBucket(maxExceptionsPerInterval,
+//			Duration.ofSeconds(exceptionOccuranceInterval), minExceptionsBelowThreshold,
+//			minExceptionsAboveThreshold, highFrequencyExceededRunnable,
+//			normalFrequencyDetectedRunnable);
 
+	//TODO uncomment for testing LeakyBucket
 	/**
 	 * Dynamically set the logging level for all classes in this application
 	 * 

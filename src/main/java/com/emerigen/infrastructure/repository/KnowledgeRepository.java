@@ -266,7 +266,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
 		if (invalidCycleType(cycleType))
 			throw new IllegalArgumentException(
-					"CycleTypeName must be valid, but was (" + cycleType + ")");
+					"CycleType must be valid, but was (" + cycleType + ")");
 
 		// Initialize couchbase
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
@@ -402,7 +402,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		JSONObject jsonSchema = new JSONObject(new JSONTokener(schemaJsonFileReader));
 		JSONObject jsonSubject = new JSONObject(jsonObject.toString());
 		Schema newSchema = SchemaLoader.load(jsonSchema);
-		logger.warn("schema: " + newSchema + ", object: " + jsonObject);
+		logger.info("schema: " + newSchema + ", object: " + jsonObject);
 		newSchema.validate(jsonSubject);
 		logger.info(" JsonObject validated successfully");
 		return jsonObject;

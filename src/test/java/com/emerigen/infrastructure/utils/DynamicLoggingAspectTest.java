@@ -1,6 +1,7 @@
 package com.emerigen.infrastructure.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -18,6 +19,11 @@ public class DynamicLoggingAspectTest {
 	private static Logger logger = Logger.getLogger(DynamicLoggingAspectTest.class);
 
 	@Test
+	public final void placeHolderToStopUnfixableErrorsDuringTestRuns() {
+		fail("examine dynamic logging later to stop runaway logging");
+	}
+
+	// @Test
 	public final void givenLoggingLevelSetToWarn_whenChangedToDebug_thenLoggingLevelshouldChange() {
 		// given
 		// DynamicLoggingAspect logAspect = new DynamicLoggingAspect();
@@ -34,7 +40,7 @@ public class DynamicLoggingAspectTest {
 		throw new RepositoryException("No text");
 	}
 
-	@Test
+	// @Test
 	public final void givenLoggingAspectCreated_whenExceptionFrequencyExceeded_thenLoggingLevelChangedToDebug() {
 		// given
 		for (int i = 0; i < 10; i++) {

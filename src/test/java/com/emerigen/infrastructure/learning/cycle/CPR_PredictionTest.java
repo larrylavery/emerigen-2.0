@@ -2,7 +2,6 @@
 package com.emerigen.infrastructure.learning.cycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -61,11 +60,6 @@ public class CPR_PredictionTest {
 					"cycle type must be valid, but was (" + cycleType + ")");
 
 		return cycle;
-	}
-
-	@Test
-	public final void givenExpectedProbability_whenCreated_thenProbabilityCorrect() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@Test

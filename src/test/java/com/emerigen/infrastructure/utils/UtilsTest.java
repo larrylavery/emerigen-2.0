@@ -53,7 +53,7 @@ public class UtilsTest {
 	}
 
 	@Test
-	public final void givenNodesWithinWithinEqualityBounds_whenCheckedForEquality_thenTrue() {
+	public final void givenSensorEvantValuesWithinEqualityBounds_whenCheckedForEquality_thenTrue() {
 		Sensor sensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.18f, 2.28f };
@@ -66,7 +66,7 @@ public class UtilsTest {
 	}
 
 	@Test
-	public final void givenNodesNotWithinEqualityBounds_whenCheckedForEquality_thenFalse() {
+	public final void givenSensorEventValuesNotWithinEqualityBounds_whenCheckedForEquality_thenFalse() {
 		Sensor sensor = SensorManager.getInstance()
 				.getDefaultSensorForLocation(Sensor.TYPE_GPS, Sensor.LOCATION_PHONE);
 		float[] values = { 1.1f, 2.2f };

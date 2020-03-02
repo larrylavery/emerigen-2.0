@@ -23,6 +23,7 @@ import com.emerigen.infrastructure.sensor.HeartRateSensor;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class CycleTest {
 
@@ -47,8 +48,8 @@ public class CycleTest {
 		Cycle cycle = CPR_InsertionsTest.createCycle("Daily", gpsSensor.getSensorType(),
 				gpsSensor.getSensorLocation(), 1);
 
-		JsonObject cycleJsonDoc = JsonObject.create().put("cycleType", "Daily")
-				.put("sensorType", Sensor.TYPE_GPS)
+		JsonObject cycleJsonDoc = JsonObject.create().put("type", "cycle")
+				.put("cycleType", "Daily").put("sensorType", Sensor.TYPE_GPS)
 				.put("sensorLocation", Sensor.LOCATION_PHONE)
 				.put("allowablePercentDifferenceForEquality",
 						cpr.getAllowablePercentDifferenceForEquality());
@@ -56,7 +57,7 @@ public class CycleTest {
 		// when logged then retrieved ok
 		String uuid = UUID.randomUUID().toString();
 		KnowledgeRepository.getInstance().replaceCycle(uuid, cycle, true);
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		Cycle retrievedCycle = KnowledgeRepository.getInstance().getCycle("Daily", uuid);
 
 		// Verify cycle

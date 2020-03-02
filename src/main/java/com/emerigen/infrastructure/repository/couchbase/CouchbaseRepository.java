@@ -132,6 +132,7 @@ public class CouchbaseRepository {
 //TODO uncomment finalize later
 		try {
 			// Shut down gracefully.
+			Thread.sleep(1000);
 			cluster.disconnect();
 			env.shutdown();
 		} catch (Exception e) {
@@ -150,7 +151,6 @@ public class CouchbaseRepository {
 				insertResult = knowledgeCollection.insert(key, jsonObject, InsertOptions
 						.insertOptions().durability(DurabilityLevel.PERSIST_TO_MAJORITY));
 			} else {
-				// insert the jsonObject into my bucket
 				insertResult = knowledgeCollection.insert(key, jsonObject);
 			}
 		} catch (Exception e) {
@@ -196,13 +196,6 @@ public class CouchbaseRepository {
 			throw new RepositoryException("query exception, cause: " + e);
 		}
 
-//		cluster.query(String parameterizedStatement, queryOptions)
-		// "select * from bucket where type = $type",
-		// queryOptions().parameters(JsonObject.create().put("type", "airport"))
-
-		// public cluster.query("select * from bucket where type = $1",
-//				queryOptions().parameters(JsonArray.from("airport")));
-
 	}
 
 	/**
@@ -215,9 +208,6 @@ public class CouchbaseRepository {
 
 		try {
 			QueryResult queryResult = cluster.query(statement);
-//		for (JsonObject value : queryResult.rowsAsObject()) {
-//			// ...
-//		}
 			return queryResult;
 		} catch (Exception e) {
 			throw new RepositoryException("query exception, cause: " + e);
@@ -233,13 +223,6 @@ public class CouchbaseRepository {
 	public JsonObject get(final String docID) {
 		try {
 			GetResult getResult = knowledgeCollection.get(docID);
-
-			// TODO Decode the content of the document into an instance of the target
-			// class.
-			// List<String> strings = result.contentAs(new TypeRef<List<String>>(){});
-			// return getResult.contentAs(new TypeRef<SensorEvent>() {
-			// getResult.contentAs(SensorEvent.class);
-			// getResult.contentAs(clazz.class);
 			return getResult.contentAsObject();
 		} catch (DocumentNotFoundException e) {
 			logger.info("Document not found", e);
@@ -252,13 +235,6 @@ public class CouchbaseRepository {
 
 		try {
 			GetResult getResult = knowledgeCollection.get(docID);
-
-			// TODO Decode the content of the document into an instance of the target
-			// class.
-			// List<String> strings = result.contentAs(new TypeRef<List<String>>(){});
-			// return getResult.contentAs(new TypeRef<SensorEvent>() {
-			// getResult.contentAs(SensorEvent.class);
-			// getResult.contentAs(clazz.class);
 			return getResult.contentAsObject();
 		} catch (Exception e) {
 			throw new RepositoryException("query exception, cause: " + e);
