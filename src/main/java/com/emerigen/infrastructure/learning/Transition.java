@@ -376,6 +376,9 @@ public class Transition implements PredictionConsumer, PredictionSupplier {
 	}
 
 	public double getPredictionAccuracy() {
+		if (numberOfPredictionAttempts == 0)
+			return 0.0;
+
 		return (double) numberOfSuccessfulPredictions
 				/ (double) numberOfPredictionAttempts;
 	}

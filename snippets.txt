@@ -1,3 +1,13 @@
+Testing exceptions
+		final Throwable throwable = catchThrowable(
+				() -> CouchbaseRepository.getInstance());
+
+		// Then
+		then(throwable).as(
+				"A ConfigurationException or TimeoutException should be thrown if a bad connectionString is passed")
+				.isInstanceOf(RuntimeException.class);
+
+
 Get count
 
 		List<JsonObject> jsonObjects = result.rowsAsObject();
