@@ -58,7 +58,7 @@ public class CPR_LearningTest {
 				1);
 		// couchbase
 		String key = UUID.randomUUID().toString();
-		KnowledgeRepository.getInstance().newCycle(key, cycle);
+		KnowledgeRepository.getInstance().logCycle(key, cycle, false);
 		SensorManager sm = SensorManager.getInstance();
 		Sensor gpsSensor = sm.getDefaultSensorForLocation(Sensor.TYPE_GPS,
 				Sensor.LOCATION_PHONE);

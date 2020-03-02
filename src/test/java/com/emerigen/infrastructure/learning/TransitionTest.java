@@ -178,8 +178,10 @@ public class TransitionTest {
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, false);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent2.getKey(),
+				sensorEvent2, false);
 
 		SensorEvent predictedSensorEvent = new SensorEvent(sensor, values2);
 
@@ -295,8 +297,10 @@ public class TransitionTest {
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor2, values2);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent2.getKey(),
+				sensorEvent2, true);
 
 		// And given 1 transition with different entities
 		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
@@ -329,8 +333,10 @@ public class TransitionTest {
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor2, values2);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent2.getKey(),
+				sensorEvent2, true);
 
 		// And given 1 transition with different sensor types
 
@@ -358,8 +364,10 @@ public class TransitionTest {
 		SensorEvent sensorEvent1 = new SensorEvent(sensor, values);
 		SensorEvent sensorEvent2 = new SensorEvent(sensor, values2);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent2.getKey(),
+				sensorEvent2, true);
 
 		SensorEvent firstSensorEvent = new SensorEvent(sensor, values);
 

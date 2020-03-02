@@ -55,7 +55,7 @@ public class CycleTest {
 
 		// when logged then retrieved ok
 		String uuid = UUID.randomUUID().toString();
-		KnowledgeRepository.getInstance().newCycle(uuid, cycle);
+		KnowledgeRepository.getInstance().replaceCycle(uuid, cycle, true);
 
 		Cycle retrievedCycle = KnowledgeRepository.getInstance().getCycle("Daily", uuid);
 
@@ -176,7 +176,7 @@ public class CycleTest {
 		SensorEvent event1 = new SensorEvent(sensor, values);
 
 		String uuid = UUID.randomUUID().toString();
-		KnowledgeRepository.getInstance().newCycle(uuid, cycle);
+		KnowledgeRepository.getInstance().replaceCycle(uuid, cycle, true);
 
 		// Give the bucket a chance to catch up after the log
 //		try {

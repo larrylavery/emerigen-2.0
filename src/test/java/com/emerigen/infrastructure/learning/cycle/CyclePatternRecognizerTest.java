@@ -21,6 +21,7 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
+import com.emerigen.infrastructure.utils.Utils;
 
 public class CyclePatternRecognizerTest {
 
@@ -54,7 +55,8 @@ public class CyclePatternRecognizerTest {
 //				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, false);
 
 		PredictionService ps = new PredictionService(hrSensor);
 		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor, ps);
@@ -71,8 +73,8 @@ public class CyclePatternRecognizerTest {
 
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
-//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		float[] values = new float[] { rd.nextFloat() + 10, 1.2f };
 		float[] values2 = new float[] { rd.nextFloat() + 100, 281.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
@@ -84,7 +86,7 @@ public class CyclePatternRecognizerTest {
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 
 		predictions = listener.onSensorChanged(sensorEvent2);
-
+//		Utils.allowDataUpdatesTimeToCatchUp();
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 
@@ -101,7 +103,8 @@ public class CyclePatternRecognizerTest {
 //				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, false);
 
 		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor,
 				new PredictionService(hrSensor));
@@ -179,8 +182,8 @@ public class CyclePatternRecognizerTest {
 		// Given a new valid SensorEvent logged
 		SensorManager.reset();
 		Random rd = new Random();
-//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
@@ -221,8 +224,8 @@ public class CyclePatternRecognizerTest {
 		// Given a new valid SensorEvent logged
 		SensorManager.reset();
 		Random rd = new Random();
-//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
 		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
@@ -239,7 +242,7 @@ public class CyclePatternRecognizerTest {
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions).isNotNull().isEmpty();
-
+		Utils.allowDataUpdatesTimeToCatchUp();
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 		assertThat(predictions).isNotNull().isNotEmpty();
@@ -251,10 +254,10 @@ public class CyclePatternRecognizerTest {
 	public final void givenExistingEventWithoutPredictions_whenOnSensorChangedCalled_thenEmptyPredictionListReturned() {
 		// Given a new valid SensorEvent logged
 		Random rd = new Random();
-//		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
-//				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_WATCH);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
-		float[] values2 = new float[] { rd.nextFloat(), 1.2f };
+		float[] values2 = new float[] { rd.nextFloat() + 10, 10.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
 
 		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor,

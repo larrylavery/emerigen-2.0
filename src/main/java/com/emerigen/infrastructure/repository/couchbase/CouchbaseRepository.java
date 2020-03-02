@@ -18,6 +18,7 @@ import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.env.ClusterEnvironment;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.kv.GetResult;
+import com.couchbase.client.java.kv.InsertOptions;
 import com.couchbase.client.java.kv.MutationResult;
 import com.couchbase.client.java.kv.UpsertOptions;
 import com.couchbase.client.java.query.QueryOptions;
@@ -128,7 +129,7 @@ public class CouchbaseRepository {
 
 	@Override
 	protected void finalize() {
-
+//TODO uncomment finalize later
 		try {
 			// Shut down gracefully.
 			cluster.disconnect();
@@ -140,11 +141,18 @@ public class CouchbaseRepository {
 
 	}
 
-	public void logWithOverwrite(final String primaryKey, final JsonObject jsonObject) {
+	public void log(final String key, final JsonObject jsonObject, boolean synchronous) {
+		MutationResult insertResult;
 
 		try {
-			// Insert, and overwrite if already exists
-			knowledgeCollection.insert(primaryKey, jsonObject);
+			// Wait for completion if synchronous
+			if (synchronous) {
+				insertResult = knowledgeCollection.insert(key, jsonObject, InsertOptions
+						.insertOptions().durability(DurabilityLevel.PERSIST_TO_MAJORITY));
+			} else {
+				// insert the jsonObject into my bucket
+				insertResult = knowledgeCollection.insert(key, jsonObject);
+			}
 		} catch (Exception e) {
 			throw new RepositoryException("query exception, cause: " + e);
 
@@ -152,19 +160,18 @@ public class CouchbaseRepository {
 
 	}
 
-	public void log(final String primaryKey, final JsonObject jsonObject,
+	public void replace(final String key, final JsonObject jsonObject,
 			boolean synchronous) {
 		MutationResult upsertResult;
 
 		try {
 			// Wait for completion if synchronous
 			if (synchronous) {
-				upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject,
-						UpsertOptions.upsertOptions()
-								.durability(DurabilityLevel.PERSIST_TO_MAJORITY));
+				upsertResult = knowledgeCollection.upsert(key, jsonObject, UpsertOptions
+						.upsertOptions().durability(DurabilityLevel.PERSIST_TO_MAJORITY));
 			} else {
 				// insert the jsonObject into my bucket
-				upsertResult = knowledgeCollection.upsert(primaryKey, jsonObject);
+				upsertResult = knowledgeCollection.upsert(key, jsonObject);
 			}
 		} catch (Exception e) {
 			throw new RepositoryException("query exception, cause: " + e);

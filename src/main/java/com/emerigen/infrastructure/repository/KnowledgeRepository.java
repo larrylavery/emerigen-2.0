@@ -1,22 +1,17 @@
 package com.emerigen.infrastructure.repository;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.everit.json.schema.Schema;
-import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonParseException;
 import com.couchbase.client.core.deps.com.fasterxml.jackson.core.JsonProcessingException;
-import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.JsonMappingException;
 import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.ObjectMapper;
 import com.couchbase.client.core.deps.com.fasterxml.jackson.databind.SerializationFeature;
 import com.couchbase.client.java.json.JsonObject;
@@ -126,14 +121,14 @@ import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 public class KnowledgeRepository extends AbstractKnowledgeRepository {
 
-	public static final String CYCLE = EmerigenProperties.getInstance()
-			.getValue("couchbase.bucket.cycle");
-	public static final String SENSOR_EVENT = EmerigenProperties.getInstance()
-			.getValue("couchbase.bucket.sensor.event");
+	public static final String KNOWLEDGE = EmerigenProperties.getInstance()
+			.getValue("couchbase.bucket.knowledge");
 	public static final String TRANSITION = EmerigenProperties.getInstance()
 			.getValue("couchbase.bucket.transition");
-	public static final String ENTITY = EmerigenProperties.getInstance()
-			.getValue("couchbase.bucket.entity");
+	public static final String SENSOR_EVENT = EmerigenProperties.getInstance()
+			.getValue("couchbase.bucket.sensor.event");
+	public static final String CYCLE = EmerigenProperties.getInstance()
+			.getValue("couchbase.bucket.cycle");
 
 	private static Logger logger = Logger.getLogger(KnowledgeRepository.class);
 
@@ -151,58 +146,6 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		}
 		// Return singleton CouchbaseRepository
 		return instance;
-	}
-
-	@Override
-	public String newSensorEvent(SensorEvent sensorEvent) throws ValidationException {
-
-		ObjectMapper mapper = new ObjectMapper();
-
-//		To create a serializer backed by a custom ObjectMapper, 
-//		call JacksonJsonSerializer.create and pass in your custom mapper.
-//		JacksonJsonSerializer.create().;
-//		SimpleModule module = new SimpleModule("CustomSensorEventSerializer",
-//				new Version(1, 0, 0, null, null, null));
-//		module.addSerializer(SensorEvent.class, new CustomSensorEventSerializer());
-//		mapper.registerModule(module);
-		String uuid = UUID.randomUUID().toString();
-
-		try {
-
-			// Convert the Java object to a SensorEvent JsonDocument
-//			JacksonJsonSerializer.create(CustomSensorEventSerializer).serialize(sensorEvent).;
-
-			JsonObject jsonObject = JsonObject
-					.fromJson(mapper.writeValueAsString(sensorEvent));
-			logger.info(" jsonObject: " + jsonObject);
-
-			// Validate the JsonDocument against the SensorEvent Schema
-			InputStream sensorEventSchemaJsonFileReader = getClass().getClassLoader()
-					.getResourceAsStream("sensor-event.json");
-
-			JSONObject jsonSchema = new JSONObject(
-					new JSONTokener(sensorEventSchemaJsonFileReader));
-			JSONObject jsonSubject = new JSONObject(jsonObject.toString());
-
-			Schema schema = SchemaLoader.load(jsonSchema);
-
-			// Validate the JsonDocument against its' schema, ValidationException
-			logger.warn("schema: " + schema + ", object: " + jsonObject);
-			schema.validate(jsonSubject);
-			logger.info(" JsonObject validated successfully");
-
-			try {
-				repository.log(uuid, jsonObject, false);
-			} catch (Exception e) {
-
-				// TODO Ignoring this exception to support Listeners default behavior
-				// of always logging events
-				logger.warn("Ignoring Exception for sensor event - " + sensorEvent, e);
-			}
-		} catch (JsonProcessingException e) {
-			throw new RepositoryException(e);
-		}
-		return uuid;
 	}
 
 	@Override
@@ -228,11 +171,6 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-		// Register custom deserializer
-//		SimpleModule module = new SimpleModule("CustomSensorEventDeserializer",
-//				new Version(1, 0, 0, null, null, null));
-//		module.addDeserializer(SensorEvent.class, new CustomSensorEventDeserializer());
-//		mapper.registerModule(module);
 		SensorEvent sensorEvent;
 
 		JsonObject jsonObject = repo.get(sensorEventKey);
@@ -244,11 +182,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		try {
 			sensorEvent = mapper.readValue(jsonObject.toString(), SensorEvent.class);
 			return sensorEvent;
-		} catch (JsonParseException e) {
-			throw new RepositoryException(e);
-		} catch (JsonMappingException e) {
-			throw new RepositoryException(e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RepositoryException(e);
 		}
 
@@ -261,12 +195,6 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-		// Register custom deserializer
-//		SimpleModule module = new SimpleModule("CustomTransitionDeserializer",
-//				new Version(1, 0, 0, null, null, null));
-//		module.addDeserializer(Transition.class, new CustomTransitionDeserializer());
-//		mapper.registerModule(module);
-
 		JsonObject jsonObject = repo.get(transitionKey, "transition");
 		logger.info(" after objectMapping, JsonDocument: " + jsonObject);
 		Transition transition;
@@ -274,11 +202,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		try {
 			transition = mapper.readValue(jsonObject.toString(), Transition.class);
 			return transition;
-		} catch (JsonParseException e) {
-			throw new RepositoryException(e);
-		} catch (JsonMappingException e) {
-			throw new RepositoryException(e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RepositoryException(e);
 		}
 	}
@@ -292,7 +216,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	public List<SensorEventListener> getPatternRecognizersForSensor(Sensor sensor) {
 
 		// Load all cycle types for the supplied sensorType and location
-		List<Cycle> cycles = getCycles(sensor);
+		List<Cycle> cycles = getCyclesForSensor(sensor);
 		List<SensorEventListener> PRs = cycles.stream()
 				.map(cycle -> new CyclePatternRecognizer(cycle, sensor,
 						new PredictionService(sensor)))
@@ -306,7 +230,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	 * @param sensorType
 	 * @return
 	 */
-	private List<Cycle> getCycles(Sensor sensor) {
+	private List<Cycle> getCyclesForSensor(Sensor sensor) {
 
 		if (sensor == null)
 			throw new IllegalArgumentException("sensor must not be null");
@@ -338,62 +262,18 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 	}
 
 	@Override
-	public String newCycle(String cycleKey, Cycle cycle) {
-		String uuid = UUID.randomUUID().toString();
-		ObjectMapper mapper = new ObjectMapper();
-//		SimpleModule module = new SimpleModule("CustomCycleSerializer",
-//				new Version(1, 0, 0, null, null, null));
-//		module.addSerializer(Cycle.class, new CustomCycleSerializer());
-//		mapper.registerModule(module);
-
-		try {
-
-			// Convert the Java object to a JsonDocument
-			JsonObject jsonObject = JsonObject.fromJson(mapper.writeValueAsString(cycle));
-			logger.info(" jsonObject: " + jsonObject);
-
-			// Validate the JsonDocument against the Cycle Schema
-			InputStream sensorEventSchemaJsonFileReader = getClass().getClassLoader()
-					.getResourceAsStream("cycle.json");
-
-			JSONObject jsonSchema = new JSONObject(
-					new JSONTokener(sensorEventSchemaJsonFileReader));
-			JSONObject jsonSubject = new JSONObject(jsonObject.toString());
-
-			Schema schema = SchemaLoader.load(jsonSchema);
-
-			// Validate the JsonDocument against its' schema, ValidationException
-			schema.validate(jsonSubject);
-			logger.info(" JsonObject validated successfully");
-
-			repository.log(cycleKey, jsonObject, false);
-
-		} catch (JsonProcessingException e) {
-			throw new RepositoryException(e);
-		}
-		return cycleKey;
-
-	}
-
-	@Override
 	public Cycle getCycle(String cycleType, String cycleKey) {
 
 		if (invalidCycleType(cycleType))
 			throw new IllegalArgumentException(
 					"CycleTypeName must be valid, but was (" + cycleType + ")");
 
+		// Initialize couchbase
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-		// Register custom deserializer
-//		SimpleModule module = new SimpleModule("CustomCycleDeserializer",
-//				new Version(1, 0, 0, null, null, null));
-//		module.addDeserializer(Cycle.class, new CustomCycleDeserializer());
-//		mapper.registerModule(module);
-
 		JsonObject jsonObject = repo.get(cycleKey);
-
 		logger.info(" after objectMapping, JsonDocument: " + jsonObject);
 		Cycle cycle;
 
@@ -404,11 +284,7 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			cycle = mapper.readValue(jsonObject.toString(), Cycle.class);
 			cycle.setCycleType(cycle.getCycleType());
 			return cycle;
-		} catch (JsonParseException e) {
-			throw new RepositoryException(e);
-		} catch (JsonMappingException e) {
-			throw new RepositoryException(e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RepositoryException(e);
 		}
 
@@ -421,6 +297,115 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			return false;
 		else
 			return true;
+	}
+
+	@Override
+	public String logTransition(String key, Transition transition, boolean synchronous) {
+
+		try {
+			JsonObject jsonObject = validateJson(transition, "transition.json");
+
+			try {
+				repository.log(key, jsonObject, synchronous);
+			} catch (Exception e) {
+				// TODO Ignoring this exception
+				logger.warn("Ignoring Exception  - " + transition, e);
+			}
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+		return key;
+	}
+
+	@Override
+	public String replaceTransition(String key, Transition transition,
+			boolean synchronous) {
+		try {
+			JsonObject jsonObject = validateJson(transition, "transition.json");
+
+			try {
+				repository.replace(key, jsonObject, synchronous);
+			} catch (Exception e) {
+				// TODO Ignoring this exception
+				logger.warn("Ignoring Exception  - " + transition, e);
+			}
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+		return key;
+	}
+
+	@Override
+	public String logCycle(String key, Cycle cycle, boolean synchronous) {
+		try {
+			JsonObject jsonObject = validateJson(cycle, "cycle.json");
+
+			try {
+				repository.log(key, jsonObject, synchronous);
+			} catch (Exception e) {
+				// TODO Ignoring this exception
+				logger.warn("Ignoring Exception  - " + cycle, e);
+			}
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+		return key;
+	}
+
+	@Override
+	public String replaceCycle(String key, Cycle cycle, boolean synchronous) {
+		try {
+			JsonObject jsonObject = validateJson(cycle, "cycle.json");
+
+			try {
+				repository.replace(key, jsonObject, synchronous);
+			} catch (Exception e) {
+				// TODO Ignoring this exception
+				logger.warn("Ignoring Exception  - " + cycle, e);
+			}
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+		return key;
+	}
+
+	@Override
+	public String logSensorEvent(String key, SensorEvent sensorEvent,
+			boolean synchronous) {
+
+		try {
+			JsonObject jsonObject = validateJson(sensorEvent, "sensor-event.json");
+
+			try {
+				repository.log(key, jsonObject, synchronous);
+			} catch (Exception e) {
+				// TODO Ignoring this exception
+				logger.warn("Ignoring Exception - " + sensorEvent, e);
+			}
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+		return key;
+	}
+
+	private JsonObject validateJson(Object object, String schema)
+			throws JsonProcessingException {
+
+		// Convert to json
+		ObjectMapper mapper = new ObjectMapper();
+		JsonObject jsonObject = JsonObject.fromJson(mapper.writeValueAsString(object));
+		logger.info(" jsonObject: " + jsonObject);
+
+		// Validate the JsonDocument against the supplied schema
+		InputStream schemaJsonFileReader = getClass().getClassLoader()
+				.getResourceAsStream(schema);
+		JSONObject jsonSchema = new JSONObject(new JSONTokener(schemaJsonFileReader));
+		JSONObject jsonSubject = new JSONObject(jsonObject.toString());
+		Schema newSchema = SchemaLoader.load(jsonSchema);
+		logger.warn("schema: " + newSchema + ", object: " + jsonObject);
+		newSchema.validate(jsonSubject);
+		logger.info(" JsonObject validated successfully");
+		return jsonObject;
 	}
 
 }

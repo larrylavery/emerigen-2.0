@@ -88,8 +88,6 @@ public class PredictionService {
 				.put("timestamp", predictedSensorEvent.getTimestamp())
 				.put("values", jsonArray2).put("sensor", sensorJsonDoc);
 
-		;
-
 		JsonObject transitionJsonObject = JsonObject.create()
 				.put("cashOnHand", Transition.defaultCashOnHand)
 				.put("probability", defaultProbability).put("timestamp", timestamp)
@@ -312,7 +310,7 @@ public class PredictionService {
 			SensorEvent sensorEvent) {
 		CouchbaseRepository repo = CouchbaseRepository.getInstance();
 		String statement = "SELECT * FROM `knowledge` WHERE firstSensorEventKey=\""
-				+ sensorEvent.getKey() + "" + "\"" + " AND type = \"transition\"";
+				+ sensorEvent.getKey() + "\"" + " AND type = \"transition\"";
 		QueryResult result = CouchbaseRepository.getInstance().query(statement);
 		return result;
 	}
@@ -326,10 +324,12 @@ public class PredictionService {
 		try {
 
 			List<JsonObject> jsonObjects = result.rowsAsObject();
+			JsonObject transitionJsonObject, sensorEventJsonObject, sensorJsonObject;
 			for (JsonObject jsonObject : jsonObjects) {
-				logger.debug(
-						"Adding PredictionConsumer to list: " + jsonObject.toString());
-				transition = mapper.readValue(jsonObject.toString(), Transition.class);
+
+				transitionJsonObject = jsonObject.getObject("knowledge");
+				transition = mapper.readValue(transitionJsonObject.toString(),
+						Transition.class);
 				predictionConsumers.add(transition);
 			}
 		} catch (Exception e) {

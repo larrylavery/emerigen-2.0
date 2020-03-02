@@ -91,8 +91,18 @@ import com.emerigen.infrastructure.sensor.SensorEvent;
  */
 public abstract class AbstractKnowledgeRepository {
 
-	// Log a neww SensorEvent
-	public abstract String newSensorEvent(SensorEvent sensorEvent);
+	public abstract String logTransition(String key, Transition transition,
+			boolean synchronous);
+
+	public abstract String replaceTransition(String key, Transition transition,
+			boolean synchronous);
+
+	public abstract String logCycle(String key, Cycle cycle, boolean synchronous);
+
+	public abstract String replaceCycle(String key, Cycle cycle, boolean synchronous);
+
+	public abstract String logSensorEvent(String key, SensorEvent sensorEvent,
+			boolean synchronous);
 
 	public abstract int getSensorEventCountForSensorTypeAndLocation(int sensorType,
 			int sensorLocation);
@@ -121,9 +131,4 @@ public abstract class AbstractKnowledgeRepository {
 
 	public abstract Transition getTransition(String transitionKey);
 
-	public String newCycle(String cycleKey, Cycle cycle) {
-		return null;
-		// TODO Auto-generated method stub
-
-	}
 }

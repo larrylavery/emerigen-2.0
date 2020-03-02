@@ -46,7 +46,8 @@ public class TransitionPatternRecognizerTest {
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, true);
 
 		PredictionService ps = new PredictionService(hrSensor);
 		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor, ps);
@@ -97,7 +98,8 @@ public class TransitionPatternRecognizerTest {
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		float[] values = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, true);
 
 		TransitionPatternRecognizer pr = new TransitionPatternRecognizer(hrSensor,
 				new PredictionService(hrSensor));
@@ -187,9 +189,6 @@ public class TransitionPatternRecognizerTest {
 
 		predictions = listener.onSensorChanged(sensorEvent3);
 
-//		Thread.sleep(100);
-//		assertThat(predictions).isNotNull().isEmpty();
-
 		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
 		predictions = listener.onSensorChanged(sensorEvent1);
 		assertThat(predictions).isNotNull().isNotEmpty();
@@ -211,8 +210,8 @@ public class TransitionPatternRecognizerTest {
 				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
 		SensorEventListener listener = new EmerigenSensorEventListener();
 		float[] values1 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values2 = new float[] { rd.nextFloat(), rd.nextFloat() };
-		float[] values3 = new float[] { rd.nextFloat(), rd.nextFloat() };
+		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
+		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 
 		SensorEvent sensorEvent1 = new SensorEvent(hrSensor, values1);
 		SensorEvent sensorEvent2 = new SensorEvent(hrSensor, values2);
@@ -225,12 +224,6 @@ public class TransitionPatternRecognizerTest {
 		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
 		predictions = listener.onSensorChanged(sensorEvent2);
 		assertThat(predictions).isNotNull().isEmpty();
-//		Thread.sleep(100);
-
-		sensorEvent1.setTimestamp(System.currentTimeMillis() * 1000000);
-		predictions = listener.onSensorChanged(sensorEvent1);
-		assertThat(predictions).isNotNull().isNotEmpty();
-
 	}
 
 	@Test
@@ -255,8 +248,6 @@ public class TransitionPatternRecognizerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-//		CouchbaseRepository.getInstance().removeAllDocuments("transition");
-//		CouchbaseRepository.getInstance().removeAllDocuments("sensor-event");
 	}
 
 	@AfterClass

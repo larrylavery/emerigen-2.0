@@ -277,7 +277,8 @@ public class EmerigenSensorEventListenerOld implements SensorEventListener {
 	private List<Prediction> processHeartRateChanged(SensorEvent sensorEvent) {
 
 		// Allways log the sensor event
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent.getKey(),
+				sensorEvent, false);
 
 		// If the minimum delay between readings has elapsed
 		if (minimumDelayBetweenReadingsIsSatisfied(lastUpdateTime, currentTime,

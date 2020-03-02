@@ -41,7 +41,9 @@ public class SensorEventTest {
 		SensorEvent event = new SensorEvent(sensor, values);
 		event.setTimestamp(timestamp);
 
-		String key = KnowledgeRepository.getInstance().newSensorEvent(event);
+		String key = KnowledgeRepository.getInstance().logSensorEvent(event.getKey(),
+				event, true);
+		Utils.allowDataUpdatesTimeToCatchUp();
 		Utils.allowDataUpdatesTimeToCatchUp();
 		SensorEvent retrievedSensorEvent = KnowledgeRepository.getInstance()
 				.getSensorEvent(key);

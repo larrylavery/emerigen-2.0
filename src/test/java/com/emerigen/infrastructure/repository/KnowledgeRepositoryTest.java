@@ -13,7 +13,6 @@ import com.emerigen.infrastructure.repository.couchbase.CouchbaseRepository;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.sensor.SensorManager;
-import com.emerigen.infrastructure.utils.Utils;
 
 /**
  * @author Larry
@@ -43,13 +42,17 @@ public class KnowledgeRepositoryTest {
 		float[] values5 = new float[] { rd.nextFloat(), 1.2f };
 		SensorEvent sensorEvent5 = new SensorEvent(accSensor, values5);
 
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent1);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent2);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent3);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent4);
-		KnowledgeRepository.getInstance().newSensorEvent(sensorEvent5);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent1.getKey(),
+				sensorEvent1, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent2.getKey(),
+				sensorEvent2, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent3.getKey(),
+				sensorEvent3, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent4.getKey(),
+				sensorEvent4, true);
+		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent5.getKey(),
+				sensorEvent5, true);
 
-		Utils.allowDataUpdatesTimeToCatchUp();
 		int count = KnowledgeRepository.getInstance()
 				.getSensorEventCountForSensorTypeAndLocation(Sensor.TYPE_HEART_RATE,
 						Sensor.LOCATION_PHONE);

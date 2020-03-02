@@ -45,10 +45,10 @@ public class CouchbaseCycleRepositoryTest {
 				.put("sensorLocation", Sensor.LOCATION_WATCH);
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log(
+		CouchbaseRepository.getInstance().replace(
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
 				cycleJsonDoc, true);
-		CouchbaseRepository.getInstance().log(
+		CouchbaseRepository.getInstance().replace(
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
 				cycleJsonDoc, true);
 		String key = "" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily";
@@ -103,7 +103,7 @@ public class CouchbaseCycleRepositoryTest {
 				.put("cycleNodes", JsonArray.from(cycleNodeJsonDoc));
 
 		// Log using our repository under test
-		CouchbaseRepository.getInstance().log(
+		CouchbaseRepository.getInstance().replace(
 				"" + Sensor.TYPE_HEART_RATE + Sensor.LOCATION_WATCH + "Daily",
 				cycleJsonDoc, true);
 
