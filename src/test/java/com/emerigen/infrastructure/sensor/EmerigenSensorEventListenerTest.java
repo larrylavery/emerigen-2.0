@@ -38,7 +38,7 @@ public class EmerigenSensorEventListenerTest {
 					previousSensorEvent, sensorEvent)) {
 
 				invokedCount++;
-				System.out.println("invoked count is " + invokedCount);
+//				System.out.println("invoked count is " + invokedCount);
 			}
 			previousSensorEvent = sensorEvent;
 			return new ArrayList<Prediction>();

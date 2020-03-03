@@ -12,6 +12,7 @@ import java.time.temporal.TemporalAdjusters;
 import org.apache.log4j.Logger;
 
 import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.emerigen.infrastructure.sensor.SensorEvent;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
 /**
@@ -67,6 +68,22 @@ public class Cycle {
 			.parseDouble(EmerigenProperties.getInstance()
 					.getValue("cycle.allowable.percent.difference.for.equality"));
 
+	/**
+	 * This variable refers to the last, more "permanent", sensor event. Its
+	 * duration is adjusted when the data points destabilize indicating that we are
+	 * on the move (for GPS of course)
+	 */
+	private SensorEvent permanentSensorEvent;
+
+	/**
+	 * This variable refers to the more "temporary" previous sensor event. It is
+	 * used to accumulate durations when sensor event data points are destabilized
+	 * (i.e. changing rapidly such as traveling from one GPS destination to
+	 * another). When the changes have stabilized, then this becomes the more
+	 * "permanent" sensor event.
+	 */
+	private SensorEvent temporarySensorEvent;
+
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
 	public Cycle(int sensorType, int sensorLocation, String cycleType) {
@@ -118,18 +135,22 @@ public class Cycle {
 	@Override
 	public String toString() {
 		return "Cycle [cycleType=" + cycleType + ", type=" + type + ", sensorLocation="
-				+ sensorLocation + ", sensorType=" + sensorType
+				+ sensorLocation + ", sensorType=" + sensorType + ", cycleStartTimeNano="
+				+ cycleStartTimeNano + ", cycleDurationTimeNano=" + cycleDurationTimeNano
 				+ ", allowablePercentDifferenceForEquality="
-				+ allowablePercentDifferenceForEquality + "]";
+				+ allowablePercentDifferenceForEquality + ", permanentSensorEvent="
+				+ permanentSensorEvent + ", temporarySensorEvent=" + temporarySensorEvent
+				+ "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(allowablePercentDifferenceForEquality);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ (int) (cycleDurationTimeNano ^ (cycleDurationTimeNano >>> 32));
+		result = prime * result
+				+ (int) (cycleStartTimeNano ^ (cycleStartTimeNano >>> 32));
 		result = prime * result + ((cycleType == null) ? 0 : cycleType.hashCode());
 		result = prime * result + sensorLocation;
 		result = prime * result + sensorType;
@@ -146,8 +167,9 @@ public class Cycle {
 		if (getClass() != obj.getClass())
 			return false;
 		Cycle other = (Cycle) obj;
-		if (Double.doubleToLongBits(allowablePercentDifferenceForEquality) != Double
-				.doubleToLongBits(other.allowablePercentDifferenceForEquality))
+		if (cycleDurationTimeNano != other.cycleDurationTimeNano)
+			return false;
+		if (cycleStartTimeNano != other.cycleStartTimeNano)
 			return false;
 		if (cycleType == null) {
 			if (other.cycleType != null)
@@ -370,6 +392,34 @@ public class Cycle {
 	 */
 	public long getCycleStartTimeNano() {
 		return cycleStartTimeNano;
+	}
+
+	/**
+	 * @return the permanentSensorEvent
+	 */
+	SensorEvent getPermanentSensorEvent() {
+		return permanentSensorEvent;
+	}
+
+	/**
+	 * @param permanentSensorEvent the permanentSensorEvent to set
+	 */
+	void setPermanentSensorEvent(SensorEvent permanentSensorEvent) {
+		this.permanentSensorEvent = permanentSensorEvent;
+	}
+
+	/**
+	 * @return the temporarySensorEvent
+	 */
+	SensorEvent getTemporarySensorEvent() {
+		return temporarySensorEvent;
+	}
+
+	/**
+	 * @param temporarySensorEvent the temporarySensorEvent to set
+	 */
+	void setTemporarySensorEvent(SensorEvent temporarySensorEvent) {
+		this.temporarySensorEvent = temporarySensorEvent;
 	}
 
 }
