@@ -121,7 +121,7 @@ public class CouchbaseRepository {
 			bucket = cluster.bucket(KNOWLEDGE_DB);
 			knowledgeCollection = bucket.defaultCollection();
 		} catch (Exception e) {
-			throw new RepositoryException("query exception, cause: " + e);
+			throw new RepositoryException("exception while connecting, cause: " + e);
 
 		}
 
@@ -129,14 +129,14 @@ public class CouchbaseRepository {
 
 	@Override
 	protected void finalize() {
-//TODO uncomment finalize later
 		try {
+			logger.warn("shutting down couchbase");
+
 			// Shut down gracefully.
-			Thread.sleep(1000);
 			cluster.disconnect();
 			env.shutdown();
 		} catch (Exception e) {
-			throw new RepositoryException("query exception, cause: " + e);
+			throw new RepositoryException("exception shutting down, cause: " + e);
 
 		}
 
@@ -257,7 +257,11 @@ public class CouchbaseRepository {
 	}
 
 	public void disconnect() {
+		logger.warn(
+				"Disconnect() - CouchbaseRepository disconnecting from Couchbase server");
+
 		if (instance != null) {
+			logger.warn("CouchbaseRepository disconnecting from Couchbase server");
 			cluster.disconnect();
 			env.shutdown();
 			cluster = null;

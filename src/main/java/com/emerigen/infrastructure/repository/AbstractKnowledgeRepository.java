@@ -101,6 +101,9 @@ public abstract class AbstractKnowledgeRepository {
 
 	public abstract String replaceCycle(String key, Cycle cycle, boolean synchronous);
 
+	public abstract String replaceSensorEvent(String key, SensorEvent sensorEvent,
+			boolean synchronous);
+
 	public abstract String logSensorEvent(String key, SensorEvent sensorEvent,
 			boolean synchronous);
 

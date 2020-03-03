@@ -38,7 +38,7 @@ public class CouchbaseRepositoryLifecycleTest {
 				.isNotNull().isTrue();
 	}
 
-	@Test
+	// @Test
 	public final void givenValidConnectionWhenDisconnectedThenIsConnectedShouldRetunFalse() {
 
 		// Given

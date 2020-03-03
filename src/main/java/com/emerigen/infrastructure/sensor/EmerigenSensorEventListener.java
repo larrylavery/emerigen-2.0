@@ -56,7 +56,7 @@ public class EmerigenSensorEventListener implements SensorEventListener {
 		previousSensorEvent = sensorEvent;
 
 		// Always log the new event
-		KnowledgeRepository.getInstance().logSensorEvent(sensorEvent.getKey(),
+		KnowledgeRepository.getInstance().replaceSensorEvent(sensorEvent.getKey(),
 				sensorEvent, false);
 		return predictions;
 	}

@@ -377,7 +377,26 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 			JsonObject jsonObject = validateJson(sensorEvent, "sensor-event.json");
 
 			try {
-				repository.log(key, jsonObject, synchronous);
+				repository.replace(key, jsonObject, synchronous);
+			} catch (Exception e) {
+				// TODO Ignoring this exception
+				logger.warn("Ignoring Exception - " + sensorEvent, e);
+			}
+		} catch (JsonProcessingException e) {
+			throw new RepositoryException(e);
+		}
+		return key;
+	}
+
+	@Override
+	public String replaceSensorEvent(String key, SensorEvent sensorEvent,
+			boolean synchronous) {
+
+		try {
+			JsonObject jsonObject = validateJson(sensorEvent, "sensor-event.json");
+
+			try {
+				repository.replace(key, jsonObject, synchronous);
 			} catch (Exception e) {
 				// TODO Ignoring this exception
 				logger.warn("Ignoring Exception - " + sensorEvent, e);
@@ -406,6 +425,12 @@ public class KnowledgeRepository extends AbstractKnowledgeRepository {
 		newSchema.validate(jsonSubject);
 		logger.info(" JsonObject validated successfully");
 		return jsonObject;
+	}
+
+	@Override
+	protected void finalize() {
+		logger.warn("KnowledgeRepository disconnecting from Couchbase server");
+		CouchbaseRepository.getInstance().disconnect();
 	}
 
 }
