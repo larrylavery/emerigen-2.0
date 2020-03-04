@@ -1,26 +1,20 @@
+		SensorEventListener listener = new EmerigenSensorEventListener();
+
+		List<Prediction> predictions = listener.onSensorChanged(sensorEvent1);
+
+		predictions = listener.onSensorChanged(sensorEvent2);
+
+
+
+
+
+
+
+
 Environment:
 Couchbase Server: 6.5
 Java SDK: 3.0
 Java language level: 2.11
-
-Description: Receiving intermittent "upsert" and "insert" errors during the execution 
-of a large suite (300) of automated test cases. Errors do NOT occur when the failing 
-test cases are executed individually. Any assistance is appreciated. Error text:
--------------------------------------------------------------
-query exception, cause: com.couchbase.client.core.error.Requ
-estCanceledException: InsertRequest {"cancelled":true,"completed":true,"coreId":1,"idempotent":false,"reason":"SHUTDOWN"
-,"requestId":56,"requestType":"InsertRequest","retried":0,"service":{"bucket":"knowledge","collection":"_default","docum
-entId":"211120220017","opaque":"0x42","scope":"_default","syncDurability":{"empty":true,"present":false},"type":"kv"},"t
-imeoutMs":5000,"timings":{"encodingMicros":158,"totalMicros":1690}
---------------------------------------------------------------
-query exception, cause: com.couchbase.client.core.error.Requ
-estCanceledException: UpsertRequest {"cancelled":true,"completed":true,"coreId":1,"idempotent":false,"reason":"SHUTDOWN"
-,"requestId":810,"requestType":"UpsertRequest","retried":0,"service":{"bucket":"knowledge","collection":"_default","docu
-mentId":"50c893d0-816a-4079-9373-9a2328b653f2","opaque":"0x1ff","scope":"_default","syncDurability":{"empty":false,"pres
-ent":true},"type":"kv"},"timeoutMs":10000,"timings":{"encodingMicros":87,"totalMicros":251}}
-
-
-
 
 
 Testing exceptions
@@ -81,9 +75,26 @@ Random rd = new Random(); // creating Random object
 		SensorEvent event1 = new SensorEvent(hrSensor, values);
 		float[] values2 = new float[] { rd.nextFloat() + 10, rd.nextFloat() + 10 };
 		SensorEvent event2 = new SensorEvent(hrSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
 		float[] values3 = new float[] { rd.nextFloat() + 100, rd.nextFloat() + 100 };
 		SensorEvent event3 = new SensorEvent(hrSensor, values3);
+		event3.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
 		float[] values4 = new float[] { rd.nextFloat() + 1000, rd.nextFloat() + 1000 };
 		SensorEvent event4 = new SensorEvent(hrSensor, values4);
+		event4.setTimestamp(event3.getTimestamp() + minimumDelayBetweenReadings);
 		float[] values5 = new float[] { rd.nextFloat()+10000, rd.nextFloat()+10000};
 		SensorEvent event5 = new SensorEvent(hrSensor, values5);
+		event5.setTimestamp(event4.getTimestamp() + minimumDelayBetweenReadings);
+
+
+		
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
+		SensorEvent event2 = new SensorEvent(hrSensor, values2);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
+		SensorEvent event3 = new SensorEvent(hrSensor, values3);
+		event3.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
+		SensorEvent event4 = new SensorEvent(hrSensor, values4);
+		event4.setTimestamp(event3.getTimestamp() + minimumDelayBetweenReadings);
+		SensorEvent event5 = new SensorEvent(hrSensor, values5);
+		event5.setTimestamp(event4.getTimestamp() + minimumDelayBetweenReadings);
+		

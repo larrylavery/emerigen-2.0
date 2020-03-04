@@ -24,8 +24,10 @@ import org.mockito.junit.MockitoRule;
 
 import com.emerigen.infrastructure.learning.Prediction;
 import com.emerigen.infrastructure.learning.PredictionService;
+import com.emerigen.infrastructure.sensor.EmerigenSensorEventListener;
 import com.emerigen.infrastructure.sensor.Sensor;
 import com.emerigen.infrastructure.sensor.SensorEvent;
+import com.emerigen.infrastructure.sensor.SensorEventListener;
 import com.emerigen.infrastructure.sensor.SensorManager;
 import com.emerigen.infrastructure.utils.EmerigenProperties;
 
@@ -82,18 +84,18 @@ public class CPR_GeoFenceTest {
 	}
 
 	@Test
-	public final void givenNewCycle_whenCreated_thenCycleEventReferencesHaveDefaultValues() {
+	public final void givenNewCycle_whenCreated_thenCycleEventReferencesHaveDefaultCycleStartValues() {
 		/**
 		 * default values: permenent Event, TempEvent
 		 * 
 		 */
-		long expectedNanoSecondsPerDay = hoursPerDay * minutesPerHour * secondsPerMinute
-				* milliSecondsPerSecond * nanoSecondsPerMillisecond;
 		Cycle cycle = createCycle("Daily", 2, 2);
-		assertThat(cycle.getCycleDurationTimeNano()).isEqualTo(expectedNanoSecondsPerDay);
-		assertThat(cycle.getCycleStartTimeNano()).isEqualTo(xxx);
-		assertThat(cycle.getTemporarySensorEvent()).isEqualTo(null);
-		assertThat(cycle.getPermanentSensorEvent()).isEqualTo(null);
+		assertThat(cycle.getTemporarySensorEvent()).isNotNull();
+		assertThat(cycle.getTemporarySensorEvent().getTimestamp())
+				.isEqualTo(cycle.getCycleStartTimeNano());
+		assertThat(cycle.getPermanentSensorEvent()).isNotNull();
+		assertThat(cycle.getPermanentSensorEvent().getTimestamp())
+				.isEqualTo(cycle.getCycleStartTimeNano());
 	}
 
 	@Test
@@ -240,12 +242,12 @@ public class CPR_GeoFenceTest {
 		Cycle cycle = createCycle("daily", 2, 2);
 
 		// Save current permanent event
-		SensorEvent permanentEvent = cycle.getPermanentEvent();
+		SensorEvent permanentEvent = cycle.getPermanentSensorEvent();
 
 		// Construct and send insignificant event changes via onSensorChanged
 
 		// Verify the appropriate reference adjustments
-		assertThat(cycle.getPermanentEvent().hasRoute()).isTrue();
+		assertThat(cycle.getPermanentSensorEvent().hasRoute()).isTrue();
 
 		// Verify route data
 		Route route = permanentEvent.getRoute();
@@ -266,8 +268,8 @@ public class CPR_GeoFenceTest {
 		//Construct and send significant change event via onSensorChanged
 		
 		//Verify the appropriate reference adjustments
-		SensorEvent permanentEvent = cycle.getPermanentEvent();
-		SensorEvent temporaryEvent = cycle.getTemporaryEvent();
+		SensorEvent permanentEvent = cycle.getPermanentSensorEvent();
+		SensorEvent temporaryEvent = cycle.getTemporarySensorEvent();
 		assertThat(!permanentEvent.equals(temporaryEvent)).isTrue();
 		assertThat(temporaryEvent.equals(cycle.getCurrentEvent()).isTrue();
 		
@@ -278,24 +280,44 @@ public class CPR_GeoFenceTest {
 	}
 
 	@Test
-	public final void givenTenEventsWithEqualDataPoints_whenConsumed_thenTempEventDurationAccumulatesDuration() {
-		fail("Not yet implemented");
+	public final void givenFiveEventsWithEqualDataPoints_whenConsumed_thenPermEventDurationAccumulatesDuration() {
 
 		/**
 		 * When we stay at the same data point, then temp sensorEvent reference
 		 * accumulates duration
 		 * 
 		 */
-		Cycle cycle = createCycle("daily", 2, 2);
-		long initialDuration = cycle.getCycleDurationTimeNano();
+		Cycle cycle = createCycle("Daily", 2, 2);
+		SensorEventListener listener = new EmerigenSensorEventListener();
+		long initialDuration = cycle.getPermanentSensorEvent().getDataPointDurationNano();
 
-		// Construct and send 10 insignificant change events via onSensorChanged
+		// Construct and send 5 insignificant change events via onSensorChanged
+		Sensor hrSensor = SensorManager.getInstance().getDefaultSensorForLocation(
+				Sensor.TYPE_HEART_RATE, Sensor.LOCATION_PHONE);
+
+		Random rd = new Random(); // creating Random object
+		float[] values = new float[] { rd.nextFloat(), rd.nextFloat() };
+		SensorEvent event1 = new SensorEvent(hrSensor, values);
+		SensorEvent event2 = new SensorEvent(hrSensor, values);
+		event2.setTimestamp(event1.getTimestamp() + minimumDelayBetweenReadings);
+		SensorEvent event3 = new SensorEvent(hrSensor, values);
+		event3.setTimestamp(event2.getTimestamp() + minimumDelayBetweenReadings);
+		SensorEvent event4 = new SensorEvent(hrSensor, values);
+		event4.setTimestamp(event3.getTimestamp() + minimumDelayBetweenReadings);
+		SensorEvent event5 = new SensorEvent(hrSensor, values);
+		event5.setTimestamp(event4.getTimestamp() + minimumDelayBetweenReadings);
+
+		List<Prediction> predictions = listener.onSensorChanged(event1);
+		predictions = listener.onSensorChanged(event2);
+		predictions = listener.onSensorChanged(event3);
+		predictions = listener.onSensorChanged(event4);
+		predictions = listener.onSensorChanged(event5);
 
 		// Calculate what the final duration should be
-		long expectedDuration = initialDuration + (10 * defaultDataPointDurationNano);
+		long expectedDuration = initialDuration + (5 * defaultDataPointDurationNano);
 
 		// Verify that temp event duration has accumulated durations
-		assertThat(cycle.getTemporaryEvent().getDataPointDurationNano())
+		assertThat(cycle.getPermanentSensorEvent().getDataPointDurationNano())
 				.isEqualTo(expectedDuration);
 
 	}

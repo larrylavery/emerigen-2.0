@@ -73,7 +73,7 @@ public class Cycle {
 	 * duration is adjusted when the data points destabilize indicating that we are
 	 * on the move (for GPS of course)
 	 */
-	private SensorEvent permanentSensorEvent;
+	private SensorEvent permanentSensorEvent = null;
 
 	/**
 	 * This variable refers to the more "temporary" previous sensor event. It is
@@ -82,7 +82,7 @@ public class Cycle {
 	 * another). When the changes have stabilized, then this becomes the more
 	 * "permanent" sensor event.
 	 */
-	private SensorEvent temporarySensorEvent;
+	private SensorEvent temporarySensorEvent = null;
 
 	private static final Logger logger = Logger.getLogger(Cycle.class);
 
@@ -97,6 +97,11 @@ public class Cycle {
 		this.sensorType = sensorType;
 		this.setCycleType(cycleType);
 		this.sensorLocation = sensorLocation;
+
+		// Set event references to a "dummy" event at the start of cycle
+		this.permanentSensorEvent = new SensorEvent();
+		this.permanentSensorEvent.setTimestamp(cycleStartTimeNano);
+		this.temporarySensorEvent = permanentSensorEvent;
 	}
 
 	public Cycle() {
